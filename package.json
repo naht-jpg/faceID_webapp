@@ -13,7 +13,8 @@
     "axios": "^1.8.3",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
-    "react-router-dom": "^7.3.0"
+    "react-router-dom": "^7.3.0",
+    "react-webcam": "^7.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
