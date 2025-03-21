@@ -32,13 +32,13 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
 
     try {
       if (employee) {
-        await axios.put(`http://localhost:8000/api/employees/${employee._id}/`, {
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/employees/${employee._id}/`, {
           name,
           position,
           photo,
         });
       } else {
-        const response = await axios.post("http://localhost:8000/api/employees/create/", {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/employees/create/`, {
           name,
           position,
           photo: photo || "https://via.placeholder.com/100",

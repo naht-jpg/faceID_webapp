@@ -18,10 +18,12 @@ import cv2
 import dlib
 import os
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 
-client = MongoClient("mongodb://localhost:27017/")
-db = client["CongTy"]
-collection = db["employees"]
+# Sử dụng MONGO_URI từ settings thay vì hard-code
+client = MongoClient(settings.MONGO_URI)
+db = client[settings.MONGO_DB_NAME]
+collection = db[settings.MONGO_COLLECTION_NAME]
 
 # Load dlib models
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -330,4 +332,36 @@ def record_attendance(request):
             'success': False,
             'message': str(e)
         }, status=400)
+
+@api_view(['GET'])
+def test_mongo_connection(request):
+    import os
+    from pymongo import MongoClient
+    
+    # Lấy thông tin kết nối từ biến môi trường hoặc giá trị mặc định
+    mongo_uri = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+    db_name = os.environ.get("MONGO_DB_NAME", "CongTy")
+    
+    try:
+        # Thử kết nối
+        client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        server_info = client.server_info()
+        
+        # Liệt kê collections
+        db = client[db_name]
+        collections = db.list_collection_names()
+        
+        return Response({
+            "status": "success",
+            "connection_string": mongo_uri,
+            "mongodb_version": server_info.get("version", "unknown"),
+            "database": db_name,
+            "collections": collections
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": str(e),
+            "connection_string": mongo_uri
+        }, status=500)
 

@@ -29,7 +29,8 @@ function EmployeeList() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/employees/");
+      // Sử dụng biến môi trường thay vì hard-code URL
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/employees/`);
       setEmployees(response.data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách nhân viên:", error);
@@ -42,7 +43,8 @@ function EmployeeList() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/employees/${id}/`);
+      // Sử dụng biến môi trường thay vì hard-code URL
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/employees/${id}/`);
       setEmployees(employees.filter(emp => emp._id !== id));
     } catch (error) {
       console.error("Lỗi khi xóa nhân viên:", error);

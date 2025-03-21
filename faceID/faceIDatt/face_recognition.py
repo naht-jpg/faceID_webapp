@@ -6,9 +6,9 @@ import base64
 from pymongo import MongoClient
 
 # MongoDB connection
-client = MongoClient("mongodb://localhost:27017/")
-db = client["CongTy"]
-collection = db["employees"]
+client = MongoClient(os.environ.get("MONGO_URI", "mongodb://localhost:27017/"))
+db = client.get_database(os.environ.get("MONGO_DB_NAME", "CongTy"))
+collection = db.get_collection(os.environ.get("MONGO_COLLECTION_NAME", "employees"))
 
 # Lấy đường dẫn thư mục hiện tại của file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
