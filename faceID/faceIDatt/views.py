@@ -442,7 +442,6 @@ def signin_list(request):
         result = signin_collection.insert_one(new_user)
         return Response({'id': str(result.inserted_id)}, status=201)
 
-
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
