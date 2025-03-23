@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -6,76 +6,114 @@ import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
-import Alert from '@mui/material/Alert';
+import { Alert, CircularProgress, Paper } from '@mui/material';
+import axios from 'axios';
 
-const defaultTheme = createTheme();
+const theme = createTheme();
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function SignIn() {
-  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState('');
   const { login } = useAuth();
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get message from state (e.g., from successful registration)
+  const message = location.state?.message || '';
+  
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     
-    if (!email || !password) {
-      setError('Vui lòng nhập email và mật khẩu');
+    if (!formData.username || !formData.password) {
+      setError('Vui lòng nhập tên đăng nhập và mật khẩu');
       return;
     }
     
+    setLoading(true);
+    setError('');
+    
     try {
-      setError('');
-      setLoading(true);
+      console.log("Attempting login with:", { username: formData.username });
       
-      const user = await login(email, password);
-      navigate(user.role === 'admin' ? '/admin' : '/portal');
+      const response = await axios.post(`${API_URL}/api/token/`, {
+        username: formData.username,
+        password: formData.password
+      });
       
-    } catch (error) {
-      setError('Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.');
+      console.log("Login response:", response.data);
+      
+      // Store tokens in localStorage
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
+      
+      // Get user info
+      const userData = response.data.user || {
+        name: formData.username,
+        role: response.data.role || 'employee'
+      };
+      
+      // Call the login function from AuthContext
+      await login(userData);
+      
+      // Redirect based on user role
+      if (userData.role === 'admin') {
+        navigate('/dashboard');
+      } else {
+        navigate('/employee-portal');
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+      setError('Đăng nhập không thành công. Vui lòng kiểm tra tên đăng nhập và mật khẩu.');
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: '100vh' }}>
-        <CssBaseline />
-        <Grid
-          item
-          xs={false}
-          sm={4}
-          md={7}
-          sx={{
-            backgroundImage: 'url(https://source.unsplash.com/random?facial-recognition)',
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <Box
+    <ThemeProvider theme={theme}>
+      {/* This Box acts as a full-page container with centering */}
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: (theme) => theme.palette.grey[100],
+          py: 8, // vertical padding
+        }}
+      >
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Paper
+            elevation={6}
             sx={{
-              my: 8,
-              mx: 4,
+              p: 4,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              borderRadius: 2
             }}
           >
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -84,17 +122,31 @@ export default function SignIn() {
             <Typography component="h1" variant="h5">
               Đăng nhập
             </Typography>
-            {error && <Alert severity="error" sx={{ mt: 2, width: '100%' }}>{error}</Alert>}
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            
+            {message && (
+              <Alert severity="success" sx={{ mt: 2, width: '100%' }}>
+                {message}
+              </Alert>
+            )}
+            
+            {error && (
+              <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+                {error}
+              </Alert>
+            )}
+            
+            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                label="Email"
-                name="email"
-                autoComplete="email"
+                id="username"
+                label="Tên đăng nhập"
+                name="username"
+                autoComplete="username"
                 autoFocus
+                value={formData.username}
+                onChange={handleChange}
               />
               <TextField
                 margin="normal"
@@ -105,6 +157,8 @@ export default function SignIn() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                value={formData.password}
+                onChange={handleChange}
               />
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
@@ -117,25 +171,19 @@ export default function SignIn() {
                 sx={{ mt: 3, mb: 2 }}
                 disabled={loading}
               >
-                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+                {loading ? <CircularProgress size={24} /> : 'Đăng nhập'}
               </Button>
-              
-              <Box mt={5}>
-                <Typography variant="body2" color="text.secondary" align="center">
-                  {'Tài khoản demo: '}
-                  <Typography component="span" variant="body2" color="primary">
-                    admin@example.com / admin123
-                  </Typography>
-                  {' hoặc '}
-                  <Typography component="span" variant="body2" color="primary">
-                    user@example.com / user123
-                  </Typography>
-                </Typography>
-              </Box>
+              <Grid container>
+                <Grid item xs>
+                  <Link component={RouterLink} to="/forgot-password" variant="body2">
+                    Quên mật khẩu?
+                  </Link>
+                </Grid>
+              </Grid>
             </Box>
-          </Box>
-        </Grid>
-      </Grid>
+          </Paper>
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 }

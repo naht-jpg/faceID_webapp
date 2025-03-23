@@ -1,15 +1,17 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { alpha } from '@mui/material/styles';
+import { useState, useEffect } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import AppNavbar from './components/AppNavbar.jsx';
-import Header from './components/Header.jsx';
-import MainGrid from './components/MainGrid.jsx';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 import SideMenu from './components/SideMenu.jsx';
 import AppTheme from '../shared-theme/AppTheme.jsx';
-import Employees from '../../pages/Employees'; // Import component Employees
+import Employees from '../../pages/Employees';
+import FaceRegistrationTab from './FaceRegistrationTab';
+import FaceRecognitionTab from './FaceRecognitionTab';
+import Home from '../../pages/Home';
+import AccountManagement from './AccountManagement';
 
 import {
   chartsCustomizations,
@@ -18,7 +20,6 @@ import {
   treeViewCustomizations,
 } from './theme/customizations';
 
-
 const xThemeComponents = {
   ...chartsCustomizations,
   ...dataGridCustomizations,
@@ -26,12 +27,20 @@ const xThemeComponents = {
   ...treeViewCustomizations,
 };
 
+// Define tabTitles outside the component for clarity
+const tabTitles = {
+  'home': 'Trang chủ',
+  'employees': 'Quản lý nhân viên',
+  'face-registration': 'Đăng ký khuôn mặt',
+  'face-recognition': 'Nhận diện khuôn mặt',
+  'accounts': 'Quản lý tài khoản',
+};
+
 export default function Dashboard(props) {
   const [currentTab, setCurrentTab] = useState('home');
-
+  
   const handleTabChange = (tabName) => {
     setCurrentTab(tabName);
-    // Cập nhật web title dựa trên tab hiện tại
     updateWebTitle(tabName);
   };
 
@@ -45,52 +54,60 @@ export default function Dashboard(props) {
       case 'employees':
         document.title = baseTitle + "Quản lý nhân viên";
         break;
+      case 'face-registration':
+        document.title = baseTitle + "Đăng ký khuôn mặt";
+        break;
+      case 'face-recognition':
+        document.title = baseTitle + "Nhận diện khuôn mặt";
+        break;
+      case 'accounts':
+        document.title = baseTitle + "Quản lý tài khoản";
+        break;
       default:
         document.title = baseTitle + "Dashboard";
     }
   };
 
   // Cập nhật title khi component mount
-  React.useEffect(() => {
+  useEffect(() => {
     updateWebTitle(currentTab);
-  }, []);
+  }, [currentTab]);
+
+  // Render appropriate content based on selected tab
+  const renderContent = () => {
+    switch (currentTab) {
+      case 'home':
+        return <Home />;
+      case 'employees':
+        return <Employees />;
+      case 'face-registration':
+        return <FaceRegistrationTab />;
+      case 'face-recognition':
+        return <FaceRecognitionTab />;
+      case 'accounts':
+        return <AccountManagement />;
+      default:
+        return <Home />;
+    }
+  };
 
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
-      <CssBaseline enableColorScheme />
       <Box sx={{ display: 'flex' }}>
-        <SideMenu currentTab={currentTab} onTabChange={handleTabChange} />
-        <AppNavbar currentTab={currentTab} />
-        {/* Main content */}
-        <Box
-          component="main"
-          sx={(theme) => ({
-            flexGrow: 1,
-            backgroundColor: theme.vars
-              ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
-              : alpha(theme.palette.background.default, 1),
-            overflow: 'auto',
-          })}
+        <CssBaseline enableColorScheme />
+        <AppBar
+          position="fixed"
+          sx={{ width: `calc(100% - 240px)`, ml: '240px' }}
         >
-          <Stack
-            spacing={2}
-            sx={{
-              alignItems: 'center',
-              mx: 3,
-              pb: 5,
-              mt: { xs: 8, md: 0 },
-            }}
-          >
-            <Header currentTab={currentTab} />
-            {/* Hiển thị nội dung dựa trên tab hiện tại */}
-            {currentTab === 'home' ? (
-              <MainGrid />
-            ) : currentTab === 'employees' ? (
-              <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
-                <Employees />
-              </Box>
-            ) : null}
-          </Stack>
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div">
+              {tabTitles[currentTab]}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <SideMenu currentTab={currentTab} onTabChange={handleTabChange} />
+        <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
+          {renderContent()}
         </Box>
       </Box>
     </AppTheme>

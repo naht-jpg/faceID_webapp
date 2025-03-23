@@ -16,8 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from rest_framework_simplejwt.views import TokenRefreshView
+from faceIDatt.views import mongodb_token_obtain, current_user
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # Add this import
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/token/', mongodb_token_obtain, name='token_obtain'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/user/', current_user, name='current_user'),
     path('api/', include('faceIDatt.urls')),
 ]
+
+# Add static file serving for both debug and non-debug (development only)
+urlpatterns += staticfiles_urlpatterns()
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

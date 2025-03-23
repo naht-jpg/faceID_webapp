@@ -11,27 +11,36 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Tải biến môi trường từ file .env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# MongoDB Connection Settings
+MONGO_URI = os.environ.get('MONGO_URI')
+MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME', 'pmmnm')
+MONGO_COLLECTIONS = {
+    'dataset': 'dataset',
+    'signin': 'signin',
+    'testdata': 'testdata',
+    'trainner': 'trainner'
+}
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#m$kzjq4j4=q2ael72*nua(_m9#yh$22hsd=f$2=*08^*!^$7('
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # Cần hạn chế trong production
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
     'faceIDatt',
 ]
 
@@ -84,10 +95,6 @@ DATABASES = {
     }
 }
 
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
-MONGO_DB_NAME = "CongTy"
-MONGO_COLLECTION_NAME = "employees"
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -123,6 +130,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -130,6 +138,61 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CORS_ALLOW_ALL_ORIGINS = True  # Chỉ dùng cho môi trường phát triển!
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True  # Nên hạn chế trong production
+CORS_ALLOW_CREDENTIALS = True
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# JWT settings
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+# Update CORS settings for development
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_CREDENTIALS = True
+
+# CORS Settings - Chỉ cho phép frontend origin cụ thể thay vì tất cả
+#CORS_ALLOW_ALL_ORIGINS = False  # Tắt CORS cho tất cả origin
+#CORS_ALLOWED_ORIGINS = [
+#   "http://localhost:5173",
+#    "http://127.0.0.1:5173",
+#    "http://localhost:8000",
+#    # Thêm domain production của bạn
+#]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Thêm custom backend vào AUTHENTICATION_BACKENDS
+AUTHENTICATION_BACKENDS = [
+    'faceIDatt.auth.MongoDBAuthBackend',  # Custom MongoDB backend
+    'django.contrib.auth.backends.ModelBackend',  # Giữ lại backend mặc định
+]
+
+# Add this new setting to allow the specific headers
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'cache-control',
+    'pragma',
+    'if-modified-since',
+    'if-none-match',  # This is the header causing issues
+]

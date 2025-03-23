@@ -1,24 +1,26 @@
 from django.urls import path
-from .views import (face_check, get_employees, get_employee, delete_employee, 
-                   create_employee, test_api, MongoEmployeeDetailView, test_mongo_connection)
+from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 
 urlpatterns = [
-    # Thêm route test MongoDB
-    path('test-mongo-connection/', test_mongo_connection, name='test_mongo_connection'),
+    # Authentication endpoints - Use MongoDB custom authentication
+    path('api/token/', views.mongodb_token_obtain, name='token_obtain'),  # Replace standard with MongoDB custom
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', views.register_user, name='register_user'),
+    path('user/', views.current_user, name='current_user'),
     
-    # URL MongoDB trực tiếp - sử dụng cho PUT, GET, DELETE
-    path("employees/<str:pk>/", MongoEmployeeDetailView.as_view(), name="employee-detail"),
-    
-    # URL để lấy danh sách nhân viên
-    path("employees/", get_employees, name="employee-list"),
-    
-    # Các URL khác
-    path('employees/create/', create_employee, name='create_employee'),
-    path('employees/<str:emp_id>/delete/', delete_employee, name='delete_employee'),
-    path('face-check/', face_check, name='face_check'),
-    path('test-api/', test_api, name='test_api'), 
-    path('recognize-face/', views.recognize_face, name='recognize_face'),
-    path('attendance/<int:employee_id>/', views.get_attendance_history, name='get_attendance_history'),
-    path('attendance/', views.record_attendance, name='record_attendance'),
+    # Make sure all these URLs are included in the main urls.py with the proper prefix
+    path('employees/', views.get_employees_api, name='get_employees'),
+    path('employees/<str:employee_id>/', views.get_employee_api, name='get_employee'),
+    path('employees/create/', views.create_employee_api, name='create_employee'),
+    path('employees/<str:employee_id>/update/', views.update_employee_api, name='update_employee'),
+    path('employees/<str:employee_id>/delete/', views.delete_employee_api, name='delete_employee'),
+    path('face-register/', views.face_register_api, name='face_register'),
+    path('face-recognition/', views.face_recognition_api, name='face_recognition'),
+    path('attendance/<str:employee_id>/', views.attendance_history_api, name='get_attendance_history'),
+    path('test/', views.test_api, name='test_api'),  # Added test endpoint
+
+    # Thêm URLs mới cho signin collection
+    path('api/signin/', views.signin_list, name='signin_list'),
+    path('api/signin/<str:pk>/', views.signin_detail, name='signin_detail'),
 ]

@@ -10,6 +10,9 @@ import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import FaceIcon from '@mui/icons-material/Face';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import { useAuth } from '../../../AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,6 +33,21 @@ export default function SideMenu({ currentTab, onTabChange }) {
       icon: <PeopleIcon />, 
       text: 'Quản lý nhân viên' 
     },
+    { 
+      id: 'face-registration', 
+      icon: <PersonAddIcon />, 
+      text: 'Đăng ký khuôn mặt' 
+    },
+    { 
+      id: 'face-recognition', 
+      icon: <FaceIcon />, 
+      text: 'Nhận diện khuôn mặt' 
+    },
+    { 
+      id: 'accounts', 
+      icon: <ManageAccountsIcon />, 
+      text: 'Quản lý tài khoản' 
+    }
   ];
   
   const handleLogout = () => {

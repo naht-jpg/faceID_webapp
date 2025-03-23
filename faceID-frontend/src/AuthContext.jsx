@@ -1,55 +1,92 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
-// Tạo context
 const AuthContext = createContext();
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-export const AuthProvider = ({ children }) => {
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Check if user is authenticated on app load
   useEffect(() => {
-    // Kiểm tra nếu người dùng đã đăng nhập
-    const userInfo = localStorage.getItem('userInfo');
+    const checkAuth = async () => {
+      const accessToken = localStorage.getItem('access_token');
+      const refreshToken = localStorage.getItem('refresh_token');
+      
+      if (accessToken) {
+        try {
+          // Try to get user info with current token
+          const userResponse = await axios.get(`${API_URL}/user/`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          
+          setCurrentUser(userResponse.data);
+          setIsAdmin(userResponse.data.role === 'admin');
+        } catch (error) {
+          // If token expired, try refresh
+          if (error.response?.status === 401 && refreshToken) {
+            try {
+              const refreshResponse = await axios.post(
+                `${API_URL}/token/refresh/`, 
+                { refresh: refreshToken }
+              );
+              
+              localStorage.setItem('access_token', refreshResponse.data.access);
+              
+              // Try again with new token
+              const userResponse = await axios.get(`${API_URL}/user/`, {
+                headers: { Authorization: `Bearer ${refreshResponse.data.access}` }
+              });
+              
+              setCurrentUser(userResponse.data);
+              setIsAdmin(userResponse.data.role === 'admin');
+            } catch (refreshError) {
+              // Refresh failed, clear auth
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('refresh_token');
+              setCurrentUser(null);
+              setIsAdmin(false);
+            }
+          } else {
+            // Other error, clear auth
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            setCurrentUser(null);
+            setIsAdmin(false);
+          }
+        }
+      }
+      
+      setLoading(false);
+    };
     
-    if (userInfo) {
-      setCurrentUser(JSON.parse(userInfo));
-    }
-    setLoading(false);
+    checkAuth();
   }, []);
 
-  // Đăng nhập
-  const login = async (email, password) => {
-    try {
-      // Demo: phân biệt admin/employee, thực tế sẽ gọi API
-      if (email === 'admin@example.com' && password === 'admin123') {
-        const user = { name: 'Admin User', role: 'admin', email };
-        localStorage.setItem('userInfo', JSON.stringify(user));
-        setCurrentUser(user);
-        return user;
-      } else if (email === 'user@example.com' && password === 'user123') {
-        const user = { name: 'Employee User', role: 'employee', email };
-        localStorage.setItem('userInfo', JSON.stringify(user));
-        setCurrentUser(user);
-        return user;
-      }
-      throw new Error('Invalid credentials');
-    } catch (error) {
-      throw error;
-    }
+  // Login function now accepts user data directly
+  const login = async (userData) => {
+    setCurrentUser(userData);
+    setIsAdmin(userData.role === 'admin');
   };
 
-  // Đăng xuất
   const logout = () => {
-    localStorage.removeItem('userInfo');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     setCurrentUser(null);
+    setIsAdmin(false);
   };
 
   const value = {
     currentUser,
-    isAdmin: currentUser?.role === 'admin',
+    isAdmin,
     login,
-    logout,
-    loading
+    logout
   };
 
   return (
@@ -57,6 +94,4 @@ export const AuthProvider = ({ children }) => {
       {!loading && children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => useContext(AuthContext);
+}

@@ -28,6 +28,7 @@ import AppTheme from '../shared-theme/AppTheme';
 import { useAuth } from '../../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import FaceRecognition from '../../FaceRecognition';
+import { faceAPI } from '../../api';
 
 function Footer() {
   return (
@@ -61,13 +62,23 @@ export default function EmployeePortal(props) {
   
   const [recognitionResult, setRecognitionResult] = useState(null);
   const [attendanceSuccess, setAttendanceSuccess] = useState(false);
+  const [attendanceHistory, setAttendanceHistory] = useState([]);
 
-  const handleRecognitionResult = (result) => {
+  const handleRecognitionResult = async (result) => {
     setRecognitionResult(result);
     
     if (result.success) {
       setAttendanceSuccess(true);
-      // Cập nhật thông tin điểm danh thành công
+      
+      try {
+        // Lấy lịch sử điểm danh
+        const response = await faceAPI.getAttendanceHistory(result.employee_id);
+        if (response.data.success) {
+          setAttendanceHistory(response.data.history || []);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy lịch sử điểm danh:", error);
+      }
     }
   };
 
@@ -78,6 +89,26 @@ export default function EmployeePortal(props) {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  // Format thời gian
+  const formatTime = (dateTimeString) => {
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleTimeString();
+    } catch (e) {
+      return dateTimeString;
+    }
+  };
+
+  // Format ngày
+  const formatDate = (dateTimeString) => {
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleDateString();
+    } catch (e) {
+      return dateTimeString;
+    }
   };
 
   return (

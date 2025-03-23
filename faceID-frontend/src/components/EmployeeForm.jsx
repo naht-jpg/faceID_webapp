@@ -7,100 +7,191 @@ import {
   Typography, 
   Card, 
   CardContent,
-  Stack
+  Stack,
+  Alert
 } from "@mui/material";
 
 function EmployeeForm({ employee, onEmployeeSaved }) {
-  const [name, setName] = useState("");
-  const [position, setPosition] = useState("");
-  const [photo, setPhoto] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    age: "",
+    location: "",
+    email: "",
+    phone: "",
+    job_position: "",
+  });
+  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (employee) {
-      setName(employee.name);
-      setPosition(employee.position);
-      setPhoto(employee.photo || "https://via.placeholder.com/100");
+      setFormData({
+        name: employee.name || "",
+        age: employee.age || "",
+        location: employee.location || "",
+        email: employee.email || "",
+        phone: employee.phone || "",
+        job_position: employee.job_position || "",
+      });
+    } else {
+      // Reset form when not editing
+      setFormData({
+        name: "",
+        age: "",
+        location: "",
+        email: "",
+        phone: "",
+        job_position: "",
+      });
     }
   }, [employee]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !position) {
-      alert("Vui lòng nhập đầy đủ thông tin!");
+    
+    if (!formData.name || !formData.job_position) {
+      setError("Vui lòng nhập tên và chức vụ!");
       return;
     }
-
+    
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    
     try {
       if (employee) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/employees/${employee._id}/`, {
-          name,
-          position,
-          photo,
-        });
+        // Update existing employee
+        await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/employees/${employee._id}/update/`, 
+          formData
+        );
       } else {
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/employees/create/`, {
-          name,
-          position,
-          photo: photo || "https://via.placeholder.com/100",
+        // Create new employee
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/employees/create/`, 
+          formData
+        );
+        // Clear form after successful creation
+        setFormData({
+          name: "",
+          age: "",
+          location: "",
+          email: "",
+          phone: "",
+          job_position: "",
         });
-        onEmployeeSaved(response.data);
       }
-
-      setName("");
-      setPosition("");
-      setPhoto("");
-      onEmployeeSaved(null);
+      
+      setSuccess(true);
+      if (onEmployeeSaved) onEmployeeSaved();
     } catch (error) {
-      console.error("Lỗi khi lưu nhân viên:", error);
+      console.error("Lỗi khi lưu thông tin nhân viên:", error);
+      setError("Có lỗi xảy ra khi lưu thông tin. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Card variant="outlined" sx={{ mb: 2 }}>
+    <Card variant="outlined">
       <CardContent>
         <Typography variant="h6" component="h2" gutterBottom>
-          {employee ? "Chỉnh Sửa Nhân Viên" : "Thêm Nhân Viên"}
+          {employee ? "Cập Nhật Nhân Viên" : "Thêm Nhân Viên Mới"}
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {employee ? "Cập nhật thành công!" : "Thêm nhân viên thành công!"}
+          </Alert>
+        )}
+        
+        <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
             margin="normal"
             required
             fullWidth
             id="name"
-            label="Tên Nhân Viên"
+            label="Họ Tên"
             name="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            size="small"
+            value={formData.name}
+            onChange={handleChange}
+            autoFocus
           />
+          
           <TextField
             margin="normal"
-            required
             fullWidth
-            id="position"
+            id="age"
+            label="Tuổi"
+            name="age"
+            type="number"
+            value={formData.age}
+            onChange={handleChange}
+          />
+          
+          <TextField
+            margin="normal"
+            fullWidth
+            id="job_position"
             label="Chức Vụ"
-            name="position"
-            value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            size="small"
+            name="job_position"
+            required
+            value={formData.job_position}
+            onChange={handleChange}
           />
+          
           <TextField
             margin="normal"
             fullWidth
-            id="photo"
-            label="Ảnh (URL)"
-            name="photo"
-            value={photo}
-            onChange={(e) => setPhoto(e.target.value)}
-            size="small"
+            id="location"
+            label="Địa Chỉ"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
           />
+          
+          <TextField
+            margin="normal"
+            fullWidth
+            id="email"
+            label="Email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
+          
+          <TextField
+            margin="normal"
+            fullWidth
+            id="phone"
+            label="Số Điện Thoại"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+          />
+          
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 2 }}
+            sx={{ mt: 3, mb: 2 }}
+            disabled={loading}
           >
-            {employee ? "Cập Nhật" : "Thêm Nhân Viên"}
+            {loading ? "Đang xử lý..." : employee ? "Cập Nhật" : "Thêm Nhân Viên"}
           </Button>
         </Box>
       </CardContent>
