@@ -14,7 +14,6 @@ export default function FaceRegistration({ employee, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
-  
   useEffect(() => {
     startCamera();
     
@@ -81,10 +80,8 @@ export default function FaceRegistration({ employee, onSuccess }) {
     setError(null);
     
     try {
-      // Convert base64 to format expected by the API
-      const base64Data = imageData.split(',')[1];
-      
-      const response = await faceAPI.register(employee._id, employee.name, base64Data);
+      // Gửi toàn bộ chuỗi base64, không cắt bỏ prefix
+      const response = await faceAPI.register(employee._id, employee.name, imageData);
       
       if (response.data.success) {
         setRegistrationComplete(true);
@@ -194,7 +191,13 @@ export default function FaceRegistration({ employee, onSuccess }) {
           </Grid>
           
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Hướng dẫn: Nhìn thẳng vào camera và bấm nút "Chụp và Đăng ký"
+            <strong>Lưu ý:</strong>
+            <ul>
+              <li>Đảm bảo khuôn mặt nằm trong khung hình tròn</li>
+              <li>Ánh sáng đủ sáng và không bị ngược sáng</li>
+              <li>Nhìn thẳng vào camera, không đeo kính râm</li>
+              <li>Giữ khoảng cách vừa phải (30-50cm từ camera)</li>
+            </ul>
           </Typography>
         </>
       )}

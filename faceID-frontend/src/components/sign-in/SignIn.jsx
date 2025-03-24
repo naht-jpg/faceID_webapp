@@ -10,8 +10,8 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import MuiCard from '@mui/material/Card';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
 import { Alert, CircularProgress, Paper } from '@mui/material';
@@ -19,6 +19,28 @@ import axios from 'axios';
 
 const theme = createTheme();
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const Card = styled(MuiCard)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignSelf: 'center',
+  width: '100%',
+  padding: theme.spacing(4),
+  gap: theme.spacing(2),
+  margin: 'auto',
+  [theme.breakpoints.up('sm')]: {
+    maxWidth: '450px',
+  },
+  boxShadow:
+    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
+  ...theme.applyStyles('dark', {
+    boxShadow:
+      'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
+  }),
+  position: 'absolute', // Căn giữa bằng thuộc tính position
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+}));
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -31,7 +53,6 @@ export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get message from state (e.g., from successful registration)
   const message = location.state?.message || '';
   
   const handleChange = (e) => {
@@ -55,28 +76,22 @@ export default function SignIn() {
     
     try {
       console.log("Attempting login with:", { username: formData.username });
-      
       const response = await axios.post(`${API_URL}/api/token/`, {
         username: formData.username,
         password: formData.password
       });
-      
       console.log("Login response:", response.data);
       
-      // Store tokens in localStorage
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       
-      // Get user info
       const userData = response.data.user || {
         name: formData.username,
         role: response.data.role || 'employee'
       };
       
-      // Call the login function from AuthContext
       await login(userData);
       
-      // Redirect based on user role
       if (userData.role === 'admin') {
         navigate('/dashboard');
       } else {
@@ -92,28 +107,19 @@ export default function SignIn() {
   
   return (
     <ThemeProvider theme={theme}>
-      {/* This Box acts as a full-page container with centering */}
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: (theme) => theme.palette.grey[100],
-          py: 8, // vertical padding
-        }}
-      >
-        <Container component="main" maxWidth="xs">
-          <CssBaseline />
+      <CssBaseline>
+        <Card variant="outlined">
           <Paper
             elevation={6}
             sx={{
-              p: 4,
+              p: { xs: 2, sm: 4 },
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              borderRadius: 2
+              borderRadius: 2,
+              width: '100%',
+              maxWidth: '100%',
+              mx: 'auto'
             }}
           >
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -135,7 +141,12 @@ export default function SignIn() {
               </Alert>
             )}
             
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
+            <Box 
+              component="form" 
+              onSubmit={handleSubmit} 
+              noValidate 
+              sx={{ mt: 1, width: '100%' }}
+            >
               <TextField
                 margin="normal"
                 required
@@ -182,8 +193,8 @@ export default function SignIn() {
               </Grid>
             </Box>
           </Paper>
-        </Container>
-      </Box>
+        </Card>
+      </CssBaseline>
     </ThemeProvider>
   );
 }

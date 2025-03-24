@@ -69,7 +69,7 @@ export default function SideMenu({ currentTab, onTabChange }) {
       anchor="left"
     >
       <Box sx={{ height: '64px', display: 'flex', alignItems: 'center', px: 2 }}>
-        <img src="/vite.svg" alt="Logo" style={{ height: '32px' }} />
+        <FaceIcon sx={{ fontSize: 32, color: 'primary.main' }} />
         <Box sx={{ ml: 1, fontWeight: 'bold' }}>Face ID System</Box>
       </Box>
       

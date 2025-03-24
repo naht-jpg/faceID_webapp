@@ -10,6 +10,9 @@ import {
   Stack,
   Alert
 } from "@mui/material";
+import { employeeAPI } from "../api";
+
+
 
 function EmployeeForm({ employee, onEmployeeSaved }) {
   const [formData, setFormData] = useState({
@@ -55,29 +58,30 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+  
     if (!formData.name || !formData.job_position) {
       setError("Vui lòng nhập tên và chức vụ!");
       return;
     }
-    
+  
     setLoading(true);
     setError(null);
     setSuccess(false);
-    
+  
+    // Convert age to a number if provided
+    const dataToSend = {
+      ...formData,
+      age: formData.age ? parseInt(formData.age, 10) : null,
+    };
+  
     try {
       if (employee) {
-        // Update existing employee
-        await axios.put(
-          `${import.meta.env.VITE_API_URL}/api/employees/${employee._id}/update/`, 
-          formData
-        );
+        // Update existing employee (optional improvement)
+        await employeeAPI.update(employee._id, dataToSend);
       } else {
         // Create new employee
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/employees/create/`, 
-          formData
-        );
+        const response = await employeeAPI.create(dataToSend);
+        console.log("Employee created:", response.data);
         // Clear form after successful creation
         setFormData({
           name: "",
@@ -88,12 +92,16 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
           job_position: "",
         });
       }
-      
+  
       setSuccess(true);
       if (onEmployeeSaved) onEmployeeSaved();
-    } catch (error) {
-      console.error("Lỗi khi lưu thông tin nhân viên:", error);
-      setError("Có lỗi xảy ra khi lưu thông tin. Vui lòng thử lại.");
+    } catch (err) {
+      console.error("Lỗi khi lưu thông tin nhân viên:", err);
+      if (err.response) {
+        console.error("Response data:", err.response.data);
+        console.error("Response status:", err.response.status);
+      }
+      setError(err.response?.data?.detail || "Không thể lưu thông tin nhân viên. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }

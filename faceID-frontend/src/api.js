@@ -55,7 +55,11 @@ export const employeeAPI = {
     }
   }),
   getById: (id) => apiClient.get(`/employees/${id}/`),
-  create: (data) => apiClient.post('/employees/create/', data),
+  create: (data) => apiClient.post('/employees/create/', data, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    }
+  }),  
   update: (id, data) => apiClient.put(`/employees/${id}/update/`, data),
   delete: (id) => apiClient.delete(`/employees/${id}/delete/`)
 };
@@ -63,17 +67,17 @@ export const employeeAPI = {
 // Face API
 export const faceAPI = {
   register: (employeeId, name, imageData) => 
-    apiClient.post('/api/face-register/', {
+    apiClient.post('/face-register/', {
       employee_id: employeeId,
       name: name,
       image: imageData
     }),
   recognize: (imageData) => 
-    apiClient.post('/api/face-recognition/', {
+    apiClient.post('/face-recognition/', {
       image: imageData
     }),
   getAttendanceHistory: (employeeId) => 
-    apiClient.get(`/api/attendance/${employeeId}/`)
+    apiClient.get(`/attendance/${employeeId}/`)
 };
 
 export default apiClient;

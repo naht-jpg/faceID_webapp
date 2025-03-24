@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from faceIDatt.views import mongodb_token_obtain, current_user
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # Add this import
+from faceIDatt import views  # Add this import
 
 urlpatterns = [
     path('admin/', admin.site.urls),

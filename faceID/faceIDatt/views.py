@@ -49,8 +49,7 @@ detector = dlib.get_frontal_face_detector()
 sp = dlib.shape_predictor(os.path.join(MODEL_DIR, "shape_predictor_68_face_landmarks.dat"))
 facerec = dlib.face_recognition_model_v1(os.path.join(MODEL_DIR, "dlib_face_recognition_resnet_model_v1.dat"))
 
-# API để lấy danh sách nhân viên và tạo nhân viên mới (GET, POST)
-class EmployeeListCreateView(generics.ListCreateAPIView):
+class EmployeeListView(generics.ListAPIView):  # Đổi tên class và kế thừa
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
@@ -97,17 +96,26 @@ def get_employee_api(request, employee_id):
         return Response({'error': str(e)}, status=500)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def create_employee_api(request):
     """API tạo nhân viên mới"""
     try:
+        # Debug - in ra dữ liệu nhận được
+        print("Received employee data:", request.data)
+        
         employee_data = request.data
         employee_id = add_employee(employee_data)
+        
+        # Debug - in ra kết quả
+        print("Created employee with ID:", employee_id)
+        
         return Response({
             'success': True,
             '_id': employee_id,
             'message': 'Đã tạo nhân viên mới'
-        })
+        }, status=201)  # Trả về status 201 Created
     except Exception as e:
+        print("Error creating employee:", str(e))
         return Response({'error': str(e)}, status=500)
 
 @api_view(['PUT'])
@@ -338,38 +346,6 @@ def test_api(request):
         'timestamp': datetime.now().isoformat()
     })
 
-@api_view(['GET'])
-def get_test_employees_api(request):
-    """API test cho danh sách nhân viên"""
-    test_employees = [
-        {
-            "_id": "67d05c106b40cef8413b0233",
-            "name": "Khoi",
-            "age": 22,
-            "location": "TPHCM",
-            "email": "test@example.com",
-            "phone": "0123456789",
-            "job_position": "Frontend",
-            "image_path": "data/data_faces_from_camera/person_2/img_face_1.jpg",
-            "timestamp": "2025-03-11 22:51:44"
-        },
-        {
-            "_id": "67d05c106b40cef8413b0234",
-            "name": "Employee 2",
-            "age": 25,
-            "location": "Hanoi",
-            "email": "employee2@example.com",
-            "phone": "0987654321",
-            "job_position": "Backend",
-            "image_path": "",
-            "timestamp": "2025-03-11 22:52:44"
-        }
-    ]
-    
-    response = Response(test_employees)
-    response["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    return response
-
 # Add this function
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -417,30 +393,6 @@ def register_user(request):
             'detail': 'Lỗi khi đăng ký người dùng'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@api_view(['GET', 'POST'])
-def signin_list(request):
-    if request.method == 'GET':
-        users = signin_collection.find()
-        # Chuyển đổi ObjectId thành string
-        users_list = [{**user, '_id': str(user['_id'])} for user in users]
-        return Response(users_list)
-    
-    elif request.method == 'POST':
-        data = request.data
-        # Mã hóa mật khẩu
-        password = data['password'].encode('utf-8')
-        salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(password, salt)
-        
-        # Tạo document mới để lưu vào MongoDB
-        new_user = {
-            'name': data['name'],
-            'password': hashed_password,
-            'role': data.get('role', 'employee')
-        }
-        
-        result = signin_collection.insert_one(new_user)
-        return Response({'id': str(result.inserted_id)}, status=201)
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):

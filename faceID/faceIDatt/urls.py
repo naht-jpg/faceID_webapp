@@ -11,8 +11,8 @@ urlpatterns = [
     
     # Make sure all these URLs are included in the main urls.py with the proper prefix
     path('employees/', views.get_employees_api, name='get_employees'),
-    path('employees/<str:employee_id>/', views.get_employee_api, name='get_employee'),
     path('employees/create/', views.create_employee_api, name='create_employee'),
+    path('employees/<str:employee_id>/', views.get_employee_api, name='get_employee'),
     path('employees/<str:employee_id>/update/', views.update_employee_api, name='update_employee'),
     path('employees/<str:employee_id>/delete/', views.delete_employee_api, name='delete_employee'),
     path('face-register/', views.face_register_api, name='face_register'),

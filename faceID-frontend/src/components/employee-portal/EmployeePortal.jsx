@@ -27,7 +27,7 @@ import { useTheme } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import { useAuth } from '../../AuthContext';
 import { useNavigate } from 'react-router-dom';
-import FaceRecognition from '../../FaceRecognition';
+import FaceRecognition from '../FaceRecognition';
 import { faceAPI } from '../../api';
 
 function Footer() {
