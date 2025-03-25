@@ -68,7 +68,7 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
     setError(null);
     setSuccess(false);
   
-    // Convert age to a number if provided
+    // Tạo đối tượng dữ liệu để gửi lên API
     const dataToSend = {
       ...formData,
       age: formData.age ? parseInt(formData.age, 10) : null,
@@ -76,13 +76,18 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
   
     try {
       if (employee) {
-        // Update existing employee (optional improvement)
+        // Cập nhật nhân viên
         await employeeAPI.update(employee._id, dataToSend);
       } else {
-        // Create new employee
+        // Thêm nhân viên mới 
         const response = await employeeAPI.create(dataToSend);
         console.log("Employee created:", response.data);
-        // Clear form after successful creation
+      }
+  
+      setSuccess(true);
+      
+      // Reset form nếu thêm mới thành công
+      if (!employee) {
         setFormData({
           name: "",
           age: "",
@@ -93,14 +98,9 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
         });
       }
   
-      setSuccess(true);
       if (onEmployeeSaved) onEmployeeSaved();
     } catch (err) {
       console.error("Lỗi khi lưu thông tin nhân viên:", err);
-      if (err.response) {
-        console.error("Response data:", err.response.data);
-        console.error("Response status:", err.response.status);
-      }
       setError(err.response?.data?.detail || "Không thể lưu thông tin nhân viên. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);

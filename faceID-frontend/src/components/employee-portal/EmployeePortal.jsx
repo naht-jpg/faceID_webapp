@@ -29,6 +29,10 @@ import { useAuth } from '../../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import FaceRecognition from '../FaceRecognition';
 import { faceAPI } from '../../api';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import NightsStayIcon from '@mui/icons-material/NightsStay';
 
 function Footer() {
   return (
@@ -53,6 +57,66 @@ function Footer() {
   );
 }
 
+function AttendanceStatus({ attendanceData }) {
+  if (!attendanceData) return null;
+  
+  return (
+    <Card sx={{ mb: 3 }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <AccessTimeIcon color="primary" sx={{ mr: 1 }} />
+          <Typography variant="h6">Thông tin điểm danh gần nhất</Typography>
+        </Box>
+        <Divider sx={{ mb: 2 }} />
+        
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="body2">
+              <strong>Thời gian:</strong> {attendanceData.timestamp || 'N/A'}
+            </Typography>
+          </Grid>
+          
+          {attendanceData.early_minutes && attendanceData.early_minutes !== '0:00:00' && (
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', color: 'success.main' }}>
+                <ArrowUpwardIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">Đến sớm: {attendanceData.early_minutes}</Typography>
+              </Box>
+            </Grid>
+          )}
+          
+          {attendanceData.late_minutes && attendanceData.late_minutes !== '0:00:00' && (
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', color: 'error.main' }}>
+                <ArrowDownwardIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">Đi muộn: {attendanceData.late_minutes}</Typography>
+              </Box>
+            </Grid>
+          )}
+          
+          {attendanceData.early_leave_minutes && attendanceData.early_leave_minutes !== '0:00:00' && (
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', color: 'warning.main' }}>
+                <ExitToAppIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">Về sớm: {attendanceData.early_leave_minutes}</Typography>
+              </Box>
+            </Grid>
+          )}
+          
+          {attendanceData.late_leave_minutes && attendanceData.late_leave_minutes !== '0:00:00' && (
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', color: 'info.main' }}>
+                <NightsStayIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">Làm thêm: {attendanceData.late_leave_minutes}</Typography>
+              </Box>
+            </Grid>
+          )}
+        </Grid>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function EmployeePortal(props) {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -73,8 +137,15 @@ export default function EmployeePortal(props) {
       try {
         // Lấy lịch sử điểm danh
         const response = await faceAPI.getAttendanceHistory(result.employee_id);
-        if (response.data.success) {
+        if (response.data && Array.isArray(response.data)) {
+          setAttendanceHistory(response.data);
+          // Lưu lại kết quả điểm danh mới nhất để hiển thị
+          localStorage.setItem('last_attendance', JSON.stringify(response.data[0]));
+        } else if (response.data && response.data.success) {
           setAttendanceHistory(response.data.history || []);
+          if (response.data.history && response.data.history.length > 0) {
+            localStorage.setItem('last_attendance', JSON.stringify(response.data.history[0]));
+          }
         }
       } catch (error) {
         console.error("Lỗi khi lấy lịch sử điểm danh:", error);

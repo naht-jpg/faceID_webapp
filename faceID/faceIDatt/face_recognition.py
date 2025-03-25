@@ -15,10 +15,10 @@ logger = logging.getLogger("face_recognition")
 # Đường dẫn thư mục
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
-CURRENT_PHOTO_DIR = os.path.join(BASE_DIR, "current_photo")
+DATA_FACES_FROM_CAMERA_DIR = os.path.join(BASE_DIR, "data/data_faces_from_camera")
 
 # Tạo thư mục nếu chưa tồn tại
-os.makedirs(CURRENT_PHOTO_DIR, exist_ok=True)
+os.makedirs(DATA_FACES_FROM_CAMERA_DIR, exist_ok=True)
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 # Đường dẫn đến các model dlib
@@ -103,63 +103,110 @@ def extract_face_features(image_data):
         logger.error(traceback.format_exc())
         return None, None, None
 
+# Sửa hàm register_face để lưu ảnh vào thư mục mới và truyền đường dẫn ảnh
 def register_face(employee_id, name, image_data):
-    """Đăng ký khuôn mặt cho nhân viên"""
     try:
-        face_encoding, face, img = extract_face_features(image_data)
+        # Kiểm tra dữ liệu đầu vào
+        if not employee_id or not name or not image_data:
+            return {"success": False, "message": "Thiếu thông tin đầu vào"}
         
-        if face_encoding is None:
-            return {
-                'success': False,
-                'message': 'Không phát hiện khuôn mặt trong ảnh'
-            }
-        
-        # Lưu ảnh vào thư mục
-        now = datetime.now()
-        img_filename = f"{name}_{now.strftime('%Y%m%d_%H%M%S')}.jpg"
-        img_path = os.path.join(CURRENT_PHOTO_DIR, img_filename)
-        
-        # Cắt và lưu khuôn mặt thay vì toàn bộ ảnh
-        height = face.bottom() - face.top()
-        width = face.right() - face.left()
-        # Mở rộng vùng cắt một chút
-        padding_factor = 0.3
-        top = max(0, face.top() - int(height * padding_factor))
-        bottom = min(img.shape[0], face.bottom() + int(height * padding_factor))
-        left = max(0, face.left() - int(width * padding_factor))
-        right = min(img.shape[1], face.right() + int(width * padding_factor))
-        
-        face_img = img[top:bottom, left:right]
-        cv2.imwrite(img_path, face_img)
-        
-        # Lưu feature vector vào collection trainner
-        save_result = save_face_feature(
-            employee_id=employee_id, 
-            name=name, 
-            feature_vector=face_encoding.tolist(),
-            image_path=f"current_photo/{img_filename}"
-        )
-        
-        if save_result:
-            return {
-                'success': True,
-                'message': 'Đã đăng ký khuôn mặt thành công',
-                'image_path': f"current_photo/{img_filename}"
-            }
+        # Giải mã base64 image
+        face_img = None
+        if isinstance(image_data, str) and image_data.startswith('data:image'):
+            # Tách phần header và dữ liệu
+            format, imgstr = image_data.split(';base64,')
+            # Giải mã base64
+            imgdata = base64.b64decode(imgstr)
+            
+            # Tạo thư mục riêng cho nhân viên (dùng tên không dấu và không khoảng trắng)
+            employee_folder_name = name.lower().replace(' ', '_')
+            employee_folder_path = os.path.join(DATA_FACES_FROM_CAMERA_DIR, employee_folder_name)
+            os.makedirs(employee_folder_path, exist_ok=True)
+            
+            # Tạo tên file ảnh và đường dẫn
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            image_filename = f"{timestamp}.jpg"
+            image_path = os.path.join(employee_folder_path, image_filename)
+            
+            # Lưu ảnh vào file
+            with open(image_path, 'wb') as f:
+                f.write(imgdata)
+                
+            # Đọc ảnh để xử lý
+            face_img = cv2.imread(image_path)
+            
+            # Cập nhật đường dẫn tương đối
+            relative_path = os.path.relpath(image_path, BASE_DIR)
+            relative_folder_path = os.path.relpath(employee_folder_path, BASE_DIR)
         else:
+            return {"success": False, "message": "Định dạng ảnh không hợp lệ"}
+        
+        # Phát hiện khuôn mặt
+        if face_img is None:
+            return {"success": False, "message": "Không thể đọc ảnh"}
+        
+        # Chuyển sang ảnh xám để phát hiện khuôn mặt tốt hơn
+        gray = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
+        
+        # Phát hiện khuôn mặt
+        detector = dlib.get_frontal_face_detector()
+        faces = detector(gray, 1)
+        
+        if len(faces) == 0:
+            # Không tìm thấy khuôn mặt trong ảnh
+            return {"success": False, "message": "Không phát hiện khuôn mặt trong ảnh"}
+        
+        # Lấy khuôn mặt đầu tiên
+        face = faces[0]
+        
+        # Lấy landmarks
+        try:
+            shape_predictor_path = os.path.join(MODEL_DIR, "shape_predictor_68_face_landmarks.dat")
+            face_rec_model_path = os.path.join(MODEL_DIR, "dlib_face_recognition_resnet_model_v1.dat")
+            
+            sp = dlib.shape_predictor(shape_predictor_path)
+            facerec = dlib.face_recognition_model_v1(face_rec_model_path)
+            
+            shape = sp(face_img, face)
+            face_descriptor = facerec.compute_face_descriptor(face_img, shape)
+            
+            # Chuyển đổi thành numpy array
+            face_encoding = np.array(face_descriptor)
+            
+            # Lưu đặc trưng khuôn mặt vào MongoDB, bao gồm cả đường dẫn ảnh
+            # Đường dẫn tương đối để dễ xử lý khi triển khai
+            save_face_feature(employee_id, name, face_encoding.tolist(), relative_path)
+            
+            # Đánh dấu nhân viên đã đăng ký khuôn mặt
+            from pymongo import MongoClient
+            from bson.objectid import ObjectId
+            from django.conf import settings
+            
+            client = MongoClient(settings.MONGO_URI)
+            db = client[settings.MONGO_DB_NAME]
+            employees_collection = db['employees']
+            
+            employees_collection.update_one(
+                {'_id': ObjectId(employee_id)},
+                {'$set': {
+                    'has_face': True,
+                    'face_folder': relative_folder_path
+                }}
+            )
+            
             return {
-                'success': False,
-                'message': 'Không thể lưu đặc trưng khuôn mặt'
+                "success": True,
+                "message": "Đăng ký khuôn mặt thành công",
+                "image_path": relative_path,
+                "folder_path": relative_folder_path
             }
+        except Exception as e:
+            logger.error(f"Error in face registration: {str(e)}")
+            return {"success": False, "message": f"Lỗi xử lý khuôn mặt: {str(e)}"}
     
     except Exception as e:
-        logger.error(f"Error in register_face: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
-        return {
-            'success': False,
-            'message': f'Lỗi: {str(e)}'
-        }
+        logger.error(f"Error in face registration: {str(e)}")
+        return {"success": False, "message": f"Lỗi: {str(e)}"}
 
 def recognize_face(image_data):
     """Nhận diện khuôn mặt từ ảnh"""
@@ -205,16 +252,27 @@ def recognize_face(image_data):
         
         # Nếu khoảng cách nhỏ hơn ngưỡng, xem như đã nhận diện thành công
         if recognized_person and min_distance < threshold:
-            # Lưu ảnh hiện tại
             now = datetime.now()
-            img_filename = f"{recognized_person['name']}_{now.strftime('%Y%m%d_%H%M%S')}.jpg"
-            img_path = os.path.join(CURRENT_PHOTO_DIR, img_filename)
+            
+            # Tạo đường dẫn hợp lý hơn đến thư mục nhân viên
+            employee_folder_name = recognized_person['name'].lower().replace(' ', '_')
+            employee_folder_path = os.path.join(DATA_FACES_FROM_CAMERA_DIR, employee_folder_name)
+            os.makedirs(employee_folder_path, exist_ok=True)
+            
+            # Tạo tên file với timestamp
+            img_filename = f"{now.strftime('%Y%m%d_%H%M%S')}.jpg"
+            img_path = os.path.join(employee_folder_path, img_filename)
+            
+            # Lưu ảnh hiện tại
             cv2.imwrite(img_path, img)
+            
+            # Lấy đường dẫn tương đối
+            relative_path = os.path.relpath(img_path, BASE_DIR)
             
             # Lưu thông tin điểm danh
             attendance_result = save_attendance(
                 recognized_person['name'], 
-                f"current_photo/{img_filename}", 
+                relative_path,  # Đường dẫn cụ thể đến file mới
                 recognized_person
             )
             

@@ -24,21 +24,22 @@ try:
     client.admin.command('ismaster')
     logger.info("MongoDB connection successful")
     
-    # Database và Collections
+    # Database và Collections - cập nhật theo cấu trúc mới
     db = client[settings.MONGO_DB_NAME]
-    dataset_collection = db[settings.MONGO_COLLECTIONS['dataset']]
-    signin_collection = db[settings.MONGO_COLLECTIONS['signin']]
-    testdata_collection = db[settings.MONGO_COLLECTIONS['testdata']]
-    trainner_collection = db[settings.MONGO_COLLECTIONS['trainner']]
+    dataset_collection = db['dataset']  # Lưu đường dẫn khuôn mặt
+    employees_collection = db['employees']  # Collection mới lưu thông tin nhân viên
+    attendance_collection = db['attendance']  # Collection mới lưu thông tin điểm danh
+    signin_collection = db[settings.MONGO_COLLECTIONS.get('signin', 'signin')]  #lưu thông tin tài khoản đăng nhập cho từng nhân viên
+    trainner_collection = db[settings.MONGO_COLLECTIONS.get('trainner', 'trainner')]  
     
 except Exception as e:
     logger.error(f"MongoDB connection error: {str(e)}")
     raise
 
 def get_employees():
-    """Lấy danh sách nhân viên từ collection dataset"""
+    """Lấy danh sách nhân viên từ collection employees"""
     try:
-        employees = list(dataset_collection.find({}))
+        employees = list(employees_collection.find({}))
         # Chuyển ObjectId thành string
         for employee in employees:
             if '_id' in employee:
@@ -51,37 +52,60 @@ def get_employees():
 def get_employee_by_id(employee_id):
     """Lấy thông tin nhân viên theo ID"""
     try:
-        return dataset_collection.find_one({'_id': ObjectId(employee_id)})
+        return employees_collection.find_one({'_id': ObjectId(employee_id)})
     except Exception as e:
         logger.error(f"Error getting employee by ID: {str(e)}")
         return None
 
 def add_employee(employee_data):
-    """Thêm nhân viên mới"""
+    """Thêm nhân viên mới vào collection employees"""
     try:
+        # Thêm timestamp
         employee_data['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        result = dataset_collection.insert_one(employee_data)
-        return str(result.inserted_id)
+        employee_data['created_at'] = datetime.datetime.now()
+        
+        # Lưu thông tin nhân viên vào collection employees
+        result = employees_collection.insert_one(employee_data)
+        employee_id = str(result.inserted_id)
+        
+        # Tạo bản ghi trong dataset để lưu đường dẫn khuôn mặt (trống ban đầu)
+        dataset_record = {
+            'employee_id': employee_id,
+            'name': employee_data.get('name', ''),
+            'image_path': None,
+            'has_face': False,
+            'created_at': datetime.datetime.now()
+        }
+        dataset_collection.insert_one(dataset_record)
+        
+        return employee_id
     except Exception as e:
         logger.error(f"Error adding employee: {str(e)}")
         raise
 
 def update_employee(employee_id, updated_data):
-    """Cập nhật thông tin nhân viên"""
+    """Cập nhật thông tin nhân viên trong collection employees"""
     try:
-        # Cập nhật thông tin ở dataset collection
-        result = dataset_collection.update_one(
+        # Cập nhật thông tin trong employees collection
+        updated_data['updated_at'] = datetime.datetime.now()
+        result = employees_collection.update_one(
             {'_id': ObjectId(employee_id)},
             {'$set': updated_data}
         )
         
-        # Nếu thông tin được cập nhật trong dataset, kiểm tra trong trainner
+        # Nếu thông tin được cập nhật, kiểm tra trong trainner và dataset
         if result.matched_count > 0:
             # Lấy tên nhân viên từ dữ liệu mới hoặc từ DB
-            employee = dataset_collection.find_one({'_id': ObjectId(employee_id)})
+            employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
             if employee:
                 name = updated_data.get('name', employee.get('name'))
                 if name:
+                    # Cập nhật tên trong dataset nếu có
+                    dataset_collection.update_one(
+                        {'employee_id': employee_id},
+                        {'$set': {'name': name}}
+                    )
+                    
                     # Cập nhật thông tin trong trainner nếu nhân viên đã đăng ký khuôn mặt
                     trainner_update = {}
                     for field in ['name', 'age', 'location', 'email', 'phone', 'job_position']:
@@ -90,7 +114,7 @@ def update_employee(employee_id, updated_data):
                     
                     if trainner_update:
                         trainner_collection.update_many(
-                            {'name': name},
+                            {'employee_id': employee_id},
                             {'$set': trainner_update}
                         )
         
@@ -103,17 +127,21 @@ def delete_employee(employee_id):
     """Xóa nhân viên"""
     try:
         # Lấy thông tin nhân viên trước khi xóa
-        employee = dataset_collection.find_one({'_id': ObjectId(employee_id)})
+        employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
         
         if not employee:
             return False
             
-        # Xóa từ dataset collection
-        result = dataset_collection.delete_one({'_id': ObjectId(employee_id)})
+        # Xóa từ employees collection
+        result = employees_collection.delete_one({'_id': ObjectId(employee_id)})
         
-        # Nếu xóa thành công và có tên, xóa khỏi trainner collection
-        if result.deleted_count > 0 and 'name' in employee:
-            trainner_collection.delete_many({'name': employee['name']})
+        # Nếu xóa thành công, xóa khỏi các collection liên quan
+        if result.deleted_count > 0:
+            # Xóa từ dataset collection
+            dataset_collection.delete_many({'employee_id': employee_id})
+            
+            # Xóa từ trainner collection
+            trainner_collection.delete_many({'employee_id': employee_id})
             
         return result.deleted_count > 0
     except Exception as e:
@@ -123,9 +151,31 @@ def delete_employee(employee_id):
 def get_face_features():
     """Lấy đặc trưng khuôn mặt của tất cả nhân viên"""
     try:
-        return list(trainner_collection.find({}, {'_id': 1, 'name': 1, 'feature': 1, 
-                                                  'age': 1, 'location': 1, 'email': 1, 
-                                                  'phone': 1, 'job_position': 1}))
+        # Lấy dữ liệu từ trainner collection và kết hợp với employee data
+        features = []
+        trainers = list(trainner_collection.find({}, {
+            '_id': 1, 
+            'employee_id': 1, 
+            'name': 1, 
+            'feature_vector': 1, 
+            'image_path': 1
+        }))
+        
+        for trainer in trainers:
+            # Lấy thông tin nhân viên từ employees collection
+            employee_id = trainer.get('employee_id')
+            if employee_id:
+                employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
+                if employee:
+                    # Kết hợp thông tin
+                    trainer['age'] = employee.get('age')
+                    trainer['location'] = employee.get('location')
+                    trainer['email'] = employee.get('email')
+                    trainer['phone'] = employee.get('phone')
+                    trainer['job_position'] = employee.get('job_position')
+                    features.append(trainer)
+        
+        return features
     except Exception as e:
         logger.error(f"Error getting face features: {str(e)}")
         return []
@@ -133,51 +183,50 @@ def get_face_features():
 def save_face_feature(employee_id, name, feature_vector, image_path=None):
     """Lưu đặc trưng khuôn mặt của nhân viên"""
     try:
-        # Tìm thông tin nhân viên để lấy metadata
-        employee = get_employee_by_id(employee_id)
-        
+        # Kiểm tra xem nhân viên có tồn tại không
+        employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
         if not employee:
-            logger.error(f"Employee not found: {employee_id}")
+            logger.error(f"Employee ID {employee_id} not found")
             return False
         
-        # Chuẩn bị dữ liệu để lưu
+        # Dữ liệu cho collection trainner
         trainner_data = {
+            'employee_id': employee_id,
             'name': name,
-            'feature': feature_vector,
-            'age': employee.get('age'),
-            'email': employee.get('email'),
-            'job_position': employee.get('job_position'),
-            'location': employee.get('location'),
-            'phone': employee.get('phone'),
+            'feature_vector': feature_vector,
+            'created_at': datetime.datetime.now()
+        }
+        
+        # Thêm đường dẫn ảnh nếu có
+        if image_path:
+            trainner_data['image_path'] = image_path
+            # Trích xuất đường dẫn thư mục từ đường dẫn ảnh
+            import os
+            employee_folder_path = os.path.dirname(image_path)
+        else:
+            employee_folder_path = None
+        
+        # Lưu vào collection trainner
+        result = trainner_collection.insert_one(trainner_data)
+        
+        # Cập nhật thông tin khuôn mặt trong dataset collection
+        update_data = {
+            'has_face': True,
             'updated_at': datetime.datetime.now()
         }
         
+        # Thêm đường dẫn nếu có
         if image_path:
-            trainner_data['image_path'] = image_path
+            update_data['image_path'] = image_path
+            if employee_folder_path:
+                update_data['folder_path'] = employee_folder_path
         
-        # Kiểm tra xem nhân viên đã có feature chưa
-        existing = trainner_collection.find_one({'name': name})
+        dataset_collection.update_one(
+            {'employee_id': employee_id},
+            {'$set': update_data}
+        )
         
-        if existing:
-            # Cập nhật
-            result = trainner_collection.update_one(
-                {'name': name},
-                {'$set': trainner_data}
-            )
-            success = result.modified_count > 0
-        else:
-            # Thêm mới
-            result = trainner_collection.insert_one(trainner_data)
-            success = result.inserted_id is not None
-        
-        # Cập nhật trạng thái face_registered trong dataset
-        if success:
-            dataset_collection.update_one(
-                {'_id': ObjectId(employee_id)},
-                {'$set': {'face_registered': True}}
-            )
-            
-        return success
+        return result.inserted_id is not None
     except Exception as e:
         logger.error(f"Error saving face feature: {str(e)}")
         return False
@@ -186,11 +235,21 @@ def save_attendance(name, image_path, person_data=None):
     """Lưu thông tin điểm danh"""
     try:
         # Nếu không có person_data, tìm trong trainner collection
+        employee_id = None
         if not person_data:
-            person_data = trainner_collection.find_one({'name': name})
-            if not person_data:
+            trainer = trainner_collection.find_one({'name': name})
+            if not trainer:
                 logger.error(f"Person not found: {name}")
                 return False
+            employee_id = trainer.get('employee_id')
+            person_data = trainer
+        else:
+            employee_id = person_data.get('employee_id')
+        
+        # Tìm thông tin nhân viên từ ID
+        employee = None
+        if employee_id:
+            employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
         
         # Tính toán các thông số điểm danh
         now = datetime.datetime.now()
@@ -257,12 +316,8 @@ def save_attendance(name, image_path, person_data=None):
         
         # Dữ liệu điểm danh
         attendance_data = {
+            'employee_id': employee_id,
             'name': name,
-            'age': person_data.get('age'),
-            'location': person_data.get('location'),
-            'email': person_data.get('email'),
-            'phone': person_data.get('phone'),
-            'job_position': person_data.get('job_position'),
             'image_path': image_path,
             'timestamp': timestamp,
             'datetime': now,
@@ -273,8 +328,18 @@ def save_attendance(name, image_path, person_data=None):
             'created_at': now
         }
         
-        # Lưu vào collection testdata
-        result = testdata_collection.insert_one(attendance_data)
+        # Thêm thông tin nhân viên nếu có
+        if employee:
+            attendance_data.update({
+                'age': employee.get('age'),
+                'location': employee.get('location'),
+                'email': employee.get('email'),
+                'phone': employee.get('phone'),
+                'job_position': employee.get('job_position')
+            })
+        
+        # Lưu vào collection attendance
+        result = attendance_collection.insert_one(attendance_data)
         return result.inserted_id is not None
     except Exception as e:
         logger.error(f"Error saving attendance: {str(e)}")
@@ -287,14 +352,10 @@ def get_attendance_history(name=None, employee_id=None):
         if name:
             query['name'] = name
         elif employee_id:
-            # Lấy tên từ ID
-            employee = dataset_collection.find_one({'_id': ObjectId(employee_id)})
-            if not employee:
-                return []
-            query['name'] = employee.get('name')
+            query['employee_id'] = employee_id
         
         # Lấy tất cả bản ghi điểm danh của nhân viên, sắp xếp theo thời gian giảm dần
-        attendance_records = list(testdata_collection.find(query).sort('datetime', -1))
+        attendance_records = list(attendance_collection.find(query).sort('datetime', -1))
         
         # Chuyển ObjectId thành string
         for record in attendance_records:

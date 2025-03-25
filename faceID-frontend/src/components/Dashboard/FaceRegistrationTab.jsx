@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import FaceIcon from '@mui/icons-material/Face';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import { employeeAPI } from '../../api';
+import { employeeAPI, faceAPI } from '../../api';
 import FaceRegistration from '../FaceRegistration';
 
 export default function FaceRegistrationTab() {
@@ -15,6 +15,8 @@ export default function FaceRegistrationTab() {
   const [error, setError] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [openRegistration, setOpenRegistration] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -29,6 +31,7 @@ export default function FaceRegistrationTab() {
       if (Array.isArray(response.data)) {
         setEmployees(response.data);
       } else if (response.data && typeof response.data === 'object') {
+        // Xử lý linh hoạt với dữ liệu API
         const employeesArray = response.data.employees || response.data.data || [];
         setEmployees(Array.isArray(employeesArray) ? employeesArray : []);
       } else {
@@ -37,7 +40,6 @@ export default function FaceRegistrationTab() {
     } catch (error) {
       console.error("Lỗi khi lấy danh sách nhân viên:", error);
       setError("Không thể tải danh sách nhân viên. Vui lòng thử lại sau.");
-      setEmployees([]);
     } finally {
       setLoading(false);
     }
@@ -56,6 +58,41 @@ export default function FaceRegistrationTab() {
   const handleRegistrationSuccess = () => {
     fetchEmployees();
     handleCloseRegistration();
+  };
+
+  // Cập nhật hàm xử lý đăng ký khuôn mặt
+  const handleFaceRegistration = async (employeeId, name, imageData) => {
+    setProcessing(true);
+    setError(null);
+    
+    try {
+      const response = await faceAPI.register(employeeId, name, imageData);
+      
+      if (response.data.success) {
+        // Cập nhật trạng thái đăng ký khuôn mặt cho nhân viên
+        const updatedEmployees = employees.map(emp => {
+          if (emp._id === employeeId) {
+            return {
+              ...emp,
+              has_face: true,
+              image_path: response.data.image_path || '',
+              folder_path: response.data.folder_path || ''  // Lưu thêm đường dẫn thư mục
+            };
+          }
+          return emp;
+        });
+        
+        setEmployees(updatedEmployees);
+        setSuccess(`Đăng ký khuôn mặt cho ${name} thành công!`);
+      } else {
+        setError(response.data.message || 'Đăng ký không thành công');
+      }
+    } catch (err) {
+      console.error("Lỗi khi đăng ký khuôn mặt:", err);
+      setError(err.response?.data?.message || 'Lỗi trong quá trình đăng ký');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (

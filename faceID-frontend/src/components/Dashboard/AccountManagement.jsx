@@ -1,44 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Typography, Button, Alert, Paper, TextField, Grid, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  IconButton, CircularProgress, Dialog, DialogTitle, DialogContent, 
-  DialogActions, FormControl, InputLabel, Select, MenuItem
+import {
+  Box, Typography, Button, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Paper, IconButton,
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  TextField, Grid, Alert, CircularProgress,
+  FormControl, InputLabel, Select, MenuItem, Chip,
+  Tooltip
 } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  PersonAdd as PersonAddIcon
+} from '@mui/icons-material';
+import { employeeAPI } from '../../api';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// API URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export default function AccountManagement() {
   const [accounts, setAccounts] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [unregisteredEmployees, setUnregisteredEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [editAccount, setEditAccount] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     password: '',
     email: '',
     firstName: '',
     lastName: '',
-    role: 'employee'
+    role: 'employee',
+    employee_id: ''
   });
 
   useEffect(() => {
     fetchAccounts();
+    fetchEmployees();
   }, []);
 
   const fetchAccounts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/signin/`, {
+      const response = await axios.get(`${API_URL.replace('/api', '')}/api/signin/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
       });
-      setAccounts(response.data);
+      
+      // Chuyển đổi dữ liệu để hiển thị đúng trong giao diện
+      const processedAccounts = response.data.map(account => ({
+        _id: account._id,
+        name: account.name || '',
+        firstName: account.first_name || '',
+        lastName: account.last_name || '',
+        email: account.email || '',
+        role: account.role || 'employee',
+        employee_id: account.employee_id || ''
+      }));
+      
+      setAccounts(processedAccounts);
     } catch (err) {
       setError('Không thể tải danh sách tài khoản: ' + (err.response?.data?.detail || err.message));
     } finally {
@@ -46,33 +72,66 @@ export default function AccountManagement() {
     }
   };
 
+  const fetchEmployees = async () => {
+    try {
+      const response = await employeeAPI.getAll();
+      if (Array.isArray(response.data)) {
+        setEmployees(response.data);
+      } else {
+        setEmployees([]);
+      }
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (employees.length > 0 && accounts.length > 0) {
+      // Tìm những nhân viên chưa có tài khoản
+      const employeesWithoutAccounts = employees.filter(employee => 
+        !accounts.some(account => account.employee_id === employee._id)
+      );
+      setUnregisteredEmployees(employeesWithoutAccounts);
+    } else if (employees.length > 0) {
+      setUnregisteredEmployees(employees);
+    }
+  }, [employees, accounts]);
+
   const handleOpenDialog = (account = null) => {
     if (account) {
+      // Chế độ chỉnh sửa
       setFormData({
-        name: account.name,
-        password: '',
+        name: account.name || '',
+        password: '', // Không hiển thị password cũ
         email: account.email || '',
-        firstName: account.firstName || '',
-        lastName: account.lastName || '',
-        role: account.role || 'employee'
+        firstName: account.first_name || '',
+        lastName: account.last_name || '',
+        role: account.role || 'employee',
+        employee_id: account.employee_id || ''
       });
       setEditAccount(account);
+      setSelectedEmployee(employees.find(emp => emp._id === account.employee_id) || null);
     } else {
+      // Chế độ tạo mới
       setFormData({
         name: '',
         password: '',
         email: '',
         firstName: '',
         lastName: '',
-        role: 'employee'
+        role: 'employee',
+        employee_id: ''
       });
       setEditAccount(null);
+      setSelectedEmployee(null);
     }
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+    setEditAccount(null);
+    setSelectedEmployee(null);
   };
 
   const handleChange = (e) => {
@@ -83,25 +142,77 @@ export default function AccountManagement() {
     });
   };
 
+  const handleEmployeeSelect = (e) => {
+    const employeeId = e.target.value;
+    const employee = employees.find(emp => emp._id === employeeId);
+    
+    if (employee) {
+      setSelectedEmployee(employee);
+      // Thiết lập tên đăng nhập mặc định từ email hoặc tên nhân viên
+      const defaultUsername = employee.email 
+        ? employee.email.split('@')[0] 
+        : employee.name.toLowerCase().replace(/\s+/g, '.');
+        
+      setFormData({
+        ...formData,
+        name: defaultUsername,
+        firstName: employee.name.split(' ').slice(-1)[0] || '',
+        lastName: employee.name.split(' ').slice(0, -1).join(' ') || '',
+        email: employee.email || '',
+        employee_id: employeeId
+      });
+    }
+  };
+
+  const handleDeleteAccount = async (accountId) => {
+    if (!window.confirm('Bạn có chắc muốn xóa tài khoản này?')) return;
+    
+    setLoading(true);
+    try {
+      await axios.delete(`${API_URL.replace('/api', '')}/api/signin/${accountId}/`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+      });
+      setSuccess('Tài khoản đã được xóa thành công');
+      fetchAccounts();
+    } catch (err) {
+      setError('Không thể xóa tài khoản: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
+    // Validate
+    if (!formData.name || !formData.employee_id || (!editAccount && !formData.password)) {
+      setError("Vui lòng điền đầy đủ thông tin bắt buộc");
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     
     try {
       const data = {
         name: formData.name,
-        password: formData.password,
         email: formData.email,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        role: formData.role
+        first_name: formData.firstName,  
+        last_name: formData.lastName,    
+        role: formData.role,
+        employee_id: formData.employee_id
       };
+
+      // Chỉ gửi password khi tạo mới hoặc khi có nhập password mới
+      if (formData.password) {
+        data.password = formData.password;
+      }
 
       let response;
       if (editAccount) {
         // Update existing account
         response = await axios.put(
-          `${API_URL}/api/accounts/${editAccount._id}/`,
+          `${API_URL.replace('/api', '')}/api/signin/${editAccount._id}/`,
           data,
           {
             headers: {
@@ -113,7 +224,7 @@ export default function AccountManagement() {
       } else {
         // Create new account
         response = await axios.post(
-          `${API_URL}/api/signin/`,
+          `${API_URL.replace('/api', '')}/api/signin/`,
           data,
           {
             headers: {
@@ -121,7 +232,7 @@ export default function AccountManagement() {
             }
           }
         );
-        setSuccess('Tài khoản mới đã được tạo thành công');
+        setSuccess('Tài khoản đã được tạo thành công');
       }
       
       handleCloseDialog();
@@ -133,22 +244,87 @@ export default function AccountManagement() {
     }
   };
 
-  const handleDelete = async (accountId) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa tài khoản này?')) {
+  const handleBulkAccountCreation = async () => {
+    if (unregisteredEmployees.length === 0) {
+      setError("Không có nhân viên nào chưa có tài khoản!");
+      return;
+    }
+    
+    if (!window.confirm(`Bạn muốn tạo ${unregisteredEmployees.length} tài khoản cho nhân viên chưa đăng ký?`)) {
       return;
     }
     
     setLoading(true);
+    setError(null);
+    let successCount = 0;
+    let errorCount = 0;
+    const createdAccountDetails = [];
+    
     try {
-      await axios.delete(`${API_URL}/api/signin/${accountId}/`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      // Tạo các tài khoản song song
+      const createPromises = unregisteredEmployees.map(async (employee) => {
+        try {
+          // Chuẩn hóa tên không dấu
+          const normalizedName = employee.name
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Loại bỏ dấu
+            .toLowerCase();
+          
+          // Tạo username từ email hoặc từ tên
+          const username = employee.email 
+            ? employee.email.split('@')[0] 
+            : normalizedName.replace(/\s+/g, '.');
+          
+          // Tạo mật khẩu thông minh: Kết hợp phần đầu của tên + 4 số cuối điện thoại
+          let defaultPassword = "Welcome@123";
+          if (employee.phone && employee.phone.length >= 4) {
+            const lastFourDigits = employee.phone.slice(-4);
+            defaultPassword = `${normalizedName.split(' ')[0]}${lastFourDigits}`;
+          }
+          
+          // Tạo tài khoản với liên kết đến employee_id
+          await axios.post(
+            `${API_URL.replace('/api', '')}/api/signin/`,
+            {
+              name: username,
+              password: defaultPassword,
+              email: employee.email || '',
+              first_name: employee.name.split(' ').slice(-1)[0] || '',
+              last_name: employee.name.split(' ').slice(0, -1).join(' ') || '',
+              role: 'employee',
+              employee_id: employee._id  // Đây là trường kết nối quan trọng
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+              }
+            }
+          );
+          
+          createdAccountDetails.push({
+            name: employee.name,
+            username: username,
+            password: defaultPassword
+          });
+          
+          successCount++;
+        } catch (err) {
+          console.error(`Error creating account for ${employee.name}:`, err);
+          errorCount++;
         }
       });
+      
+      await Promise.all(createPromises);
+      
+      // Hiển thị thông tin chi tiết tài khoản đã tạo
+      const accountDetailsText = createdAccountDetails.map(acc => 
+        `${acc.name}: Tên đăng nhập: ${acc.username}, Mật khẩu: ${acc.password}`
+      ).join('\n');
+      
+      setSuccess(`Đã tạo thành công ${successCount} tài khoản${errorCount > 0 ? `, ${errorCount} lỗi` : ''}\n\nThông tin đăng nhập:\n${accountDetailsText}`);
       fetchAccounts();
-      setSuccess('Tài khoản đã được xóa thành công');
     } catch (err) {
-      setError('Không thể xóa tài khoản: ' + (err.response?.data?.detail || err.message));
+      setError('Lỗi khi tạo tài khoản: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -158,13 +334,24 @@ export default function AccountManagement() {
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5">Quản lý tài khoản</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          Thêm tài khoản mới
-        </Button>
+        <Box>
+          <Button 
+            variant="outlined" 
+            startIcon={<PersonAddIcon />}
+            onClick={handleBulkAccountCreation}
+            sx={{ mr: 1 }}
+            disabled={unregisteredEmployees.length === 0}
+          >
+            Tạo tài khoản cho {unregisteredEmployees.length} nhân viên
+          </Button>
+          <Button 
+            variant="contained" 
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog()}
+          >
+            Thêm tài khoản mới
+          </Button>
+        </Box>
       </Box>
       
       {error && (
@@ -217,7 +404,7 @@ export default function AccountManagement() {
                       <IconButton 
                         size="small" 
                         color="error" 
-                        onClick={() => handleDelete(account._id)}
+                        onClick={() => handleDeleteAccount(account._id)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -242,6 +429,24 @@ export default function AccountManagement() {
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
+            {!editAccount && (
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <InputLabel>Chọn nhân viên</InputLabel>
+                  <Select
+                    value={formData.employee_id || ''}
+                    onChange={handleEmployeeSelect}
+                    label="Chọn nhân viên"
+                  >
+                    {unregisteredEmployees.map((employee) => (
+                      <MenuItem key={employee._id} value={employee._id}>
+                        {employee.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            )}
             <Grid item xs={12}>
               <TextField
                 required

@@ -10,32 +10,24 @@ const apiClient = axios.create({
   },
 });
 
-// Add request interceptor to include auth token in requests
+// Thêm interceptor để tự động gắn token vào mọi request
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from localStorage (correct key name)
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
-);
-
-// Add response interceptor for error handling
-apiClient.interceptors.response.use(
-  (response) => response,
   (error) => {
-    console.log("API Error: ", error.response || error);
     return Promise.reject(error);
   }
 );
 
 // Authentication API
 export const authAPI = {
-  login: (username, password) => 
-    apiClient.post('/token/', { username, password }),
+  login: (credentials) =>
+    apiClient.post('/token/', credentials),
   register: (userData) =>
     apiClient.post('/register/', userData),
   refreshToken: (refreshToken) => 
@@ -43,7 +35,7 @@ export const authAPI = {
   getCurrentUser: () => apiClient.get('/user/')
 };
 
-// Employee API with cache busting
+// Employee API
 export const employeeAPI = {
   getAll: () => apiClient.get('/employees/', {
     headers: {
@@ -55,11 +47,7 @@ export const employeeAPI = {
     }
   }),
   getById: (id) => apiClient.get(`/employees/${id}/`),
-  create: (data) => apiClient.post('/employees/create/', data, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-    }
-  }),  
+  create: (data) => apiClient.post('/employees/create/', data),
   update: (id, data) => apiClient.put(`/employees/${id}/update/`, data),
   delete: (id) => apiClient.delete(`/employees/${id}/delete/`)
 };
@@ -78,6 +66,17 @@ export const faceAPI = {
     }),
   getAttendanceHistory: (employeeId) => 
     apiClient.get(`/attendance/${employeeId}/`)
+};
+
+// Attendance API
+export const attendanceAPI = {
+  getAll: () => apiClient.get('/api/attendance/'),
+  getByEmployeeId: (employeeId) => apiClient.get(`/attendance/${employeeId}/`),
+  getLatestByEmployeeId: (employeeId) => 
+    apiClient.get(`/attendance/${employeeId}/latest/`),
+  getTodayByEmployeeId: (employeeId) =>
+    apiClient.get(`/attendance/${employeeId}/today/`),
+  create: (data) => apiClient.post('/api/attendance/', data)
 };
 
 export default apiClient;

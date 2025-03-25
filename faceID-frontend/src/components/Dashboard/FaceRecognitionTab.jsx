@@ -1,18 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Box, Typography, Paper, Button, Grid, Card,
-  CardContent, CircularProgress, Alert, List,
-  ListItem, ListItemText, ListItemAvatar, Avatar, 
-  Divider, TextField, InputAdornment, IconButton
+  Box, Typography, Paper, Button, Grid, Card, CardHeader,
+  CardContent, CircularProgress, Alert, List, Chip,
+  ListItem, ListItemText, ListItemAvatar, Avatar, Divider,
+  TextField, InputAdornment, IconButton, Tab, Tabs,
+  Table, TableBody, TableCell, TableContainer, TableHead,
+  TableRow, Tooltip
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CameraIcon from '@mui/icons-material/Camera';
 import PersonIcon from '@mui/icons-material/Person';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { faceAPI } from '../../api';
-import { formatDate } from '../../utils/formatters';
-
-
+import { formatDate, formatTime } from '../../utils/formatters';
 
 export default function FaceRecognitionTab() {
   const [loading, setLoading] = useState(false);
@@ -23,9 +26,19 @@ export default function FaceRecognitionTab() {
   const [stream, setStream] = useState(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [currentTab, setCurrentTab] = useState(0);
   
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+
+  // Tự động tắt camera khi rời khỏi tab
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
 
   const startCamera = async () => {
     setError(null);
@@ -97,15 +110,15 @@ export default function FaceRecognitionTab() {
     setRecognitionResult(null);
     
     try {
-      // Convert base64 to format expected by the API
-      const base64Data = imageData.split(',')[1];
+      const response = await faceAPI.recognize(imageData);
       
-      const response = await faceAPI.recognize(base64Data);
+      console.log("Recognition response:", response.data);
       
       if (response.data.success) {
         setRecognitionResult(response.data);
+        setCurrentTab(1); // Chuyển sang tab kết quả
         
-        // If employee is recognized, fetch their attendance records
+        // Nếu nhân viên được nhận diện, lấy lịch sử điểm danh
         if (response.data.employee_id) {
           fetchAttendanceHistory(response.data.employee_id);
         }
@@ -123,7 +136,9 @@ export default function FaceRecognitionTab() {
   const fetchAttendanceHistory = async (employeeId) => {
     try {
       const response = await faceAPI.getAttendanceHistory(employeeId);
-      if (response.data && Array.isArray(response.data)) {
+      if (response.data && response.data.success && Array.isArray(response.data.history)) {
+        setAttendanceRecords(response.data.history);
+      } else if (Array.isArray(response.data)) {
         setAttendanceRecords(response.data);
       } else {
         setAttendanceRecords([]);
@@ -141,10 +156,14 @@ export default function FaceRecognitionTab() {
   const filteredAttendanceRecords = attendanceRecords.filter(record => {
     const searchLower = searchQuery.toLowerCase();
     return (
-      record.employee_name?.toLowerCase().includes(searchLower) ||
-      record.timestamp?.toLowerCase().includes(searchLower)
+      (record.name?.toLowerCase() || "").includes(searchLower) ||
+      (record.timestamp?.toLowerCase() || "").includes(searchLower)
     );
   });
+  
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+  };
 
   return (
     <Box sx={{ p: 2 }}>
@@ -152,15 +171,27 @@ export default function FaceRecognitionTab() {
         Nhận Diện Khuôn Mặt
       </Typography>
       
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
-              Camera
-            </Typography>
-            
+      <Tabs 
+        value={currentTab} 
+        onChange={handleTabChange} 
+        aria-label="face recognition tabs"
+        sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
+      >
+        <Tab label="Camera" />
+        <Tab label="Kết Quả" />
+        <Tab label="Lịch Sử" />
+      </Tabs>
+      
+      {currentTab === 0 && (
+        <Card sx={{ mb: 2 }}>
+          <CardHeader 
+            title="Nhận diện khuôn mặt qua camera" 
+            subheader="Chụp ảnh khuôn mặt để nhận diện và điểm danh"
+          />
+          <CardContent>
             <Box sx={{ position: 'relative', width: '100%', mb: 2 }}>
-              <Box 
+              <Paper 
+                elevation={3} 
                 sx={{ 
                   width: '100%', 
                   aspectRatio: '4/3', 
@@ -169,32 +200,60 @@ export default function FaceRecognitionTab() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   color: 'white',
-                  borderRadius: 1,
+                  borderRadius: 2,
                   overflow: 'hidden',
+                  position: 'relative'
                 }}
               >
                 {!isCameraActive ? (
-                  <CameraIcon sx={{ fontSize: 60, opacity: 0.5 }} />
+                  <CameraIcon sx={{ fontSize: 80, opacity: 0.5 }} />
                 ) : (
-                  <video 
-                    ref={videoRef}
-                    autoPlay 
-                    playsInline
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                  />
+                  <>
+                    <video 
+                      ref={videoRef}
+                      autoPlay 
+                      playsInline
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    {/* Khung hướng dẫn vị trí khuôn mặt */}
+                    <Box sx={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '45%',
+                      height: '60%',
+                      border: '2px dashed rgba(255,255,255,0.6)',
+                      borderRadius: '50%',
+                      pointerEvents: 'none',
+                      zIndex: 1
+                    }} />
+                  </>
                 )}
-              </Box>
+              </Paper>
               
               {/* Hidden canvas for image capture */}
               <canvas ref={canvasRef} style={{ display: 'none' }} />
               
               {loading && (
-                <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
-                  <CircularProgress size={36} sx={{ position: 'absolute', top: -18, left: 'calc(50% - 18px)' }} />
+                <Box sx={{ 
+                  position: 'absolute', 
+                  top: 0, 
+                  left: 0, 
+                  right: 0, 
+                  bottom: 0, 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  bgcolor: 'rgba(0,0,0,0.5)',
+                  borderRadius: 2,
+                  zIndex: 2
+                }}>
+                  <CircularProgress color="primary" />
                 </Box>
               )}
             </Box>
@@ -206,150 +265,289 @@ export default function FaceRecognitionTab() {
                   startIcon={<CameraAltIcon />}
                   onClick={startCamera}
                   disabled={loading}
+                  size="large"
                 >
                   Bật Camera
                 </Button>
               ) : (
-                <>
-                  <Button 
-                    variant="outlined" 
-                    color="error" 
-                    onClick={stopCamera}
-                    disabled={loading}
-                  >
-                    Tắt Camera
-                  </Button>
+                <Box sx={{ display: 'flex', gap: 2 }}>
                   <Button 
                     variant="contained" 
                     color="primary"
                     onClick={recognizeFace}
                     disabled={loading}
+                    size="large"
                   >
                     Nhận Diện
                   </Button>
-                </>
+                  <Button 
+                    variant="outlined" 
+                    color="error" 
+                    onClick={stopCamera}
+                    disabled={loading}
+                    size="large"
+                  >
+                    Tắt Camera
+                  </Button>
+                </Box>
               )}
             </Box>
-          </Paper>
-          
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          
-          {recognitionResult && (
-            <Card variant={recognitionResult.success ? "outlined" : "elevation"} 
-                  sx={{ mb: 2, bgcolor: recognitionResult.success ? 'success.light' : 'error.light' }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Kết Quả Nhận Diện
+            
+            {error && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {error}
+              </Alert>
+            )}
+            
+            {capturedImage && (
+              <Box sx={{ mt: 4, textAlign: 'center' }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Ảnh đã chụp
                 </Typography>
-                
+                <Box 
+                  component="img"
+                  src={capturedImage}
+                  alt="Captured"
+                  sx={{
+                    maxWidth: '100%',
+                    maxHeight: '300px',
+                    borderRadius: 2,
+                    boxShadow: 1
+                  }}
+                />
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+      )}
+      
+      {currentTab === 1 && (
+        <Card sx={{ mb: 2 }}>
+          <CardHeader 
+            title="Kết Quả Nhận Diện" 
+            subheader={recognitionResult ? (
+              recognitionResult.success ? 
+                `Nhận diện thành công: ${recognitionResult.name}` : 
+                "Không nhận diện được khuôn mặt"
+            ) : "Chưa có kết quả nhận diện"}
+          />
+          <CardContent>
+            {!recognitionResult && (
+              <Alert severity="info">
+                Vui lòng chụp ảnh và nhận diện khuôn mặt
+              </Alert>
+            )}
+            
+            {recognitionResult && (
+              <Box>
                 {recognitionResult.success ? (
-                  <Box>
-                    <Typography variant="subtitle1">
-                      Đã nhận diện: <strong>{recognitionResult.employee_name}</strong>
-                    </Typography>
-                    <Typography variant="body2">
-                      ID: {recognitionResult.employee_id}
-                    </Typography>
-                    <Typography variant="body2">
-                      Chức vụ: {recognitionResult.job_position || 'N/A'}
-                    </Typography>
-                    <Typography variant="body2">
-                      Thời gian: {new Date().toLocaleString()}
-                    </Typography>
-                  </Box>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <Card variant="outlined">
+                        <CardContent>
+                          <Typography variant="h6" gutterBottom>
+                            Thông tin nhân viên
+                          </Typography>
+                          <List>
+                            <ListItem>
+                              <ListItemText 
+                                primary="Họ tên" 
+                                secondary={recognitionResult.name || "N/A"} 
+                              />
+                            </ListItem>
+                            <Divider component="li" />
+                            <ListItem>
+                              <ListItemText 
+                                primary="Chức vụ" 
+                                secondary={recognitionResult.job_position || "N/A"} 
+                              />
+                            </ListItem>
+                            <Divider component="li" />
+                            <ListItem>
+                              <ListItemText 
+                                primary="Email" 
+                                secondary={recognitionResult.email || "N/A"} 
+                              />
+                            </ListItem>
+                            <Divider component="li" />
+                            <ListItem>
+                              <ListItemText 
+                                primary="Điện thoại" 
+                                secondary={recognitionResult.phone || "N/A"} 
+                              />
+                            </ListItem>
+                            <Divider component="li" />
+                            <ListItem>
+                              <ListItemText 
+                                primary="Độ chính xác" 
+                                secondary={`${(recognitionResult.confidence * 100).toFixed(2)}%`} 
+                              />
+                            </ListItem>
+                          </List>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Card variant="outlined">
+                        <CardContent>
+                          <Typography variant="h6" gutterBottom>
+                            Thông tin điểm danh
+                          </Typography>
+                          <Alert 
+                            icon={<CheckCircleIcon fontSize="inherit" />}
+                            severity="success"
+                            sx={{ mb: 2 }}
+                          >
+                            Điểm danh thành công lúc {new Date(recognitionResult.timestamp).toLocaleTimeString()}
+                          </Alert>
+                          
+                          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                            <Button 
+                              variant="contained" 
+                              color="primary" 
+                              onClick={() => setCurrentTab(2)}
+                            >
+                              Xem lịch sử điểm danh
+                            </Button>
+                            <Button 
+                              variant="outlined" 
+                              onClick={() => setCurrentTab(0)}
+                            >
+                              Quay lại camera
+                            </Button>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  </Grid>
                 ) : (
-                  <Typography>
+                  <Alert 
+                    severity="warning"
+                    icon={<ErrorIcon fontSize="inherit" />}
+                    action={
+                      <Button 
+                        color="inherit" 
+                        size="small" 
+                        onClick={() => setCurrentTab(0)}
+                      >
+                        Thử lại
+                      </Button>
+                    }
+                  >
                     {recognitionResult.message || "Không nhận diện được khuôn mặt"}
-                  </Typography>
+                  </Alert>
                 )}
-              </CardContent>
-            </Card>
-          )}
-          
-          {capturedImage && (
-            <Paper elevation={1} sx={{ p: 2, textAlign: 'center' }}>
-              <Typography variant="subtitle2" gutterBottom>
-                Ảnh đã chụp
-              </Typography>
-              <Box 
-                component="img"
-                src={capturedImage}
-                alt="Captured"
-                sx={{
-                  maxWidth: '100%',
-                  maxHeight: '300px',
-                  borderRadius: 1
+              </Box>
+            )}
+            
+            {capturedImage && (
+              <Box sx={{ mt: 4, textAlign: 'center' }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Ảnh đã chụp
+                </Typography>
+                <Box 
+                  component="img"
+                  src={capturedImage}
+                  alt="Captured"
+                  sx={{
+                    maxWidth: '100%',
+                    maxHeight: '300px',
+                    borderRadius: 2,
+                    boxShadow: 1
+                  }}
+                />
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+      )}
+      
+      {currentTab === 2 && (
+        <Card>
+          <CardHeader 
+            title="Lịch Sử Điểm Danh" 
+            subheader={recognitionResult?.name ? `Nhân viên: ${recognitionResult.name}` : "Tất cả nhân viên"}
+            action={
+              <TextField
+                placeholder="Tìm kiếm..."
+                variant="outlined"
+                size="small"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
                 }}
               />
-            </Paper>
-          )}
-        </Grid>
-        
-        <Grid item xs={12} md={6}>
-          <Paper elevation={2} sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
-              Lịch Sử Điểm Danh
-            </Typography>
-            
-            <TextField
-              fullWidth
-              placeholder="Tìm kiếm..."
-              variant="outlined"
-              size="small"
-              margin="normal"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            
-            <List sx={{ bgcolor: 'background.paper', mt: 2 }}>
-              {attendanceRecords.length > 0 ? (
-                filteredAttendanceRecords.map((record, index) => (
-                  <React.Fragment key={record._id || index}>
-                    <ListItem alignItems="flex-start">
-                      <ListItemAvatar>
-                        <Avatar>
-                          <PersonIcon />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={record.employee_name}
-                        secondary={
-                          <React.Fragment>
-                            <Typography component="span" variant="body2" color="text.primary">
-                              {formatDate(record.timestamp)}
-                            </Typography>
-                            {record.status && (
-                              <Typography component="span" variant="body2" sx={{ ml: 1 }}>
-                                • {record.status}
-                              </Typography>
-                            )}
-                          </React.Fragment>
-                        }
-                      />
-                    </ListItem>
-                    {index < attendanceRecords.length - 1 && <Divider variant="inset" component="li" />}
-                  </React.Fragment>
-                ))
-              ) : (
-                <ListItem>
-                  <ListItemText primary="Không có dữ liệu điểm danh" />
-                </ListItem>
-              )}
-            </List>
-          </Paper>
-        </Grid>
-      </Grid>
+            }
+          />
+          <CardContent>
+            {attendanceRecords.length > 0 ? (
+              <TableContainer component={Paper} variant="outlined">
+                <Table sx={{ minWidth: 650 }} size="medium">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Thời gian</TableCell>
+                      <TableCell>Họ tên</TableCell>
+                      <TableCell>Trạng thái</TableCell>
+                      <TableCell>Chi tiết</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredAttendanceRecords.map((record, index) => (
+                      <TableRow key={record._id || index}>
+                        <TableCell>{record.timestamp}</TableCell>
+                        <TableCell>{record.name}</TableCell>
+                        <TableCell>
+                          {record.late_minutes !== '0:00:00' ? (
+                            <Chip 
+                              icon={<AccessTimeIcon />} 
+                              label="Đi muộn" 
+                              color="error" 
+                              variant="outlined" 
+                              size="small"
+                            />
+                          ) : record.early_minutes !== '0:00:00' ? (
+                            <Chip 
+                              icon={<AccessTimeIcon />} 
+                              label="Đến sớm" 
+                              color="success" 
+                              variant="outlined" 
+                              size="small" 
+                            />
+                          ) : (
+                            <Chip 
+                              icon={<CheckCircleIcon />} 
+                              label="Đúng giờ" 
+                              color="primary" 
+                              variant="outlined" 
+                              size="small" 
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title="Chi tiết">
+                            <IconButton size="small">
+                              <PersonIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Alert severity="info">
+                Không có dữ liệu điểm danh
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </Box>
   );
 }

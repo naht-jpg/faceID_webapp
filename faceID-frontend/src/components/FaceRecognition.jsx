@@ -49,10 +49,7 @@ function FaceRecognition({ onRecognitionResult }) {
       }
       
       // Gửi ảnh lên API để nhận diện
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/face-recognition/`, 
-        { image: imageSrc }
-      );
+      const response = await faceAPI.recognize(imageSrc); // Gửi toàn bộ chuỗi base64
       
       // Trả kết quả về component cha
       onRecognitionResult && onRecognitionResult(response.data);

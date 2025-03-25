@@ -18,9 +18,11 @@ urlpatterns = [
     path('face-register/', views.face_register_api, name='face_register'),
     path('face-recognition/', views.face_recognition_api, name='face_recognition'),
     path('attendance/<str:employee_id>/', views.attendance_history_api, name='get_attendance_history'),
+    path('attendance/<str:employee_id>/latest/', views.get_latest_attendance, name='get_latest_attendance'),
+    path('attendance/<str:employee_id>/today/', views.get_today_attendance, name='get_today_attendance'),
     path('test/', views.test_api, name='test_api'),  # Added test endpoint
 
     # Thêm URLs mới cho signin collection
-    path('api/signin/', views.signin_list, name='signin_list'),
-    path('api/signin/<str:pk>/', views.signin_detail, name='signin_detail'),
+    path('signin/', views.signin_list, name='signin_list'),
+    path('signin/<str:pk>/', views.signin_detail, name='signin_detail'),
 ]

@@ -435,35 +435,137 @@ def signin_list(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def signin_detail(request, pk):
-    # Tìm người dùng theo ID
-    user = signin_collection.find_one({'_id': ObjectId(pk)})
-    
-    if not user:
-        return Response({'detail': 'Không tìm thấy tài khoản'}, status=404)
-    
-    if request.method == 'GET':
-        user['_id'] = str(user['_id'])
-        if 'password' in user:
-            del user['password']
-        return JsonResponse(user, encoder=JSONEncoder)
-    
-    elif request.method == 'PUT':
-        data = request.data
+    try:
+        # Lấy tài khoản theo ID
+        account = signin_collection.find_one({'_id': ObjectId(pk)})
+        if not account:
+            return Response({'detail': 'Không tìm thấy tài khoản'}, status=404)
         
-        # Nếu thay đổi mật khẩu, hãy mã hóa nó
-        if 'password' in data and data['password']:
-            password = data['password'].encode('utf-8')
-            salt = bcrypt.gensalt()
-            hashed_password = bcrypt.hashpw(password, salt)
-            data['password'] = hashed_password
-        elif 'password' in data:
-            # Nếu mật khẩu trống, giữ nguyên mật khẩu cũ
-            del data['password']
+        if request.method == 'GET':
+            # Chuyển đổi ObjectId sang string
+            account['_id'] = str(account['_id'])
+            # Không trả về mật khẩu
+            if 'password' in account:
+                del account['password']
+            return Response(account)
         
-        signin_collection.update_one({'_id': ObjectId(pk)}, {'$set': data})
-        return Response({'detail': 'Cập nhật thành công'})
-    
-    elif request.method == 'DELETE':
-        signin_collection.delete_one({'_id': ObjectId(pk)})
-        return Response({'detail': 'Xóa thành công'})
+        elif request.method == 'PUT':
+            data = request.data
+            
+            # Mã hóa mật khẩu nếu có
+            if 'password' in data and data['password']:
+                password = data['password'].encode('utf-8')
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(password, salt)
+                data['password'] = hashed_password
+            
+            # Cập nhật document
+            signin_collection.update_one(
+                {'_id': ObjectId(pk)},
+                {'$set': data}
+            )
+            return Response({'detail': 'Cập nhật thành công'})
+        
+        elif request.method == 'DELETE':
+            # Xóa tài khoản
+            result = signin_collection.delete_one({'_id': ObjectId(pk)})
+            if result.deleted_count == 1:
+                return Response({'detail': 'Xóa thành công'})
+            return Response({'detail': 'Không thể xóa tài khoản'}, status=400)
+            
+    except Exception as e:
+        return Response({'detail': str(e)}, status=500)
+
+# Sửa lỗi trong hàm get_latest_attendance
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_latest_attendance(request, employee_id):
+    try:
+        # Lấy bản ghi điểm danh mới nhất
+        from .database import attendance_collection 
+        
+        attendance_record = attendance_collection.find_one(  
+            sort=[('datetime', -1)]
+        )
+        
+        if not attendance_record:  
+            return Response({
+                'success': False,
+                'message': 'Không tìm thấy dữ liệu điểm danh'
+            }, status=404)
+            
+        # Chuyển ObjectId thành string
+        attendance_record['_id'] = str(attendance_record['_id'])
+        
+        # Chuyển datetime sang string
+        if 'datetime' in attendance_record:
+            attendance_record['datetime'] = attendance_record['datetime'].isoformat()
+        if 'created_at' in attendance_record:
+            attendance_record['created_at'] = attendance_record['created_at'].isoformat()
+            
+        return Response({
+            'success': True,
+            'data': attendance_record
+        })
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+# Thêm vào cuối file, sau hàm get_latest_attendance
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_today_attendance(request, employee_id):
+    """API lấy thông tin điểm danh trong ngày của nhân viên"""
+    try:
+        # Lấy thời gian hiện tại
+        now = datetime.now()
+        start_of_day = datetime(now.year, now.month, now.day, 0, 0, 0)
+        end_of_day = datetime(now.year, now.month, now.day, 23, 59, 59)
+        
+        # Tìm các bản ghi điểm danh trong ngày
+        from .database import attendance_collection
+        
+        today_attendance = list(attendance_collection.find({
+            'employee_id': employee_id,
+            'datetime': {
+                '$gte': start_of_day,
+                '$lte': end_of_day
+            }
+        }).sort('datetime', -1))
+        
+        if not today_attendance:
+            return Response({
+                'success': True,
+                'message': 'Không có dữ liệu điểm danh hôm nay',
+                'records': []
+            })
+            
+        # Chuyển đổi ObjectId và datetime thành chuỗi
+        for record in today_attendance:
+            if '_id' in record:
+                record['_id'] = str(record['_id'])
+            if 'datetime' in record:
+                record['datetime'] = record['datetime'].isoformat() if hasattr(record['datetime'], 'isoformat') else str(record['datetime'])
+            if 'created_at' in record:
+                record['created_at'] = record['created_at'].isoformat() if hasattr(record['created_at'], 'isoformat') else str(record['created_at'])
+            
+        return Response({
+            'success': True,
+            'message': f'Đã tìm thấy {len(today_attendance)} bản ghi điểm danh hôm nay',
+            'records': today_attendance
+        })
+        
+    except Exception as e:
+        import traceback
+        logger.error(f"Error in get_today_attendance: {str(e)}")
+        logger.error(traceback.format_exc())
+        return Response({
+            'success': False,
+            'message': f'Lỗi khi lấy dữ liệu điểm danh: {str(e)}'
+        }, status=500)
 
