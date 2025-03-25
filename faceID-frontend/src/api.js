@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-// Create an axios instance with the correct base URL
+// Tạo axios instance với baseURL
 const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
@@ -10,7 +10,7 @@ const apiClient = axios.create({
   },
 });
 
-// Thêm interceptor để tự động gắn token vào mọi request
+// Interceptor để tự động thêm token vào mọi request
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -24,59 +24,115 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Authentication API
+// Interceptor để xử lý token hết hạn
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // Nếu lỗi 401 và chưa thử refresh token
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (refreshToken) {
+          const response = await axios.post(`${API_URL}/auth/token/refresh/`, {
+            refresh: refreshToken
+          });
+          
+          if (response.data.access) {
+            localStorage.setItem('access_token', response.data.access);
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
+            originalRequest.headers['Authorization'] = `Bearer ${response.data.access}`;
+            return apiClient(originalRequest);
+          }
+        }
+      } catch (refreshError) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/login';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+// Auth API - Điều chỉnh endpoints phù hợp với urls.py
 export const authAPI = {
-  login: (credentials) =>
-    apiClient.post('/token/', credentials),
-  register: (userData) =>
-    apiClient.post('/register/', userData),
-  refreshToken: (refreshToken) => 
-    apiClient.post('/token/refresh/', { refresh: refreshToken }),
+  login: (credentials) => apiClient.post('/auth/token/', {
+    username: credentials.username, // Backend đang mong đợi field username
+    password: credentials.password
+  }),
+  register: (userData) => apiClient.post('/auth/register/', userData),
+  refreshToken: (refreshToken) => apiClient.post('/auth/token/refresh/', { refresh: refreshToken }),
   getCurrentUser: () => apiClient.get('/user/')
 };
 
 // Employee API
 export const employeeAPI = {
-  getAll: () => apiClient.get('/employees/', {
-    headers: {
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
-    },
-    params: {
-      _t: new Date().getTime() // Add timestamp to prevent caching
-    }
-  }),
+  getAll: () => apiClient.get('/employees/'),
   getById: (id) => apiClient.get(`/employees/${id}/`),
-  create: (data) => apiClient.post('/employees/create/', data),
-  update: (id, data) => apiClient.put(`/employees/${id}/update/`, data),
-  delete: (id) => apiClient.delete(`/employees/${id}/delete/`)
+  create: (data) => apiClient.post('/employees/', data),
+  update: (id, data) => apiClient.put(`/employees/${id}/`),
+  patch: (id, data) => apiClient.patch(`/employees/${id}/`),
+  delete: (id) => apiClient.delete(`/employees/${id}/`),
+  getAttendance: (id, params) => apiClient.get(`/employees/${id}/attendance/`, { params }),
 };
 
 // Face API
 export const faceAPI = {
-  register: (employeeId, name, imageData) => 
-    apiClient.post('/face-register/', {
-      employee_id: employeeId,
-      name: name,
-      image: imageData
-    }),
-  recognize: (imageData) => 
-    apiClient.post('/face-recognition/', {
-      image: imageData
-    }),
-  getAttendanceHistory: (employeeId) => 
-    apiClient.get(`/attendance/${employeeId}/`)
+  register: (data) => {
+    const formData = new FormData();
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+    
+    return apiClient.post('/faces/register/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+  recognize: (imageData) => {
+    const formData = new FormData();
+    formData.append('image', imageData);
+    
+    return apiClient.post('/faces/recognize/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  }
 };
 
 // Attendance API
 export const attendanceAPI = {
-  getAll: () => apiClient.get('/api/attendance/'),
-  getByEmployeeId: (employeeId) => apiClient.get(`/attendance/${employeeId}/`),
-  getLatestByEmployeeId: (employeeId) => 
-    apiClient.get(`/attendance/${employeeId}/latest/`),
-  getTodayByEmployeeId: (employeeId) =>
-    apiClient.get(`/attendance/${employeeId}/today/`),
-  create: (data) => apiClient.post('/api/attendance/', data)
+  getByEmployeeId: (id, params) => apiClient.get(`/attendance/${id}/`, { params }),
+  create: (id, data) => apiClient.post(`/attendance/${id}/`, data),
+  
+  // Hàm helper cho các trường hợp phổ biến
+  getLatest: (id) => apiClient.get(`/attendance/${id}/`, { params: { latest: true }}),
+  getToday: (id) => apiClient.get(`/attendance/${id}/`, { params: { today: true }}),
+  getByMonth: (id, year, month) => apiClient.get(`/attendance/${id}/`, { 
+    params: { year, month }
+  }),
+  getMonthlySummary: (id, year, month) => apiClient.get(`/employees/${id}/attendance/summary`, {
+    params: { year, month }
+  }),
+};
+
+// Signin API (tài khoản người dùng)
+export const signinAPI = {
+  getAll: () => apiClient.get('/signin/'),
+  getById: (id) => apiClient.get(`/signin/${id}/`),
+  create: (data) => apiClient.post('/signin/', data),
+  update: (id, data) => apiClient.put(`/signin/${id}/`),
+  patch: (id, data) => apiClient.patch(`/signin/${id}/`),
+  delete: (id) => apiClient.delete(`/signin/${id}/`),
 };
 
 export default apiClient;

@@ -1,156 +1,58 @@
-import * as React from 'react';
-import { useState } from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Avatar from '@mui/material/Avatar';
-import LogoutIcon from '@mui/icons-material/Logout';
-import FaceIcon from '@mui/icons-material/Face';
-import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Divider from '@mui/material/Divider';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useMediaQuery } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import AppTheme from '../shared-theme/AppTheme';
+import React, { useState, useEffect } from 'react';
+import {
+  Box, Container, Paper, Typography, Tabs, Tab, Divider,
+  AppBar, Toolbar, Button, Avatar, Tooltip, Badge,
+  Menu, MenuItem, ListItemIcon, ListItemText, Fade, IconButton
+} from '@mui/material'
+import {
+  Dashboard as DashboardIcon,
+  History as HistoryIcon,
+  Person as PersonIcon,
+  ExitToApp as LogoutIcon,
+  CameraAlt as CameraIcon,
+  Notifications as NotificationIcon
+} from '@mui/icons-material';
 import { useAuth } from '../../AuthContext';
 import { useNavigate } from 'react-router-dom';
+import DashboardTab from './components/DashboardTab';
+import AttendanceHistoryTab from './components/AttendanceHistoryTab';
+import ProfileTab from './components/ProfileTab';
 import FaceRecognition from '../FaceRecognition';
-import { faceAPI } from '../../api';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import NightsStayIcon from '@mui/icons-material/NightsStay';
 
-function Footer() {
-  return (
-    <Box sx={{ bgcolor: 'background.paper', p: { xs: 2, sm: 4, md: 6 } }} component="footer">
-      <Typography variant="h6" align="center" gutterBottom>
-        Face ID System
-      </Typography>
-      <Typography
-        variant="subtitle1"
-        align="center"
-        color="text.secondary"
-        component="p"
-      >
-        Hệ thống nhận diện khuôn mặt thông minh
-      </Typography>
-      <Typography variant="body2" color="text.secondary" align="center">
-        {'Copyright © '}
-        Face ID System {new Date().getFullYear()}
-        {'.'}
-      </Typography>
-    </Box>
-  );
-}
-
-function AttendanceStatus({ attendanceData }) {
-  if (!attendanceData) return null;
-  
-  return (
-    <Card sx={{ mb: 3 }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <AccessTimeIcon color="primary" sx={{ mr: 1 }} />
-          <Typography variant="h6">Thông tin điểm danh gần nhất</Typography>
-        </Box>
-        <Divider sx={{ mb: 2 }} />
-        
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2">
-              <strong>Thời gian:</strong> {attendanceData.timestamp || 'N/A'}
-            </Typography>
-          </Grid>
-          
-          {attendanceData.early_minutes && attendanceData.early_minutes !== '0:00:00' && (
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ display: 'flex', alignItems: 'center', color: 'success.main' }}>
-                <ArrowUpwardIcon fontSize="small" sx={{ mr: 0.5 }} />
-                <Typography variant="body2">Đến sớm: {attendanceData.early_minutes}</Typography>
-              </Box>
-            </Grid>
-          )}
-          
-          {attendanceData.late_minutes && attendanceData.late_minutes !== '0:00:00' && (
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ display: 'flex', alignItems: 'center', color: 'error.main' }}>
-                <ArrowDownwardIcon fontSize="small" sx={{ mr: 0.5 }} />
-                <Typography variant="body2">Đi muộn: {attendanceData.late_minutes}</Typography>
-              </Box>
-            </Grid>
-          )}
-          
-          {attendanceData.early_leave_minutes && attendanceData.early_leave_minutes !== '0:00:00' && (
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ display: 'flex', alignItems: 'center', color: 'warning.main' }}>
-                <ExitToAppIcon fontSize="small" sx={{ mr: 0.5 }} />
-                <Typography variant="body2">Về sớm: {attendanceData.early_leave_minutes}</Typography>
-              </Box>
-            </Grid>
-          )}
-          
-          {attendanceData.late_leave_minutes && attendanceData.late_leave_minutes !== '0:00:00' && (
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ display: 'flex', alignItems: 'center', color: 'info.main' }}>
-                <NightsStayIcon fontSize="small" sx={{ mr: 0.5 }} />
-                <Typography variant="body2">Làm thêm: {attendanceData.late_leave_minutes}</Typography>
-              </Box>
-            </Grid>
-          )}
-        </Grid>
-      </CardContent>
-    </Card>
-  );
-}
-
-export default function EmployeePortal(props) {
+export default function EmployeePortal() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  
+  const [activeTab, setActiveTab] = useState(0);
+  const [showFaceRecognition, setShowFaceRecognition] = useState(false);
   const [recognitionResult, setRecognitionResult] = useState(null);
-  const [attendanceSuccess, setAttendanceSuccess] = useState(false);
-  const [attendanceHistory, setAttendanceHistory] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [notificationCount, setNotificationCount] = useState(0);
 
-  const handleRecognitionResult = async (result) => {
-    setRecognitionResult(result);
-    
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+    // Đóng FaceRecognition khi chuyển tab
+    setShowFaceRecognition(false);
+  };
+
+  const handleRecognitionResult = (result) => {
     if (result.success) {
-      setAttendanceSuccess(true);
-      
-      try {
-        // Lấy lịch sử điểm danh
-        const response = await faceAPI.getAttendanceHistory(result.employee_id);
-        if (response.data && Array.isArray(response.data)) {
-          setAttendanceHistory(response.data);
-          // Lưu lại kết quả điểm danh mới nhất để hiển thị
-          localStorage.setItem('last_attendance', JSON.stringify(response.data[0]));
-        } else if (response.data && response.data.success) {
-          setAttendanceHistory(response.data.history || []);
-          if (response.data.history && response.data.history.length > 0) {
-            localStorage.setItem('last_attendance', JSON.stringify(response.data.history[0]));
-          }
-        }
-      } catch (error) {
-        console.error("Lỗi khi lấy lịch sử điểm danh:", error);
-      }
+      setRecognitionResult(result);
+      // Cập nhật notification count để thông báo người dùng
+      setNotificationCount(prev => prev + 1);
+      // Đóng component camera sau khi thành công
+      setTimeout(() => {
+        setShowFaceRecognition(false);
+      }, 3000);
     }
+  };
+
+  // Xử lý menu user
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   const handleLogout = () => {
@@ -158,238 +60,201 @@ export default function EmployeePortal(props) {
     navigate('/login');
   };
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+  // Xử lý hiển thị/ẩn camera điểm danh
+  const toggleFaceRecognition = () => {
+    setShowFaceRecognition(!showFaceRecognition);
   };
 
-  // Format thời gian
-  const formatTime = (dateTimeString) => {
-    try {
-      const date = new Date(dateTimeString);
-      return date.toLocaleTimeString();
-    } catch (e) {
-      return dateTimeString;
-    }
-  };
-
-  // Format ngày
-  const formatDate = (dateTimeString) => {
-    try {
-      const date = new Date(dateTimeString);
-      return date.toLocaleDateString();
-    } catch (e) {
-      return dateTimeString;
+  // Hiển thị nội dung tab
+  const renderContent = () => {
+    switch(activeTab) {
+      case 0:
+        return <DashboardTab lastAttendance={recognitionResult} />;
+      case 1:
+        return <AttendanceHistoryTab employeeId={currentUser?.id} />;
+      case 2:
+        return <ProfileTab userData={currentUser} />;
+      default:
+        return <DashboardTab />;
     }
   };
 
   return (
-    <AppTheme {...props}>
-      <CssBaseline enableColorScheme />
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <AppBar position="static" color="primary">
-          <Toolbar>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-              {isMobile && (
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
-                  edge="start"
-                  onClick={handleDrawerToggle}
-                  sx={{ mr: 1 }}
-                >
-                  <MenuIcon />
-                </IconButton>
-              )}
-              <FaceIcon sx={{ mr: 1 }} />
-              <Typography 
-                variant={isMobile ? "subtitle1" : "h6"} 
-                color="inherit" 
-                noWrap
-                sx={{ flexGrow: 1 }}
-              >
-                Portal Nhân Viên
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* Header */}
+      <AppBar position="sticky" elevation={2} sx={{ bgcolor: 'white', color: 'text.primary' }}>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ 
+            flexGrow: 1,
+            fontWeight: 'bold',
+            color: 'primary.main',
+            display: 'flex', 
+            alignItems: 'center' 
+          }}>
+            <CameraIcon sx={{ 
+              mr: 1.5,
+              color: 'primary.main',
+              fontSize: 28
+            }} />
+            FaceID Attendance
+          </Typography>
+          
+          <Tooltip title="Điểm danh ngay">
+            <Button
+              variant={showFaceRecognition ? "contained" : "outlined"}
+              color="primary"
+              onClick={toggleFaceRecognition}
+              startIcon={<CameraIcon />}
+              sx={{ 
+                mr: 2, 
+                borderRadius: 28,
+                px: 2,
+                py: 0.8,
+                fontWeight: 'medium'
+              }}
+            >
+              {showFaceRecognition ? "Đóng Camera" : "Điểm Danh"}
+            </Button>
+          </Tooltip>
+          
+          <Tooltip title="Thông báo">
+            <IconButton sx={{ mr: 2 }}>
+              <Badge badgeContent={notificationCount} color="error">
+                <NotificationIcon />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'medium' }}>
+                {currentUser?.name || 'User'}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {currentUser?.job_position || 'Nhân viên'}
               </Typography>
             </Box>
             
-            {currentUser && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
-                {!isMobile && (
-                  <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>
-                    {currentUser.name}
-                  </Typography>
-                )}
-                <Avatar sx={{ bgcolor: 'secondary.main', width: { xs: 32, sm: 40 }, height: { xs: 32, sm: 40 } }}>
-                  {currentUser.name.charAt(0)}
-                </Avatar>
-                <IconButton 
-                  color="inherit" 
-                  onClick={handleLogout}
-                  size={isMobile ? "small" : "medium"}
-                >
-                  <LogoutIcon />
-                </IconButton>
-              </Box>
-            )}
-          </Toolbar>
-        </AppBar>
-        
-        <Container component="main" maxWidth="lg" sx={{ mt: { xs: 2, sm: 3, md: 4 }, mb: { xs: 2, sm: 3, md: 4 }, flexGrow: 1 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Paper 
-                elevation={3} 
-                sx={{ 
-                  p: { xs: 2, sm: 3 }, 
-                  borderRadius: 2,
-                  overflow: 'hidden'
-                }}
-              >
-                <Typography 
-                  component="h1" 
-                  variant={isMobile ? "h5" : "h4"} 
-                  align="center" 
-                  gutterBottom
-                >
-                  Hệ thống nhận diện khuôn mặt
-                </Typography>
-                
-                <Typography 
-                  variant={isMobile ? "subtitle1" : "h5"} 
-                  align="center" 
-                  color="text.secondary" 
-                  sx={{ mb: { xs: 2, sm: 3, md: 4 } }}
-                >
-                  Xin chào {currentUser?.name}! Sử dụng hệ thống điểm danh thông minh.
-                </Typography>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} md={8}>
-              <Card 
-                elevation={2} 
-                sx={{ 
-                  p: { xs: 1, sm: 2 }, 
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}
-              >
-                <CardContent sx={{ flex: '1 0 auto' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Typography variant="h6" gutterBottom align="center">
-                      Điểm danh nhanh chóng
-                    </Typography>
-                    <Box 
-                      sx={{ 
-                        width: '100%', 
-                        maxWidth: isMobile ? '100%' : 500, 
-                        my: { xs: 1, sm: 2 }, 
-                        mx: 'auto',
-                        aspectRatio: '4/3',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                      }}
-                    >
-                      {!attendanceSuccess ? (
-                        <FaceRecognition onRecognitionResult={handleRecognitionResult} />
-                      ) : (
-                        <Box 
-                          sx={{ 
-                            width: '100%', 
-                            height: '100%', 
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            p: 2,
-                            bgcolor: 'success.light',
-                            color: 'white'
-                          }}
-                        >
-                          <CheckCircleIcon sx={{ fontSize: 80, mb: 2 }} />
-                          <Typography variant="h6" align="center" gutterBottom>
-                            Điểm danh thành công!
-                          </Typography>
-                          <Typography variant="body2" align="center">
-                            Xin chào, {recognitionResult?.name}
-                          </Typography>
-                          <Typography variant="body2" align="center">
-                            Thời gian: {new Date(recognitionResult?.timestamp).toLocaleString()}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Box>
-                    <Typography variant="body1" align="center" sx={{ mt: 1 }}>
-                      Nhìn vào camera để điểm danh
-                    </Typography>
-                  </Box>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'center', pt: 0, pb: { xs: 2, sm: 3 }, flexWrap: 'wrap', gap: 1 }}>
-                  <Button 
-                    variant="contained" 
-                    sx={{ 
-                      minWidth: { xs: '120px', sm: '150px' }, 
-                      px: { xs: 1, sm: 2 }
-                    }}
-                  >
-                    Điểm danh
-                  </Button>
-                  <Button 
-                    variant="outlined"
-                    sx={{ 
-                      minWidth: { xs: '120px', sm: '150px' }, 
-                      px: { xs: 1, sm: 2 }
-                    }}
-                  >
-                    Xem lịch sử
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
+            <Avatar
+              onClick={handleMenuOpen}
+              sx={{ 
+                cursor: 'pointer', 
+                width: 40, 
+                height: 40,
+                bgcolor: 'primary.main',
+                border: '2px solid white'
+              }}
+            >
+              {(currentUser?.name?.charAt(0) || 'U').toUpperCase()}
+            </Avatar>
             
-            <Grid item xs={12} md={4}>
-              <Card sx={{ height: '100%' }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Thông tin điểm danh
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-                  <Stack spacing={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <AccessTimeIcon color="primary" />
-                      <Typography variant="body2">
-                        <strong>Thời gian điểm danh:</strong> 08:05:23 19/03/2025
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <CheckCircleIcon color="success" />
-                      <Typography variant="body2">
-                        <strong>Trạng thái:</strong> Đúng giờ
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <CalendarTodayIcon color="info" />
-                      <Typography variant="body2">
-                        <strong>Số ngày làm việc:</strong> 15/22 ngày
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Container>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              PaperProps={{
+                elevation: 3,
+                sx: { width: 230, mt: 1.5 }
+              }}
+              TransitionComponent={Fade}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <Box sx={{ px: 2, py: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                  {currentUser?.name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {currentUser?.email}
+                </Typography>
+              </Box>
+              <Divider />
+              <MenuItem onClick={() => { setActiveTab(2); handleMenuClose(); }}>
+                <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
+                <ListItemText primary="Hồ sơ cá nhân" />
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon><LogoutIcon fontSize="small" color="error" /></ListItemIcon>
+                <ListItemText primary="Đăng xuất" primaryTypographyProps={{ color: 'error' }} />
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      
+      {/* Main container */}
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 3, flexGrow: 1 }}>
+        {/* Face Recognition component */}
+        {showFaceRecognition && (
+          <Paper elevation={3} sx={{ mb: 3, p: 3, borderRadius: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 'medium' }}>
+              <CameraIcon sx={{ mr: 1, verticalAlign: 'text-bottom' }} />
+              Điểm Danh Khuôn Mặt
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <FaceRecognition onRecognitionResult={handleRecognitionResult} autoCapture={false} />
+          </Paper>
+        )}
         
-        <Footer />
+        {/* Tabs */}
+        <Paper sx={{ borderRadius: 2 }} elevation={2}>
+          <Tabs
+            value={activeTab}
+            onChange={handleTabChange}
+            variant="fullWidth"
+            indicatorColor="primary"
+            textColor="primary"
+            aria-label="employee portal tabs"
+            sx={{
+              '& .MuiTab-root': {
+                py: 1.5
+              }
+            }}
+          >
+            <Tab 
+              icon={<DashboardIcon />} 
+              iconPosition="start" 
+              label="Tổng quan"
+              id="dashboard-tab"
+            />
+            <Tab 
+              icon={<HistoryIcon />} 
+              iconPosition="start" 
+              label="Lịch sử điểm danh"
+              id="history-tab"
+            />
+            <Tab 
+              icon={<PersonIcon />} 
+              iconPosition="start" 
+              label="Hồ sơ cá nhân"
+              id="profile-tab"
+            />
+          </Tabs>
+        </Paper>
+        
+        {/* Tab content */}
+        <Box sx={{ mt: 3, mb: 3 }}>
+          {renderContent()}
+        </Box>
+      </Container>
+      
+      {/* Footer */}
+      <Box
+        component="footer"
+        sx={{
+          py: 2,
+          bgcolor: theme => theme.palette.mode === 'dark' ? '#121212' : '#f5f5f5',
+          borderTop: '1px solid',
+          borderColor: 'divider'
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography variant="body2" color="text.secondary" align="center">
+            © {new Date().getFullYear()} FaceID Attendance System - All rights reserved.
+          </Typography>
+        </Container>
       </Box>
-    </AppTheme>
+    </Box>
   );
 }

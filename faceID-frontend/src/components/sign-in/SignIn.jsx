@@ -3,44 +3,20 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import MuiCard from '@mui/material/Card';
-import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
-import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
+import { Alert, CircularProgress, Card, InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../AuthContext';
-import { Alert, CircularProgress, Paper } from '@mui/material';
-import axios from 'axios';
+import { authAPI } from '../../api';
 
 const theme = createTheme();
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignSelf: 'center',
-  width: '100%',
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: 'auto',
-  [theme.breakpoints.up('sm')]: {
-    maxWidth: '450px',
-  },
-  boxShadow:
-    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-  ...theme.applyStyles('dark', {
-    boxShadow:
-      'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
-  }),
-  position: 'absolute', // Căn giữa bằng thuộc tính position
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-}));
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -49,6 +25,7 @@ export default function SignIn() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -75,11 +52,12 @@ export default function SignIn() {
     setError('');
     
     try {
-      console.log("Attempting login with:", { username: formData.username });
-      const response = await axios.post(`${API_URL}/api/token/`, {
+      // Sử dụng authAPI.login với URL endpoint mới
+      const response = await authAPI.login({
         username: formData.username,
         password: formData.password
       });
+      
       console.log("Login response:", response.data);
       
       localStorage.setItem('access_token', response.data.access);
@@ -99,7 +77,10 @@ export default function SignIn() {
       }
     } catch (err) {
       console.error("Login failed:", err);
-      setError('Đăng nhập không thành công. Vui lòng kiểm tra tên đăng nhập và mật khẩu.');
+      const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.message ||
+                          'Đăng nhập không thành công. Vui lòng kiểm tra tên đăng nhập và mật khẩu.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -107,33 +88,42 @@ export default function SignIn() {
   
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline>
-        <Card variant="outlined">
-          <Paper
-            elevation={6}
+      <CssBaseline />
+      <Grid container component="main" sx={{ height: '100vh' }}>
+        <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
+          sx={{
+            backgroundImage: 'url(/images/login-bg.jpg)',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+          <Box
             sx={{
-              p: { xs: 2, sm: 4 },
+              my: 8,
+              mx: 4,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              borderRadius: 2,
-              width: '100%',
-              maxWidth: '100%',
-              mx: 'auto'
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Đăng nhập
-            </Typography>
-            
             {message && (
-              <Alert severity="success" sx={{ mt: 2, width: '100%' }}>
+              <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
                 {message}
               </Alert>
             )}
+            
+            <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Đăng Nhập
+            </Typography>
             
             {error && (
               <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
@@ -141,12 +131,7 @@ export default function SignIn() {
               </Alert>
             )}
             
-            <Box 
-              component="form" 
-              onSubmit={handleSubmit} 
-              noValidate 
-              sx={{ mt: 1, width: '100%' }}
-            >
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3, width: '100%' }}>
               <TextField
                 margin="normal"
                 required
@@ -158,6 +143,7 @@ export default function SignIn() {
                 autoFocus
                 value={formData.username}
                 onChange={handleChange}
+                disabled={loading}
               />
               <TextField
                 margin="normal"
@@ -165,36 +151,46 @@ export default function SignIn() {
                 fullWidth
                 name="password"
                 label="Mật khẩu"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 autoComplete="current-password"
                 value={formData.password}
                 onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Ghi nhớ đăng nhập"
+                disabled={loading}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 3, mb: 2, py: 1.5 }}
                 disabled={loading}
               >
-                {loading ? <CircularProgress size={24} /> : 'Đăng nhập'}
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Đăng Nhập'}
               </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link component={RouterLink} to="/forgot-password" variant="body2">
-                    Quên mật khẩu?
+              <Grid container justifyContent="center">
+                <Grid item>
+                  <Link component={RouterLink} to="/register" variant="body2">
+                    {"Chưa có tài khoản? Đăng ký"}
                   </Link>
                 </Grid>
               </Grid>
             </Box>
-          </Paper>
-        </Card>
-      </CssBaseline>
+          </Box>
+        </Grid>
+      </Grid>
     </ThemeProvider>
   );
 }

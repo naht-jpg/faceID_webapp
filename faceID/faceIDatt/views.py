@@ -32,6 +32,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
 from .database import signin_collection
 from django.contrib.auth.models import User
+from datetime import timedelta
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +70,7 @@ def face_check(request):
     return Response({'name': name if name else "Unknown"})
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_employees_api(request):
     """API lấy danh sách nhân viên"""
     try:
@@ -83,6 +89,7 @@ def get_employees_api(request):
         return Response({'error': str(e)}, status=500)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_employee_api(request, employee_id):
     """API lấy thông tin nhân viên theo ID"""
     try:
@@ -119,6 +126,7 @@ def create_employee_api(request):
         return Response({'error': str(e)}, status=500)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def update_employee_api(request, employee_id):
     """API cập nhật thông tin nhân viên"""
     try:
@@ -133,6 +141,17 @@ def update_employee_api(request, employee_id):
             return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
     except Exception as e:
         return Response({'error': str(e)}, status=500)
+
+@api_view(['PATCH'])
+def patch_employee_api(request, employee_id):
+    employee = get_object_or_404(Employee, id=employee_id)
+    serializer = EmployeeSerializer(employee, data=request.data, partial=True)  # partial=True để cập nhật từng phần
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
 def delete_employee_api(request, employee_id):
@@ -568,4 +587,533 @@ def get_today_attendance(request, employee_id):
             'success': False,
             'message': f'Lỗi khi lấy dữ liệu điểm danh: {str(e)}'
         }, status=500)
+
+
+
+# Class-based view cho Employee List và Create
+class EmployeeListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """GET method: Lấy danh sách nhân viên"""
+        try:
+            employees = get_employees()
+            if not isinstance(employees, list):
+                employees = []
+                
+            response = Response(employees)
+            # Add headers to prevent caching
+            response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response["Pragma"] = "no-cache"
+            response["Expires"] = "0"
+            return response
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+    
+    def post(self, request):
+        """POST method: Tạo nhân viên mới"""
+        try:
+            print("Received employee data:", request.data)
+            
+            employee_data = request.data
+            employee_id = add_employee(employee_data)
+            
+            print("Created employee with ID:", employee_id)
+            
+            return Response({
+                'success': True,
+                '_id': employee_id,
+                'message': 'Đã tạo nhân viên mới'
+            }, status=201)
+        except Exception as e:
+            print("Error creating employee:", str(e))
+            return Response({'error': str(e)}, status=500)
+
+
+# Class-based view cho Employee Detail, Update và Delete
+class EmployeeDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, employee_id):
+        """GET method: Lấy thông tin nhân viên theo ID"""
+        try:
+            employee = get_employee_by_id(employee_id)
+            if employee:
+                return Response(employee)
+            else:
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
+        except InvalidId:
+            return Response({'error': 'ID không hợp lệ'}, status=400)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+    
+    def put(self, request, employee_id):
+        """PUT method: Cập nhật toàn bộ thông tin nhân viên"""
+        try:
+            updated_data = request.data
+            result = update_employee(employee_id, updated_data)
+            if result:
+                return Response({
+                    'success': True,
+                    'message': 'Đã cập nhật thông tin nhân viên'
+                })
+            else:
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+    
+    def patch(self, request, employee_id):
+        """PATCH method: Cập nhật một phần thông tin nhân viên"""
+        try:
+            employee = get_employee_by_id(employee_id)
+            if not employee:
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
+                
+            # Chỉ cập nhật các trường được cung cấp
+            updated_data = {k: v for k, v in request.data.items() if v is not None}
+            result = update_employee(employee_id, updated_data)
+            
+            if result:
+                return Response({
+                    'success': True,
+                    'message': 'Đã cập nhật thông tin nhân viên'
+                })
+            else:
+                return Response({'error': 'Không thể cập nhật nhân viên'}, status=400)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+    
+    def delete(self, request, employee_id):
+        """DELETE method: Xóa nhân viên"""
+        try:
+            result = delete_employee(employee_id)
+            if result:
+                return Response({
+                    'success': True,
+                    'message': 'Đã xóa nhân viên'
+                })
+            else:
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
+        except InvalidId:
+            return Response({'error': 'ID không hợp lệ'}, status=400)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
+# Tương tự cho các endpoints khác
+class FaceRegisterAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        """API đăng ký khuôn mặt cho nhân viên"""
+        try:
+            data = request.data
+            employee_id = data.get('employee_id')
+            name = data.get('name')
+            image_data = data.get('image')
+            
+            if not employee_id or not image_data:
+                return Response({
+                    'success': False,
+                    'message': 'Thiếu employee_id hoặc image'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Đăng ký khuôn mặt
+            result = register_face(employee_id, name, image_data)
+            
+            # Thống nhất với mã trạng thái HTTP
+            if result.get('success'):
+                return Response(result, status=status.HTTP_201_CREATED)
+            else:
+                return Response(result, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class FaceRecognitionAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        """API nhận diện khuôn mặt"""
+        try:
+            image_data = request.data.get('image')
+            
+            if not image_data:
+                return Response({
+                    'success': False,
+                    'message': 'Thiếu dữ liệu image'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Nhận diện khuôn mặt
+            result = recognize_face(image_data)
+            return Response(result)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AttendanceAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, employee_id):
+        """GET: Lấy lịch sử điểm danh của nhân viên"""
+        try:
+            # Lấy tham số query
+            year = request.query_params.get('year')
+            month = request.query_params.get('month')
+            day = request.query_params.get('day')
+            latest = request.query_params.get('latest', False)
+            today = request.query_params.get('today', False)
+            
+            from .database import attendance_collection
+            
+            # Nếu yêu cầu bản ghi mới nhất
+            if latest:
+                return self._get_latest_attendance(employee_id)
+                
+            # Nếu yêu cầu bản ghi hôm nay
+            if today:
+                return self._get_today_attendance(employee_id)
+                
+            # Lấy dữ liệu dựa trên bộ lọc
+            query = {'employee_id': employee_id}
+            
+            if year and month and day:
+                # Lọc theo ngày cụ thể
+                start_date = datetime(int(year), int(month), int(day), 0, 0, 0)
+                end_date = datetime(int(year), int(month), int(day), 23, 59, 59)
+                query['datetime'] = {'$gte': start_date, '$lte': end_date}
+            elif year and month:
+                # Lọc theo tháng
+                start_date = datetime(int(year), int(month), 1, 0, 0, 0)
+                # Xác định ngày cuối tháng
+                if int(month) == 12:
+                    end_date = datetime(int(year) + 1, 1, 1, 0, 0, 0)
+                else:
+                    end_date = datetime(int(year), int(month) + 1, 1, 0, 0, 0)
+                end_date = end_date - timedelta(seconds=1)
+                query['datetime'] = {'$gte': start_date, '$lte': end_date}
+            
+            # Thực hiện truy vấn
+            attendance_records = list(attendance_collection.find(query).sort('datetime', -1))
+            
+            # Chuyển đổi ObjectId và datetime thành chuỗi
+            for record in attendance_records:
+                if '_id' in record:
+                    record['_id'] = str(record['_id'])
+                if 'datetime' in record:
+                    record['datetime'] = record['datetime'].isoformat() if hasattr(record['datetime'], 'isoformat') else str(record['datetime'])
+                if 'created_at' in record:
+                    record['created_at'] = record['created_at'].isoformat() if hasattr(record['created_at'], 'isoformat') else str(record['created_at'])
+            
+            return Response({
+                'success': True,
+                'records': attendance_records,
+                'count': len(attendance_records)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting attendance: {str(e)}")
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    def _get_latest_attendance(self, employee_id):
+        """Helper method to get latest attendance"""
+        try:
+            from .database import attendance_collection
+            
+            attendance_record = attendance_collection.find_one(
+                {'employee_id': employee_id},
+                sort=[('datetime', -1)]
+            )
+            
+            if not attendance_record:
+                return Response({
+                    'success': False,
+                    'message': 'Không tìm thấy dữ liệu điểm danh'
+                }, status=status.HTTP_404_NOT_FOUND)
+                
+            # Chuyển ObjectId thành string
+            attendance_record['_id'] = str(attendance_record['_id'])
+            
+            # Chuyển datetime sang string
+            if 'datetime' in attendance_record:
+                attendance_record['datetime'] = attendance_record['datetime'].isoformat() if hasattr(attendance_record['datetime'], 'isoformat') else str(attendance_record['datetime'])
+            if 'created_at' in attendance_record:
+                attendance_record['created_at'] = attendance_record['created_at'].isoformat() if hasattr(attendance_record['created_at'], 'isoformat') else str(attendance_record['created_at'])
+                
+            return Response({
+                'success': True,
+                'data': attendance_record
+            })
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def _get_today_attendance(self, employee_id):
+        """Helper method to get today's attendance"""
+        try:
+            # Lấy thời gian hiện tại
+            now = datetime.now()
+            start_of_day = datetime(now.year, now.month, now.day, 0, 0, 0)
+            end_of_day = datetime(now.year, now.month, now.day, 23, 59, 59)
+            
+            # Tìm các bản ghi điểm danh trong ngày
+            from .database import attendance_collection
+            
+            today_attendance = list(attendance_collection.find({
+                'employee_id': employee_id,
+                'datetime': {
+                    '$gte': start_of_day,
+                    '$lte': end_of_day
+                }
+            }).sort('datetime', -1))
+            
+            # Xử lý dữ liệu trả về giống như trong phương thức get
+            for record in today_attendance:
+                if '_id' in record:
+                    record['_id'] = str(record['_id'])
+                if 'datetime' in record:
+                    record['datetime'] = record['datetime'].isoformat() if hasattr(record['datetime'], 'isoformat') else str(record['datetime'])
+                if 'created_at' in record:
+                    record['created_at'] = record['created_at'].isoformat() if hasattr(record['created_at'], 'isoformat') else str(record['created_at'])
+            
+            return Response({
+                'success': True,
+                'message': f'Đã tìm thấy {len(today_attendance)} bản ghi điểm danh hôm nay',
+                'records': today_attendance
+            })
+            
+        except Exception as e:
+            import traceback
+            logger.error(f"Error in get_today_attendance: {str(e)}")
+            logger.error(traceback.format_exc())
+            return Response({
+                'success': False,
+                'message': f'Lỗi khi lấy dữ liệu điểm danh: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def post(self, request, employee_id):
+        """POST: Tạo bản ghi điểm danh mới"""
+        try:
+            data = request.data
+            
+            # Đảm bảo data có employee_id
+            if 'employee_id' not in data:
+                data['employee_id'] = employee_id
+                
+            # Thêm datetime nếu không có
+            if 'datetime' not in data:
+                data['datetime'] = datetime.now()
+                
+            # Thêm vào cơ sở dữ liệu
+            from .database import attendance_collection
+            result = attendance_collection.insert_one(data)
+            
+            return Response({
+                'success': True,
+                'message': 'Đã tạo bản ghi điểm danh',
+                'id': str(result.inserted_id)
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SigninListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """GET: Lấy danh sách tài khoản"""
+        try:
+            users = list(signin_collection.find())
+            # Chuyển đổi ObjectId sang string
+            for user in users:
+                user['_id'] = str(user['_id'])
+                # Không trả về mật khẩu
+                if 'password' in user:
+                    del user['password']
+            
+            return Response(users)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def post(self, request):
+        """POST: Tạo tài khoản mới"""
+        try:
+            data = request.data
+            
+            # Kiểm tra xem tên người dùng đã tồn tại chưa
+            if signin_collection.find_one({'name': data['name']}):
+                return Response({
+                    'success': False,
+                    'message': 'Tên đăng nhập đã tồn tại'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Mã hóa mật khẩu
+            if 'password' in data and data['password']:
+                password = data['password'].encode('utf-8')
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(password, salt)
+                data['password'] = hashed_password
+            
+            # Tạo document mới trong MongoDB
+            result = signin_collection.insert_one(data)
+            
+            return Response({
+                'success': True,
+                'message': 'Đã tạo tài khoản',
+                'id': str(result.inserted_id)
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SigninDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, pk):
+        """GET: Lấy thông tin tài khoản theo ID"""
+        try:
+            # Lấy tài khoản theo ID
+            account = signin_collection.find_one({'_id': ObjectId(pk)})
+            if not account:
+                return Response({
+                    'success': False,
+                    'message': 'Không tìm thấy tài khoản'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Chuyển đổi ObjectId sang string
+            account['_id'] = str(account['_id'])
+            # Không trả về mật khẩu
+            if 'password' in account:
+                del account['password']
+                
+            return Response({
+                'success': True,
+                'data': account
+            })
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def put(self, request, pk):
+        """PUT: Cập nhật toàn bộ thông tin tài khoản"""
+        try:
+            data = request.data
+            
+            # Kiểm tra xem tài khoản có tồn tại không
+            if not signin_collection.find_one({'_id': ObjectId(pk)}):
+                return Response({
+                    'success': False,
+                    'message': 'Không tìm thấy tài khoản'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Mã hóa mật khẩu nếu có
+            if 'password' in data and data['password']:
+                password = data['password'].encode('utf-8')
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(password, salt)
+                data['password'] = hashed_password
+            
+            # Cập nhật document
+            signin_collection.update_one(
+                {'_id': ObjectId(pk)},
+                {'$set': data}
+            )
+            
+            return Response({
+                'success': True,
+                'message': 'Đã cập nhật tài khoản'
+            })
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def patch(self, request, pk):
+        """PATCH: Cập nhật một phần thông tin tài khoản"""
+        try:
+            data = request.data
+            
+            # Kiểm tra xem tài khoản có tồn tại không
+            if not signin_collection.find_one({'_id': ObjectId(pk)}):
+                return Response({
+                    'success': False,
+                    'message': 'Không tìm thấy tài khoản'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Mã hóa mật khẩu nếu có
+            if 'password' in data and data['password']:
+                password = data['password'].encode('utf-8')
+                salt = bcrypt.gensalt()
+                hashed_password = bcrypt.hashpw(password, salt)
+                data['password'] = hashed_password
+            
+            # Cập nhật document
+            signin_collection.update_one(
+                {'_id': ObjectId(pk)},
+                {'$set': data}
+            )
+            
+            return Response({
+                'success': True,
+                'message': 'Đã cập nhật tài khoản'
+            })
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def delete(self, request, pk):
+        """DELETE: Xóa tài khoản"""
+        try:
+            # Xóa tài khoản
+            result = signin_collection.delete_one({'_id': ObjectId(pk)})
+            
+            if result.deleted_count == 1:
+                return Response({
+                    'success': True,
+                    'message': 'Đã xóa tài khoản'
+                }, status=status.HTTP_204_NO_CONTENT)
+                
+            return Response({
+                'success': False,
+                'message': 'Không thể xóa tài khoản'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

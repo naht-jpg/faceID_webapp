@@ -1,8 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from './api';
 
-const AuthContext = createContext();
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const AuthContext = createContext(null);
 
 export function useAuth() {
   return useContext(AuthContext);
@@ -21,10 +20,8 @@ export function AuthProvider({ children }) {
       
       if (accessToken) {
         try {
-          // Try to get user info with current token
-          const userResponse = await axios.get(`${API_URL}/user/`, {
-            headers: { Authorization: `Bearer ${accessToken}` }
-          });
+          // Sử dụng API endpoint mới
+          const userResponse = await authAPI.getCurrentUser();
           
           setCurrentUser(userResponse.data);
           setIsAdmin(userResponse.data.role === 'admin');
@@ -32,17 +29,13 @@ export function AuthProvider({ children }) {
           // If token expired, try refresh
           if (error.response?.status === 401 && refreshToken) {
             try {
-              const refreshResponse = await axios.post(
-                `${API_URL}/token/refresh/`, 
-                { refresh: refreshToken }
-              );
+              // Sử dụng API endpoint mới
+              const refreshResponse = await authAPI.refreshToken(refreshToken);
               
               localStorage.setItem('access_token', refreshResponse.data.access);
               
               // Try again with new token
-              const userResponse = await axios.get(`${API_URL}/user/`, {
-                headers: { Authorization: `Bearer ${refreshResponse.data.access}` }
-              });
+              const userResponse = await authAPI.getCurrentUser();
               
               setCurrentUser(userResponse.data);
               setIsAdmin(userResponse.data.role === 'admin');

@@ -15,7 +15,7 @@ import {
 import FaceRegistration from '../FaceRegistration';
 import AddEmployeeForm from './AddEmployeeForm';
 import EditEmployeeForm from './EditEmployeeForm';
-import axios from 'axios';
+import { employeeAPI } from '../../api';
 import FaceRecognitionTab from './FaceRecognitionTab';
 
 function TabPanel({ children, value, index, ...props }) {
@@ -34,6 +34,7 @@ function TabPanel({ children, value, index, ...props }) {
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -46,22 +47,32 @@ export default function EmployeeManagement() {
 
   const fetchEmployees = async () => {
     setLoading(true);
+    setError(null);
+    
     try {
-      // Thay đổi từ axios.get trực tiếp thành employeeAPI.getAll()
+      // Sử dụng employeeAPI.getAll() để gọi endpoint /employees/
       const response = await employeeAPI.getAll();
+      
       console.log("Employee data:", response.data);
       
+      // Xử lý dữ liệu trả về
       if (Array.isArray(response.data)) {
         setEmployees(response.data);
       } else if (response.data && typeof response.data === 'object') {
-        // Thêm xử lý đối tượng nếu API trả về dạng { employees: [...] }
-        const employeesArray = response.data.employees || response.data.data || [];
-        setEmployees(Array.isArray(employeesArray) ? employeesArray : []);
+        // Trường hợp API trả về dạng { employees: [...] } hoặc { data: [...] }
+        const employeeData = response.data.employees || response.data.data || [];
+        setEmployees(Array.isArray(employeeData) ? employeeData : []);
       } else {
         setEmployees([]);
       }
     } catch (error) {
       console.error("Lỗi khi lấy danh sách nhân viên:", error);
+      
+      if (error.response?.status === 401) {
+        setError("Phiên làm việc hết hạn, vui lòng đăng nhập lại");
+      } else {
+        setError("Không thể tải danh sách nhân viên. Vui lòng thử lại sau.");
+      }
     } finally {
       setLoading(false);
     }
