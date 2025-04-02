@@ -104,10 +104,38 @@ export const employeeAPI = {
 
 // Face API
 export const faceAPI = {
-  register: (data) => {
+  register: function(data, name, imageData) {
     const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key]);
+    
+    // Nếu là object với nhiều trường
+    if (typeof data === 'object' && !(data instanceof Blob) && !(data instanceof File)) {
+      for (const key in data) {
+        formData.append(key, data[key]);
+      }
+    } 
+    // Nếu gọi trực tiếp với employee_id, name, và image
+    else if (name && imageData) {
+      // Kiểm tra và ghi log về params
+      console.log("Sending registration data:", {
+        employee_id: data,
+        name: name,
+        image_type: imageData instanceof File ? 'File: ' + imageData.name : 
+                   imageData instanceof Blob ? 'Blob' : typeof imageData,
+        image_size: imageData.size ? Math.round(imageData.size / 1024) + "KB" : 
+                    (typeof imageData === 'string' ? Math.round(imageData.length / 1.37 / 1024) + "KB" : 'unknown')
+      });
+      
+      formData.append('employee_id', data);
+      formData.append('name', name);
+      formData.append('image', imageData);
+    }
+    
+    // Log FormData để kiểm tra
+    console.log("FormData entries:");
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1] instanceof File ? 
+        `File: ${pair[1].name}, ${pair[1].type}, ${Math.round(pair[1].size / 1024)}KB` : 
+        pair[1]);
     }
     
     return apiClient.post('/faces/register/', formData, {
@@ -116,6 +144,7 @@ export const faceAPI = {
       }
     });
   },
+  
   recognize: (imageData) => {
     const formData = new FormData();
     formData.append('image', imageData);
@@ -124,6 +153,13 @@ export const faceAPI = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
+    });
+  },
+  
+  // Hàm helper để lấy lịch sử nhận diện khuôn mặt
+  getAttendanceHistory: (employeeId) => {
+    return apiClient.get(`/attendance/${employeeId}/`, {
+      params: { all: true }
     });
   }
 };

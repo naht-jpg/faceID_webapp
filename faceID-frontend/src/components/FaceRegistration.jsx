@@ -47,55 +47,125 @@ export default function FaceRegistration({ employee, onSuccess }) {
   };
   
   const captureImage = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) return null;
     
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     
-    // Set canvas dimensions to match video
+    // Đảm bảo kích thước canvas đủ lớn và rõ nét
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
-    // Draw video frame to canvas
+    // Vẽ video frame lên canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Convert canvas to base64 image
-    const imageData = canvas.toDataURL('image/jpeg');
-    setCapturedImage(imageData);
+    // Trả về dạng base64 thay vì blob
+    const dataURL = canvas.toDataURL('image/jpeg', 0.95);
     
-    return imageData;
+    // Đảm bảo định dạng base64 có header đúng
+    if (dataURL.startsWith('data:image/jpeg')) {
+      return dataURL;
+    } else {
+      console.error("Invalid image format generated:");
+      console.log(dataURL.substring(0, 50) + "...");
+      return null;
+    }
   };
   
   const registerFace = async () => {
-    // Capture the current frame
-    const imageData = captureImage();
-    
-    if (!imageData) {
-      setError("Không thể chụp ảnh. Vui lòng thử lại.");
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-    
     try {
-      // Gửi toàn bộ chuỗi base64, không cắt bỏ prefix
-      const response = await faceAPI.register(employee._id, employee.name, imageData);
+      // Lấy ảnh dạng base64 trực tiếp
+      const imageBase64 = captureImage();
       
-      if (response.data.success) {
-        setRegistrationComplete(true);
-        if (onSuccess) {
-          onSuccess();
+      if (!imageBase64) {
+        setError("Không thể chụp ảnh. Vui lòng thử lại.");
+        return;
+      }
+      
+      // Kiểm tra định dạng base64
+      if (!imageBase64.startsWith('data:image')) {
+        setError("Định dạng ảnh không hợp lệ. Vui lòng thử lại.");
+        return;
+      }
+      
+      console.log("Image format check:", {
+        isPNG: imageBase64.startsWith('data:image/png'),
+        isJPEG: imageBase64.startsWith('data:image/jpeg'),
+        sizeEstimate: Math.round(imageBase64.length / 1.37 / 1024) + "KB"
+      });
+      
+      setLoading(true);
+      setError(null);
+      
+      // Lưu ảnh để hiển thị
+      setCapturedImage(imageBase64);
+      
+      try {
+        // Gửi trực tiếp dạng base64 mà không cần chuyển đổi
+        const response = await faceAPI.register(
+          employee._id, 
+          employee.name, 
+          imageBase64  // Gửi base64 thay vì File/Blob
+        );
+        
+        if (response.data.success) {
+          setRegistrationComplete(true);
+          if (onSuccess) {
+            onSuccess({
+              ...response.data,
+              imageData: imageBase64
+            });
+          }
+        } else {
+          setError(response.data.message || "Đăng ký không thành công. Vui lòng thử lại.");
         }
-      } else {
-        setError(response.data.message || "Đăng ký không thành công. Vui lòng thử lại.");
+      } catch (err) {
+        console.error("Error registering face:", err);
+        
+        // Ghi log chi tiết hơn về lỗi
+        if (err.response) {
+          console.error("Server response:", err.response.data);
+          console.error("Status:", err.response.status);
+          console.error("Headers:", err.response.headers);
+        }
+        
+        const errorMsg = err.response?.data?.message || 
+                        err.response?.data?.detail || 
+                        "Lỗi khi đăng ký khuôn mặt. Vui lòng thử lại.";
+        setError(errorMsg);
       }
     } catch (err) {
-      console.error("Error registering face:", err);
-      setError("Lỗi khi đăng ký khuôn mặt. Vui lòng thử lại.");
+      console.error("Error capturing image:", err);
+      setError("Lỗi khi chụp ảnh. Vui lòng thử lại.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDebug = async () => {
+    try {
+      const imageBase64 = captureImage();
+      if (!imageBase64) {
+        alert("Không thể chụp ảnh để debug");
+        return;
+      }
+      
+      console.log("Debug info:", {
+        employee_id: employee._id,
+        name: employee.name,
+        image_type: "base64",
+        image_size: Math.round(imageBase64.length / 1.37 / 1024) + "KB", // Ước tính kích thước
+        image_format: imageBase64.substring(0, 30) + "..."
+      });
+      
+      alert(`Thông tin debug đã được ghi vào console.
+Employee ID: ${employee._id}
+Name: ${employee.name}
+Image type: base64
+Image size: khoảng ${Math.round(imageBase64.length / 1.37 / 1024)}KB`);
+    } catch (err) {
+      console.error("Debug error:", err);
     }
   };
 
@@ -190,15 +260,25 @@ export default function FaceRegistration({ employee, onSuccess }) {
             </Grid>
           </Grid>
           
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          <Typography variant="body2" component="div" color="text.secondary" sx={{ mt: 2 }}>
             <strong>Lưu ý:</strong>
-            <ul>
-              <li>Đảm bảo khuôn mặt nằm trong khung hình tròn</li>
-              <li>Ánh sáng đủ sáng và không bị ngược sáng</li>
-              <li>Nhìn thẳng vào camera, không đeo kính râm</li>
-              <li>Giữ khoảng cách vừa phải (30-50cm từ camera)</li>
-            </ul>
           </Typography>
+          <Box component="ul" sx={{ mt: 1, pl: 4, color: 'text.secondary' }}>
+            <Typography component="li" variant="body2">Đảm bảo khuôn mặt nằm trong khung hình tròn</Typography>
+            <Typography component="li" variant="body2">Ánh sáng đủ sáng và không bị ngược sáng</Typography>
+            <Typography component="li" variant="body2">Nhìn thẳng vào camera, không đeo kính râm</Typography>
+            <Typography component="li" variant="body2">Giữ khoảng cách vừa phải (30-50cm từ camera)</Typography>
+          </Box>
+
+          <Box sx={{ mt: 2 }}>
+            <Button 
+              variant="outlined" 
+              size="small" 
+              onClick={handleDebug}
+            >
+              Debug
+            </Button>
+          </Box>
         </>
       )}
     </Box>

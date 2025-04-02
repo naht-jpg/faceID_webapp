@@ -81,7 +81,8 @@ const FaceRecognition = ({ onRecognitionResult, autoCapture = false }) => {
       // Convert base64 image to blob
       const imageBlob = dataURItoBlob(image);
       
-      // Sử dụng API endpoint mới
+      // Sử dụng API endpoint để nhận diện khuôn mặt
+      // API này sẽ lưu kết quả vào testdata nếu nhận diện thành công
       const response = await faceAPI.recognize(imageBlob);
       
       // Xử lý kết quả
@@ -244,7 +245,7 @@ const FaceRecognition = ({ onRecognitionResult, autoCapture = false }) => {
                     Hướng dẫn nhận diện khuôn mặt
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
-                  <Typography variant="body1" paragraph>
+                  <Typography variant="body1" component="div" paragraph>
                     Để đảm bảo độ chính xác cao nhất, vui lòng kiểm tra:
                   </Typography>
                   

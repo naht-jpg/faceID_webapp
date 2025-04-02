@@ -31,6 +31,7 @@ try:
     attendance_collection = db['attendance']  # Collection mới lưu thông tin điểm danh
     signin_collection = db[settings.MONGO_COLLECTIONS.get('signin', 'signin')]  #lưu thông tin tài khoản đăng nhập cho từng nhân viên
     trainner_collection = db[settings.MONGO_COLLECTIONS.get('trainner', 'trainner')]  
+    testdata_collection = db['testdata']  # Collection mới lưu thông tin điểm danh vào testdata
     
 except Exception as e:
     logger.error(f"MongoDB connection error: {str(e)}")
@@ -232,7 +233,7 @@ def save_face_feature(employee_id, name, feature_vector, image_path=None):
         return False
 
 def save_attendance(name, image_path, person_data=None):
-    """Lưu thông tin điểm danh"""
+    """Lưu thông tin điểm danh vào collection testdata"""
     try:
         # Nếu không có person_data, tìm trong trainner collection
         employee_id = None
@@ -257,70 +258,33 @@ def save_attendance(name, image_path, person_data=None):
         
         # Cấu hình giờ làm việc
         work_hours = {
-            'check_in': (7, 0),     # 7:00 AM
-            'late_threshold': (7, 59), # 7:59 AM
-            'noon': (12, 0),         # 12:00 PM
-            'check_out': (16, 0)     # 4:00 PM
+            'start': datetime.datetime.combine(now.date(), datetime.time(7, 0)),  # 7:00 AM
+            'end': datetime.datetime.combine(now.date(), datetime.time(17, 0)),   # 5:00 PM
         }
         
-        # Tính thời gian đi muộn/về sớm
-        check_in_time = datetime.datetime.combine(
-            now.date(), 
-            datetime.time(work_hours['check_in'][0], work_hours['check_in'][1])
-        )
+        # Tính toán các thông số đi muộn, về sớm
+        early_minutes = datetime.timedelta(0)
+        late_minutes = datetime.timedelta(0)
+        early_leave_minutes = datetime.timedelta(0)
+        late_leave_minutes = datetime.timedelta(0)
         
-        late_threshold = datetime.datetime.combine(
-            now.date(),
-            datetime.time(work_hours['late_threshold'][0], work_hours['late_threshold'][1])
-        )
-        
-        noon_time = datetime.datetime.combine(
-            now.date(),
-            datetime.time(work_hours['noon'][0], work_hours['noon'][1])
-        )
-        
-        check_out_time = datetime.datetime.combine(
-            now.date(),
-            datetime.time(work_hours['check_out'][0], work_hours['check_out'][1])
-        )
-        
-        # Khởi tạo thời gian đến/về
-        early_minutes = late_minutes = early_leave_minutes = late_leave_minutes = 0
-        
-        # Tính thời gian đến
-        if now < check_in_time:
-            # Đến sớm
-            early_minutes = (check_in_time - now).total_seconds() / 60
-        elif now <= late_threshold:
-            # Trong khoảng cho phép
-            late_minutes = 0
+        # Nếu đi làm muộn hơn giờ bắt đầu
+        if now > work_hours['start']:
+            late_minutes = now - work_hours['start']
         else:
-            # Đến muộn
-            late_minutes = (now - check_in_time).total_seconds() / 60
+            early_minutes = work_hours['start'] - now
+            
+        # Chuyển đổi thành chuỗi định dạng H:M:S
+        early_minutes_str = str(early_minutes)
+        late_minutes_str = str(late_minutes)
+        early_leave_minutes_str = str(early_leave_minutes)
+        late_leave_minutes_str = str(late_leave_minutes)
         
-        # Tính thời gian về
-        if now < check_out_time:
-            # Về sớm
-            early_leave_minutes = (check_out_time - now).total_seconds() / 60
-            late_leave_minutes = 0
-        else:
-            # Về trễ
-            early_leave_minutes = 0
-            late_leave_minutes = (now - check_out_time).total_seconds() / 60
-        
-        # Chuyển đổi sang định dạng chuỗi
-        early_minutes_str = str(datetime.timedelta(minutes=early_minutes))
-        late_minutes_str = str(datetime.timedelta(minutes=late_minutes))
-        early_leave_minutes_str = str(datetime.timedelta(minutes=early_leave_minutes))
-        late_leave_minutes_str = str(datetime.timedelta(minutes=late_leave_minutes))
-        
-        # Dữ liệu điểm danh
+        # Tạo dữ liệu điểm danh cho testdata collection
         attendance_data = {
-            'employee_id': employee_id,
             'name': name,
             'image_path': image_path,
             'timestamp': timestamp,
-            'datetime': now,
             'early_minutes': early_minutes_str,
             'late_minutes': late_minutes_str,
             'early_leave_minutes': early_leave_minutes_str,
@@ -337,9 +301,17 @@ def save_attendance(name, image_path, person_data=None):
                 'phone': employee.get('phone'),
                 'job_position': employee.get('job_position')
             })
+        elif person_data:
+            attendance_data.update({
+                'age': person_data.get('age'),
+                'location': person_data.get('location'),
+                'email': person_data.get('email'),
+                'phone': person_data.get('phone'),
+                'job_position': person_data.get('job_position')
+            })
         
-        # Lưu vào collection attendance
-        result = attendance_collection.insert_one(attendance_data)
+        # Lưu vào collection testdata thay vì attendance
+        result = testdata_collection.insert_one(attendance_data)
         return result.inserted_id is not None
     except Exception as e:
         logger.error(f"Error saving attendance: {str(e)}")
@@ -370,3 +342,49 @@ def get_attendance_history(name=None, employee_id=None):
     except Exception as e:
         logger.error(f"Error getting attendance history: {str(e)}")
         return []
+
+def update_dataset_image_path(employee_id, image_path):
+    """Cập nhật đường dẫn ảnh trong collection dataset"""
+    try:
+        # Kiểm tra xem bản ghi dataset đã tồn tại chưa
+        dataset_record = dataset_collection.find_one({'employee_id': employee_id})
+        
+        if dataset_record:
+            # Cập nhật đường dẫn ảnh nếu bản ghi đã tồn tại
+            dataset_collection.update_one(
+                {'employee_id': employee_id},
+                {'$set': {
+                    'image_path': image_path,
+                    'has_face': True,
+                    'updated_at': datetime.datetime.now()
+                }}
+            )
+        else:
+            # Lấy thông tin nhân viên để tạo bản ghi mới
+            employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
+            
+            if not employee:
+                logger.error(f"Employee with ID {employee_id} not found")
+                return False
+                
+            # Tạo bản ghi mới trong dataset
+            dataset_record = {
+                'employee_id': employee_id,
+                'name': employee.get('name', ''),
+                'age': employee.get('age', ''),
+                'location': employee.get('location', ''),
+                'email': employee.get('email', ''),
+                'phone': employee.get('phone', ''),
+                'job_position': employee.get('job_position', ''),
+                'image_path': image_path,
+                'has_face': True,
+                'created_at': datetime.datetime.now(),
+                'timestamp': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            dataset_collection.insert_one(dataset_record)
+            
+        return True
+    except Exception as e:
+        logger.error(f"Error updating dataset image path: {str(e)}")
+        return False

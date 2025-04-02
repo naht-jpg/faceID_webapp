@@ -717,7 +717,7 @@ class FaceRegisterAPIView(APIView):
                     'message': 'Thiếu employee_id hoặc image'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Đăng ký khuôn mặt
+            # Đăng ký khuôn mặt - lưu vào dataset và tạo feature trong trainer
             result = register_face(employee_id, name, image_data)
             
             # Thống nhất với mã trạng thái HTTP
@@ -747,7 +747,7 @@ class FaceRecognitionAPIView(APIView):
                     'message': 'Thiếu dữ liệu image'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Nhận diện khuôn mặt
+            # Nhận diện khuôn mặt và lưu vào testdata nếu thành công
             result = recognize_face(image_data)
             return Response(result)
             
