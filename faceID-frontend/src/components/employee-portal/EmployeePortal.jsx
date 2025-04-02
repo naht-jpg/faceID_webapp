@@ -184,7 +184,7 @@ export default function EmployeePortal() {
       </AppBar>
       
       {/* Main container */}
-      <Container maxWidth="lg" sx={{ mt: 3, mb: 3, flexGrow: 1 }}>
+      <Container maxWidth="xl" sx={{ mt: 3, mb: 3, flexGrow: 1 }}>
         {/* Face Recognition component */}
         {showFaceRecognition && (
           <Paper elevation={3} sx={{ mb: 3, p: 3, borderRadius: 2 }}>
@@ -249,7 +249,7 @@ export default function EmployeePortal() {
           borderColor: 'divider'
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth="xl">
           <Typography variant="body2" color="text.secondary" align="center">
             © {new Date().getFullYear()} FaceID Attendance System - All rights reserved.
           </Typography>

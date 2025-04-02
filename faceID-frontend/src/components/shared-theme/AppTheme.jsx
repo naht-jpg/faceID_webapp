@@ -7,7 +7,7 @@ import { dataDisplayCustomizations } from './customizations/dataDisplay.jsx';
 import { feedbackCustomizations } from './customizations/feedback.jsx';
 import { navigationCustomizations } from './customizations/navigation.jsx';
 import { surfacesCustomizations } from './customizations/surfaces.jsx';
-import { colorSchemes, typography, shadows, shape } from './themePrimitives.jsx';
+import { colorSchemes, typography, shadows, shape, breakpoints, containerOverrides } from './themePrimitives.jsx';
 
 function AppTheme(props) {
   const { children, disableCustomTheme, themeComponents } = props;
@@ -20,11 +20,13 @@ function AppTheme(props) {
             colorSchemeSelector: 'data-mui-color-scheme',
             cssVarPrefix: 'template',
           },
+          breakpoints, // Thêm breakpoints mở rộng
           colorSchemes, // Recently added in v6 for building light & dark mode app, see https://mui.com/material-ui/customization/palette/#color-schemes
           typography,
           shadows,
           shape,
           components: {
+            ...containerOverrides, // Thêm container mở rộng
             ...inputsCustomizations,
             ...dataDisplayCustomizations,
             ...feedbackCustomizations,
@@ -34,9 +36,11 @@ function AppTheme(props) {
           },
         });
   }, [disableCustomTheme, themeComponents]);
+  
   if (disableCustomTheme) {
     return <React.Fragment>{children}</React.Fragment>;
   }
+  
   return (
     <ThemeProvider theme={theme} disableTransitionOnChange>
       {children}

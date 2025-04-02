@@ -8,6 +8,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 15000, // Thêm timeout 15 giây
 });
 
 // Interceptor để tự động thêm token vào mọi request
@@ -24,13 +25,23 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Interceptor để xử lý token hết hạn
+// Interceptor để xử lý token hết hạn và các lỗi khác
 apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
   async (error) => {
     const originalRequest = error.config;
+    
+    // Xử lý lỗi mạng
+    if (!error.response) {
+      console.error('Network error or server unavailable');
+      // Thông báo lỗi mạng thay vì chỉ reject promise
+      return Promise.reject({
+        isNetworkError: true,
+        message: 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.'
+      });
+    }
     
     // Nếu lỗi 401 và chưa thử refresh token
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -55,6 +66,14 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('refresh_token');
         window.location.href = '/login';
       }
+    }
+    
+    // Xử lý timeout
+    if (error.code === 'ECONNABORTED') {
+      return Promise.reject({
+        isTimeoutError: true,
+        message: 'Yêu cầu hết thời gian. Vui lòng thử lại.'
+      });
     }
     
     return Promise.reject(error);

@@ -19,15 +19,15 @@ export const brand = {
 
 export const gray = {
   50: 'hsl(220, 35%, 97%)',
-  100: 'hsl(220, 30%, 94%)',
-  200: 'hsl(220, 20%, 88%)',
-  300: 'hsl(220, 20%, 80%)',
-  400: 'hsl(220, 20%, 65%)',
-  500: 'hsl(220, 20%, 42%)',
-  600: 'hsl(220, 20%, 35%)',
-  700: 'hsl(220, 20%, 25%)',
-  800: 'hsl(220, 30%, 6%)',
-  900: 'hsl(220, 35%, 3%)',
+  100: 'hsl(220, 25%, 94%)',
+  200: 'hsl(220, 25%, 90%)',
+  300: 'hsl(220, 25%, 85%)',
+  400: 'hsl(220, 25%, 70%)',
+  500: 'hsl(220, 25%, 50%)',
+  600: 'hsl(220, 25%, 45%)',
+  700: 'hsl(220, 25%, 35%)',
+  800: 'hsl(220, 30%, 20%)',
+  900: 'hsl(220, 30%, 10%)',
 };
 
 export const green = {
@@ -69,6 +69,44 @@ export const red = {
   900: 'hsl(0, 93%, 6%)',
 };
 
+export const breakpoints = {
+  values: {
+    xs: 0,
+    sm: 600,
+    md: 960,
+    lg: 1280,
+    xl: 1920,
+  },
+};
+
+export const containerOverrides = {
+  MuiContainer: {
+    styleOverrides: {
+      root: {
+        width: '100%',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+        '@media (min-width: 600px)': {
+          paddingLeft: '24px',
+          paddingRight: '24px',
+        },
+      },
+      maxWidthLg: {
+        maxWidth: '1440px !important',
+        '@media (min-width: 1440px)': {
+          maxWidth: '1440px !important',
+        },
+      },
+      maxWidthXl: {
+        maxWidth: '1800px !important',
+        '@media (min-width: 1920px)': {
+          maxWidth: '1800px !important',
+        },
+      },
+    },
+  },
+};
+
 export const getDesignTokens = (mode) => {
   customShadows[1] =
     mode === 'dark'
@@ -76,6 +114,7 @@ export const getDesignTokens = (mode) => {
       : 'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px';
 
   return {
+    breakpoints,
     palette: {
       mode,
       primary: {
@@ -87,7 +126,7 @@ export const getDesignTokens = (mode) => {
           contrastText: brand[50],
           light: brand[300],
           main: brand[400],
-          dark: brand[700],
+          dark: brand[800],
         }),
       },
       info: {
@@ -265,6 +304,9 @@ export const colorSchemes = {
       baseShadow:
         'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px',
     },
+    components: {
+      ...containerOverrides,
+    },
   },
   dark: {
     palette: {
@@ -313,6 +355,9 @@ export const colorSchemes = {
       },
       baseShadow:
         'hsla(220, 30%, 5%, 0.7) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.8) 0px 8px 16px -5px',
+    },
+    components: {
+      ...containerOverrides,
     },
   },
 };

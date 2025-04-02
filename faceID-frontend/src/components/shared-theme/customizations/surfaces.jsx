@@ -54,11 +54,29 @@ export const surfacesCustomizations = {
     defaultProps: {
       elevation: 0,
     },
+    styleOverrides: {
+      root: ({ theme }) => {
+        return {
+          width: '100%', // Đảm bảo độ rộng 100%
+          padding: 16,
+          gap: 16,
+          transition: 'all 100ms ease',
+          backgroundColor: gray[50],
+          borderRadius: (theme.vars || theme).shape.borderRadius,
+          border: `1px solid ${(theme.vars || theme).palette.divider}`,
+          boxShadow: 'none',
+          ...theme.applyStyles('dark', {
+            backgroundColor: gray[800],
+          }),
+        };
+      },
+    },
   },
   MuiCard: {
     styleOverrides: {
       root: ({ theme }) => {
         return {
+          width: '100%', // Đảm bảo độ rộng 100%
           padding: 16,
           gap: 16,
           transition: 'all 100ms ease',
