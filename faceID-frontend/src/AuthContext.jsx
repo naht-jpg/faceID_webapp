@@ -1,11 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { authAPI } from './api';
 
-const AuthContext = createContext(null);
-
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -40,6 +36,8 @@ export function AuthProvider({ children }) {
               setCurrentUser(userResponse.data);
               setIsAdmin(userResponse.data.role === 'admin');
             } catch (refreshError) {
+              console.error("Refresh token failed:", refreshError.message);
+
               // Refresh failed, clear auth
               localStorage.removeItem('access_token');
               localStorage.removeItem('refresh_token');
@@ -62,7 +60,6 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  // Login function now accepts user data directly
   const login = async (userData) => {
     setCurrentUser(userData);
     setIsAdmin(userData.role === 'admin');

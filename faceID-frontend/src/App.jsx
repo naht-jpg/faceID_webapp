@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth, AuthProvider } from './AuthContext';
+import { AuthProvider } from './AuthContext';
+import { useAuth } from './hooks/useAuth';
 import SignIn from './components/sign-in/SignIn';
 import Dashboard from './components/Dashboard/Dashboard';
 import EmployeePortal from './components/employee-portal/EmployeePortal';

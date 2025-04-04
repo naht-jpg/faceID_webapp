@@ -202,3 +202,48 @@ CORS_ALLOW_HEADERS = [
     'if-modified-since',
     'if-none-match',  # This is the header causing issues
 ]
+
+# Define model directories
+FACE_MODELS_DIR = os.path.join(BASE_DIR, 'faceIDatt', 'models')
+os.makedirs(FACE_MODELS_DIR, exist_ok=True)
+
+# Define data directory
+FACE_DATA_DIR = os.path.join(BASE_DIR, 'faceIDatt', 'data')
+os.makedirs(FACE_DATA_DIR, exist_ok=True)
+
+# Directory for faces from camera
+DATA_FACES_FROM_CAMERA_DIR = os.path.join(FACE_DATA_DIR, 'faces_from_camera')
+os.makedirs(DATA_FACES_FROM_CAMERA_DIR, exist_ok=True)
+
+# Configure logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'faceID.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'faceIDatt': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+# Create logs directory
+os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)

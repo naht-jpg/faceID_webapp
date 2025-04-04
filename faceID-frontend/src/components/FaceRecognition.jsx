@@ -126,6 +126,35 @@ const FaceRecognition = ({ onRecognitionResult, autoCapture = false }) => {
     setCountdown(null);
   };
 
+  // Sửa phần Webcam component
+  const WebcamComponent = () => (
+    <Webcam
+      audio={false}
+      ref={webcamRef}
+      screenshotFormat="image/jpeg"
+      videoConstraints={videoConstraints}
+      onUserMedia={handleUserMedia}
+      onUserMediaError={handleCameraError}
+      style={{
+        width: '100%',
+        height: 'auto',
+        borderRadius: '8px'
+      }}
+      mirrored={true} // Thêm thuộc tính này để làm gương hình ảnh
+    />
+  );
+
+  // Thêm useEffect để đảm bảo dọn dẹp camera khi component unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup webcam stream if exists when component unmounts
+      if (webcamRef.current && webcamRef.current.stream) {
+        const tracks = webcamRef.current.stream.getTracks();
+        tracks.forEach(track => track.stop());
+      }
+    };
+  }, []);
+
   return (
     <Box>
       <Card sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 3 }}>
@@ -135,19 +164,7 @@ const FaceRecognition = ({ onRecognitionResult, autoCapture = false }) => {
               <Box sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden', bgcolor: 'black' }}>
                 {!image ? (
                   <>
-                    <Webcam
-                      audio={false}
-                      ref={webcamRef}
-                      screenshotFormat="image/jpeg"
-                      videoConstraints={videoConstraints}
-                      onUserMedia={handleUserMedia}
-                      onUserMediaError={handleCameraError}
-                      style={{
-                        width: '100%',
-                        height: 'auto',
-                        borderRadius: '8px'
-                      }}
-                    />
+                    <WebcamComponent />
                     
                     {/* Overlay khuôn mặt để hướng dẫn người dùng */}
                     <Box sx={{

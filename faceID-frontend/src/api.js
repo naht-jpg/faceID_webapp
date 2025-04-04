@@ -61,11 +61,24 @@ apiClient.interceptors.response.use(
             return apiClient(originalRequest);
           }
         }
-      } catch (refreshError) {
+      } catch (error) {
+        console.error("Token refresh error:", error.message);
+
+        // Underscore indicates an intentionally unused parameter
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         window.location.href = '/login';
       }
+    }
+    
+    // Xử lý lỗi 500 từ server
+    if (error.response?.status === 500) {
+      console.error("Server error:", error.response.data);
+      return Promise.reject({
+        isServerError: true,
+        message: error.response.data.message || 'Lỗi máy chủ nội bộ',
+        originalError: error
+      });
     }
     
     // Xử lý timeout
@@ -83,12 +96,12 @@ apiClient.interceptors.response.use(
 // Auth API - Điều chỉnh endpoints phù hợp với urls.py
 export const authAPI = {
   login: (credentials) => apiClient.post('/auth/token/', {
-    username: credentials.username, // Backend đang mong đợi field username
+    username: credentials.username,
     password: credentials.password
   }),
   register: (userData) => apiClient.post('/auth/register/', userData),
   refreshToken: (refreshToken) => apiClient.post('/auth/token/refresh/', { refresh: refreshToken }),
-  getCurrentUser: () => apiClient.get('/user/')
+  getCurrentUser: () => apiClient.get('/auth/me/') // Đổi từ /user/ sang /auth/me/
 };
 
 // Employee API
@@ -96,72 +109,74 @@ export const employeeAPI = {
   getAll: () => apiClient.get('/employees/'),
   getById: (id) => apiClient.get(`/employees/${id}/`),
   create: (data) => apiClient.post('/employees/', data),
-  update: (id, data) => apiClient.put(`/employees/${id}/`),
-  patch: (id, data) => apiClient.patch(`/employees/${id}/`),
+  update: (id, data) => apiClient.put(`/employees/${id}/`, data), // Fixed missing data
+  patch: (id, data) => apiClient.patch(`/employees/${id}/`, data), // Fixed missing data
   delete: (id) => apiClient.delete(`/employees/${id}/`),
   getAttendance: (id, params) => apiClient.get(`/employees/${id}/attendance/`, { params }),
+  updateEmployeeStatus: async (employeeId) => {
+    try {
+      return await apiClient.put(`/employees/${employeeId}/status/`);
+    } catch (err) { // Renamed to err to avoid unused variable
+      console.error("Error updating employee status:", err);
+      throw err;
+    }
+  },
 };
 
 // Face API
 export const faceAPI = {
-  register: function(data, name, imageData) {
-    const formData = new FormData();
-    
-    // Nếu là object với nhiều trường
-    if (typeof data === 'object' && !(data instanceof Blob) && !(data instanceof File)) {
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
-    } 
-    // Nếu gọi trực tiếp với employee_id, name, và image
-    else if (name && imageData) {
-      // Kiểm tra và ghi log về params
-      console.log("Sending registration data:", {
-        employee_id: data,
-        name: name,
-        image_type: imageData instanceof File ? 'File: ' + imageData.name : 
-                   imageData instanceof Blob ? 'Blob' : typeof imageData,
-        image_size: imageData.size ? Math.round(imageData.size / 1024) + "KB" : 
-                    (typeof imageData === 'string' ? Math.round(imageData.length / 1.37 / 1024) + "KB" : 'unknown')
-      });
-      
-      formData.append('employee_id', data);
-      formData.append('name', name);
-      formData.append('image', imageData);
+  register: (employee_id, name, imageData) => apiClient.post('/faces/register/', {
+    employee_id,
+    name,
+    image: imageData
+  }, {
+    headers: {
+      'Content-Type': 'application/json'
     }
-    
-    // Log FormData để kiểm tra
-    console.log("FormData entries:");
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1] instanceof File ? 
-        `File: ${pair[1].name}, ${pair[1].type}, ${Math.round(pair[1].size / 1024)}KB` : 
-        pair[1]);
+  }),
+  
+  recognize: (imageData) => apiClient.post('/faces/recognize/', {
+    image: imageData
+  }, {
+    headers: {
+      'Content-Type': 'application/json'
     }
-    
-    return apiClient.post('/faces/register/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-  },
+  }),
   
-  recognize: (imageData) => {
-    const formData = new FormData();
-    formData.append('image', imageData);
-    
-    return apiClient.post('/faces/recognize/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-  },
+  testRecognize: (employeeId) => apiClient.post('/faces/test-recognize/', {
+    employee_id: employeeId
+  }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }),
   
-  // Hàm helper để lấy lịch sử nhận diện khuôn mặt
-  getAttendanceHistory: (employeeId) => {
-    return apiClient.get(`/attendance/${employeeId}/`, {
-      params: { all: true }
-    });
-  }
+  testRecognizeWithImage: (data) => apiClient.post('/faces/test-recognize-with-image/', {
+    employee_id: data.employee_id,
+    image: data.image,
+    save_test_result: true // Tùy chọn lưu kết quả test vào testdata
+  }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }),
+  
+  getAttendanceHistory: (employeeId) => apiClient.get(`/attendance/${employeeId}/`, {
+    params: { today: true }
+  }),
+  
+  checkTrainerData: () => apiClient.get('/trainer/check/'),
+  checkTrainerDataById: (employeeId) => apiClient.get(`/trainer/check/${employeeId}/`),
+  
+  saveAttendance: (recognitionData) => apiClient.post(`/attendance/${recognitionData.employee_id}/`, {
+    name: recognitionData.name,
+    employee_id: recognitionData.employee_id,
+    timestamp: recognitionData.timestamp || new Date().toISOString(),
+    confidence: recognitionData.confidence,
+    job_position: recognitionData.job_position,
+    email: recognitionData.email,
+    phone: recognitionData.phone
+  }),
 };
 
 // Attendance API
@@ -180,14 +195,14 @@ export const attendanceAPI = {
   }),
 };
 
-// Signin API (tài khoản người dùng)
-export const signinAPI = {
-  getAll: () => apiClient.get('/signin/'),
-  getById: (id) => apiClient.get(`/signin/${id}/`),
-  create: (data) => apiClient.post('/signin/', data),
-  update: (id, data) => apiClient.put(`/signin/${id}/`),
-  patch: (id, data) => apiClient.patch(`/signin/${id}/`),
-  delete: (id) => apiClient.delete(`/signin/${id}/`),
+// User API (tài khoản người dùng)
+export const userAPI = {
+  getAll: () => apiClient.get('/users/'), // Đổi từ /signin/ sang /users/
+  getById: (id) => apiClient.get(`/users/${id}/`),
+  create: (data) => apiClient.post('/users/', data),
+  update: (id, data) => apiClient.put(`/users/${id}/`, data),
+  patch: (id, data) => apiClient.patch(`/users/${id}/`, data),
+  delete: (id) => apiClient.delete(`/users/${id}/`),
 };
 
 export default apiClient;

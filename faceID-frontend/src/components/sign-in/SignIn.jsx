@@ -13,7 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import { Alert, CircularProgress, Card, InputAdornment, IconButton, Container } from '@mui/material';
 import { Visibility, VisibilityOff, Face as FaceIcon } from '@mui/icons-material';
-import { useAuth } from '../../AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { authAPI } from '../../api';
 
 // Tạo theme với màu sắc phù hợp hơn

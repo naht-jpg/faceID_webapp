@@ -1,43 +1,40 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from .face_recognition import recognize_face, register_face
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from pymongo import MongoClient
 from bson import ObjectId
 from bson.errors import InvalidId
-from rest_framework import generics,status
-from .models import Employee,Attendance
-from .serializers import EmployeeSerializer
 import json
 import bcrypt
-import logger
-from rest_framework.views import APIView
-from datetime import datetime
+import logging
+import os
 import base64
 import numpy as np
 import cv2
 import dlib
-import os
-from django.shortcuts import get_object_or_404
+from datetime import datetime, timedelta
+
 from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+
+from .face_recognition import recognize_face, register_face
+from .models import Employee, Attendance
+from .serializers import EmployeeSerializer
+from .auth import MongoDBAuthBackend, get_tokens_for_user
 from .database import (
     get_employees, get_employee_by_id, add_employee,
-    update_employee, delete_employee, get_attendance_history
+    update_employee, delete_employee, get_attendance_history,
+    signin_collection, attendance_collection
 )
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from django.contrib.auth import authenticate
-from .auth import MongoDBAuthBackend, get_tokens_for_user
-import logging
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
-from .database import signin_collection
-from django.contrib.auth.models import User
-from datetime import timedelta
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 
+# Setup logger
 logger = logging.getLogger(__name__)
 
 # Sử dụng MONGO_URI từ settings thay vì hard-code
@@ -54,193 +51,11 @@ detector = dlib.get_frontal_face_detector()
 sp = dlib.shape_predictor(os.path.join(MODEL_DIR, "shape_predictor_68_face_landmarks.dat"))
 facerec = dlib.face_recognition_model_v1(os.path.join(MODEL_DIR, "dlib_face_recognition_resnet_model_v1.dat"))
 
-class EmployeeListView(generics.ListAPIView):  # Đổi tên class và kế thừa
-    queryset = Employee.objects.all()
-    serializer_class = EmployeeSerializer
-
-# API để lấy, cập nhật, hoặc xóa một nhân viên theo ID (GET, PUT, DELETE)
-class EmployeeDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Employee.objects.all()
-    serializer_class = EmployeeSerializer
-
 @api_view(['POST'])
 def face_check(request):
     image = request.data.get('image')
     name = recognize_face(image)
     return Response({'name': name if name else "Unknown"})
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_employees_api(request):
-    """API lấy danh sách nhân viên"""
-    try:
-        employees = get_employees()
-        # Make sure employees is a list before returning
-        if not isinstance(employees, list):
-            employees = []
-            
-        response = Response(employees)
-        # Add headers to prevent caching
-        response["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response["Pragma"] = "no-cache"
-        response["Expires"] = "0"
-        return response
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_employee_api(request, employee_id):
-    """API lấy thông tin nhân viên theo ID"""
-    try:
-        employee = get_employee_by_id(employee_id)
-        if employee:
-            employee['_id'] = str(employee['_id'])
-            return Response(employee)
-        else:
-            return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_employee_api(request):
-    """API tạo nhân viên mới"""
-    try:
-        # Debug - in ra dữ liệu nhận được
-        print("Received employee data:", request.data)
-        
-        employee_data = request.data
-        employee_id = add_employee(employee_data)
-        
-        # Debug - in ra kết quả
-        print("Created employee with ID:", employee_id)
-        
-        return Response({
-            'success': True,
-            '_id': employee_id,
-            'message': 'Đã tạo nhân viên mới'
-        }, status=201)  # Trả về status 201 Created
-    except Exception as e:
-        print("Error creating employee:", str(e))
-        return Response({'error': str(e)}, status=500)
-
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def update_employee_api(request, employee_id):
-    """API cập nhật thông tin nhân viên"""
-    try:
-        updated_data = request.data
-        result = update_employee(employee_id, updated_data)
-        if result:
-            return Response({
-                'success': True,
-                'message': 'Đã cập nhật thông tin nhân viên'
-            })
-        else:
-            return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
-
-@api_view(['PATCH'])
-def patch_employee_api(request, employee_id):
-    employee = get_object_or_404(Employee, id=employee_id)
-    serializer = EmployeeSerializer(employee, data=request.data, partial=True)  # partial=True để cập nhật từng phần
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['DELETE'])
-def delete_employee_api(request, employee_id):
-    """API xóa nhân viên"""
-    try:
-        result = delete_employee(employee_id)
-        if result:
-            return Response({
-                'success': True,
-                'message': 'Đã xóa nhân viên'
-            })
-        else:
-            return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def face_register_api(request):
-    """API đăng ký khuôn mặt cho nhân viên"""
-    try:
-        data = request.data
-        employee_id = data.get('employee_id')
-        name = data.get('name')
-        image_data = data.get('image')
-        
-        if not employee_id or not image_data:
-            return Response({
-                'success': False,
-                'message': 'Thiếu employee_id hoặc image'
-            }, status=400)
-        
-        # Đăng ký khuôn mặt
-        result = register_face(employee_id, name, image_data)
-        return Response(result)
-    
-    except Exception as e:
-        return Response({
-            'success': False,
-            'message': str(e)
-        }, status=500)
-
-@api_view(['POST'])
-def face_recognition_api(request):
-    """API nhận diện khuôn mặt"""
-    try:
-        image_data = request.data.get('image')
-        
-        if not image_data:
-            return Response({
-                'success': False,
-                'message': 'Thiếu dữ liệu image'
-            }, status=400)
-        
-        # Nhận diện khuôn mặt
-        result = recognize_face(image_data)
-        return Response(result)
-    
-    except Exception as e:
-        return Response({
-            'success': False,
-            'message': str(e)
-        }, status=500)
-
-@api_view(['GET'])
-def attendance_history_api(request, employee_id=None):
-    """API lấy lịch sử điểm danh"""
-    try:
-        if employee_id:
-            history = get_attendance_history(employee_id=employee_id)
-        else:
-            name = request.query_params.get('name')
-            if not name:
-                return Response({
-                    'success': False,
-                    'message': 'Thiếu tham số employee_id hoặc name'
-                }, status=400)
-            history = get_attendance_history(name=name)
-        
-        return Response({
-            'success': True,
-            'history': history
-        })
-    
-    except Exception as e:
-        return Response({
-            'success': False,
-            'message': str(e)
-        }, status=500)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -277,9 +92,8 @@ def test_mongo_connection(request):
             'status': 'error',
             'message': "Database connection failed",
             'error': str(e)
-        }, status=500)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# API endpoint đăng nhập từ MongoDB
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def mongodb_token_obtain(request):
@@ -291,7 +105,7 @@ def mongodb_token_obtain(request):
         if not username or not password:
             return Response({
                 'detail': 'Thiếu tên đăng nhập hoặc mật khẩu'
-            }, status=400)
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         # Sử dụng backend tùy chỉnh
         auth_backend = MongoDBAuthBackend()
@@ -300,7 +114,7 @@ def mongodb_token_obtain(request):
         if not user:
             return Response({
                 'detail': 'Tài khoản hoặc mật khẩu không chính xác'
-            }, status=401)
+            }, status=status.HTTP_401_UNAUTHORIZED)
         
         # Lấy mongo_user từ request
         mongo_user = getattr(request, 'mongo_user', {})
@@ -322,10 +136,7 @@ def mongodb_token_obtain(request):
         logger.error(f"Login error: {str(e)}")
         return Response({
             'detail': 'Lỗi đăng nhập'
-        }, status=500)
-
-# API endpoint để lấy thông tin người dùng hiện tại
-from .database import signin_collection
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -354,7 +165,7 @@ def current_user(request):
         logger.error(f"Current user error: {str(e)}")
         return Response({
             'detail': 'Lỗi khi lấy thông tin người dùng'
-        }, status=500)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def test_api(request):
@@ -365,7 +176,6 @@ def test_api(request):
         'timestamp': datetime.now().isoformat()
     })
 
-# Add this function
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
@@ -412,185 +222,12 @@ def register_user(request):
             'detail': 'Lỗi khi đăng ký người dùng'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
             return str(o)
         return super().default(o)
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def signin_list(request):
-    if request.method == 'GET':
-        users = list(signin_collection.find())
-        # Chuyển đổi ObjectId sang string
-        for user in users:
-            user['_id'] = str(user['_id'])
-            # Không trả về mật khẩu
-            if 'password' in user:
-                del user['password']
-        
-        return JsonResponse(users, safe=False, encoder=JSONEncoder)
-    
-    elif request.method == 'POST':
-        data = request.data
-        
-        # Kiểm tra xem tên người dùng đã tồn tại chưa
-        if signin_collection.find_one({'name': data['name']}):
-            return Response({'detail': 'Tên đăng nhập đã tồn tại'}, status=400)
-        
-        # Mã hóa mật khẩu
-        if 'password' in data and data['password']:
-            password = data['password'].encode('utf-8')
-            salt = bcrypt.gensalt()
-            hashed_password = bcrypt.hashpw(password, salt)
-            data['password'] = hashed_password
-        
-        # Tạo document mới trong MongoDB
-        result = signin_collection.insert_one(data)
-        return Response({'id': str(result.inserted_id)}, status=201)
-
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
-def signin_detail(request, pk):
-    try:
-        # Lấy tài khoản theo ID
-        account = signin_collection.find_one({'_id': ObjectId(pk)})
-        if not account:
-            return Response({'detail': 'Không tìm thấy tài khoản'}, status=404)
-        
-        if request.method == 'GET':
-            # Chuyển đổi ObjectId sang string
-            account['_id'] = str(account['_id'])
-            # Không trả về mật khẩu
-            if 'password' in account:
-                del account['password']
-            return Response(account)
-        
-        elif request.method == 'PUT':
-            data = request.data
-            
-            # Mã hóa mật khẩu nếu có
-            if 'password' in data and data['password']:
-                password = data['password'].encode('utf-8')
-                salt = bcrypt.gensalt()
-                hashed_password = bcrypt.hashpw(password, salt)
-                data['password'] = hashed_password
-            
-            # Cập nhật document
-            signin_collection.update_one(
-                {'_id': ObjectId(pk)},
-                {'$set': data}
-            )
-            return Response({'detail': 'Cập nhật thành công'})
-        
-        elif request.method == 'DELETE':
-            # Xóa tài khoản
-            result = signin_collection.delete_one({'_id': ObjectId(pk)})
-            if result.deleted_count == 1:
-                return Response({'detail': 'Xóa thành công'})
-            return Response({'detail': 'Không thể xóa tài khoản'}, status=400)
-            
-    except Exception as e:
-        return Response({'detail': str(e)}, status=500)
-
-# Sửa lỗi trong hàm get_latest_attendance
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_latest_attendance(request, employee_id):
-    try:
-        # Lấy bản ghi điểm danh mới nhất
-        from .database import attendance_collection 
-        
-        attendance_record = attendance_collection.find_one(  
-            sort=[('datetime', -1)]
-        )
-        
-        if not attendance_record:  
-            return Response({
-                'success': False,
-                'message': 'Không tìm thấy dữ liệu điểm danh'
-            }, status=404)
-            
-        # Chuyển ObjectId thành string
-        attendance_record['_id'] = str(attendance_record['_id'])
-        
-        # Chuyển datetime sang string
-        if 'datetime' in attendance_record:
-            attendance_record['datetime'] = attendance_record['datetime'].isoformat()
-        if 'created_at' in attendance_record:
-            attendance_record['created_at'] = attendance_record['created_at'].isoformat()
-            
-        return Response({
-            'success': True,
-            'data': attendance_record
-        })
-        
-    except Exception as e:
-        return Response({
-            'success': False,
-            'message': str(e)
-        }, status=500)
-
-# Thêm vào cuối file, sau hàm get_latest_attendance
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_today_attendance(request, employee_id):
-    """API lấy thông tin điểm danh trong ngày của nhân viên"""
-    try:
-        # Lấy thời gian hiện tại
-        now = datetime.now()
-        start_of_day = datetime(now.year, now.month, now.day, 0, 0, 0)
-        end_of_day = datetime(now.year, now.month, now.day, 23, 59, 59)
-        
-        # Tìm các bản ghi điểm danh trong ngày
-        from .database import attendance_collection
-        
-        today_attendance = list(attendance_collection.find({
-            'employee_id': employee_id,
-            'datetime': {
-                '$gte': start_of_day,
-                '$lte': end_of_day
-            }
-        }).sort('datetime', -1))
-        
-        if not today_attendance:
-            return Response({
-                'success': True,
-                'message': 'Không có dữ liệu điểm danh hôm nay',
-                'records': []
-            })
-            
-        # Chuyển đổi ObjectId và datetime thành chuỗi
-        for record in today_attendance:
-            if '_id' in record:
-                record['_id'] = str(record['_id'])
-            if 'datetime' in record:
-                record['datetime'] = record['datetime'].isoformat() if hasattr(record['datetime'], 'isoformat') else str(record['datetime'])
-            if 'created_at' in record:
-                record['created_at'] = record['created_at'].isoformat() if hasattr(record['created_at'], 'isoformat') else str(record['created_at'])
-            
-        return Response({
-            'success': True,
-            'message': f'Đã tìm thấy {len(today_attendance)} bản ghi điểm danh hôm nay',
-            'records': today_attendance
-        })
-        
-    except Exception as e:
-        import traceback
-        logger.error(f"Error in get_today_attendance: {str(e)}")
-        logger.error(traceback.format_exc())
-        return Response({
-            'success': False,
-            'message': f'Lỗi khi lấy dữ liệu điểm danh: {str(e)}'
-        }, status=500)
-
-
-
-# Class-based view cho Employee List và Create
 class EmployeeListAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -608,7 +245,7 @@ class EmployeeListAPIView(APIView):
             response["Expires"] = "0"
             return response
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def post(self, request):
         """POST method: Tạo nhân viên mới"""
@@ -624,13 +261,11 @@ class EmployeeListAPIView(APIView):
                 'success': True,
                 '_id': employee_id,
                 'message': 'Đã tạo nhân viên mới'
-            }, status=201)
+            }, status=status.HTTP_201_CREATED)
         except Exception as e:
             print("Error creating employee:", str(e))
-            return Response({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-# Class-based view cho Employee Detail, Update và Delete
 class EmployeeDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -641,11 +276,11 @@ class EmployeeDetailAPIView(APIView):
             if employee:
                 return Response(employee)
             else:
-                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=status.HTTP_404_NOT_FOUND)
         except InvalidId:
-            return Response({'error': 'ID không hợp lệ'}, status=400)
+            return Response({'error': 'ID không hợp lệ'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def put(self, request, employee_id):
         """PUT method: Cập nhật toàn bộ thông tin nhân viên"""
@@ -658,16 +293,16 @@ class EmployeeDetailAPIView(APIView):
                     'message': 'Đã cập nhật thông tin nhân viên'
                 })
             else:
-                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def patch(self, request, employee_id):
         """PATCH method: Cập nhật một phần thông tin nhân viên"""
         try:
             employee = get_employee_by_id(employee_id)
             if not employee:
-                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=status.HTTP_404_NOT_FOUND)
                 
             # Chỉ cập nhật các trường được cung cấp
             updated_data = {k: v for k, v in request.data.items() if v is not None}
@@ -679,9 +314,9 @@ class EmployeeDetailAPIView(APIView):
                     'message': 'Đã cập nhật thông tin nhân viên'
                 })
             else:
-                return Response({'error': 'Không thể cập nhật nhân viên'}, status=400)
+                return Response({'error': 'Không thể cập nhật nhân viên'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def delete(self, request, employee_id):
         """DELETE method: Xóa nhân viên"""
@@ -693,13 +328,12 @@ class EmployeeDetailAPIView(APIView):
                     'message': 'Đã xóa nhân viên'
                 })
             else:
-                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=status.HTTP_404_NOT_FOUND)
         except InvalidId:
-            return Response({'error': 'ID không hợp lệ'}, status=400)
+            return Response({'error': 'ID không hợp lệ'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# Tương tự cho các endpoints khác
 class FaceRegisterAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -711,10 +345,21 @@ class FaceRegisterAPIView(APIView):
             name = data.get('name')
             image_data = data.get('image')
             
+            # Log để debug
+            logger.info(f"Received registration request: employee_id={employee_id}, name={name}")
+            
             if not employee_id or not image_data:
                 return Response({
                     'success': False,
                     'message': 'Thiếu employee_id hoặc image'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Kiểm tra kiểu dữ liệu image
+            if not isinstance(image_data, str):
+                logger.warning(f"Invalid image type: {type(image_data)}")
+                return Response({
+                    'success': False,
+                    'message': 'Định dạng ảnh không hợp lệ, cần base64'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Đăng ký khuôn mặt - lưu vào dataset và tạo feature trong trainer
@@ -727,11 +372,13 @@ class FaceRegisterAPIView(APIView):
                 return Response(result, status=status.HTTP_400_BAD_REQUEST)
                 
         except Exception as e:
+            logger.error(f"Face registration error: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
             return Response({
                 'success': False,
-                'message': str(e)
+                'message': f"Lỗi server: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class FaceRecognitionAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -756,7 +403,6 @@ class FaceRecognitionAPIView(APIView):
                 'success': False,
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class AttendanceAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -933,7 +579,6 @@ class AttendanceAPIView(APIView):
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class SigninListAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -989,7 +634,6 @@ class SigninListAPIView(APIView):
                 'success': False,
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class SigninDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1116,4 +760,217 @@ class SigninDetailAPIView(APIView):
                 'success': False,
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def test_face_recognition_api(request):
+    """API test nhận diện khuôn mặt với nhân viên đã có sẵn"""
+    try:
+        employee_id = request.data.get('employee_id')
+        
+        if not employee_id:
+            return Response({
+                'success': False,
+                'message': 'Thiếu employee_id'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Tìm thông tin nhân viên từ MongoDB
+        from pymongo import MongoClient
+        from bson.objectid import ObjectId
+        
+        client = MongoClient(settings.MONGO_URI)
+        db = client[settings.MONGO_DB_NAME]
+        
+        # Tìm nhân viên
+        employee = db.employees.find_one({'_id': ObjectId(employee_id)})
+        
+        if not employee or not employee.get('image_path'):
+            return Response({
+                'success': False,
+                'message': 'Không tìm thấy nhân viên hoặc nhân viên chưa có ảnh'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Lấy đường dẫn ảnh đầy đủ
+        import os
+        from .face_recognition import test_recognition, BASE_DIR
+        
+        image_path = os.path.join(BASE_DIR, employee.get('image_path'))
+        
+        if not os.path.exists(image_path):
+            return Response({
+                'success': False,
+                'message': f'Không tìm thấy ảnh tại đường dẫn'
+            }, status=status.HTTP_404_NOT_FOUND)
+            
+        # Gọi hàm test nhận diện
+        result = test_recognition(image_path)
+        
+        return Response(result)
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return Response({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def test_face_recognition_with_image(request):
+    """API test nhận diện khuôn mặt với ảnh được cung cấp và so sánh với nhân viên cụ thể"""
+    try:
+        employee_id = request.data.get('employee_id')
+        image_data = request.data.get('image')
+        
+        if not employee_id or not image_data:
+            return Response({
+                'success': False,
+                'message': 'Thiếu employee_id hoặc image'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Tìm thông tin nhân viên từ MongoDB
+        client = MongoClient(settings.MONGO_URI)
+        db = client[settings.MONGO_DB_NAME]
+        
+        # Tìm nhân viên
+        employee = db.employees.find_one({'_id': ObjectId(employee_id)})
+        
+        if not employee:
+            return Response({
+                'success': False,
+                'message': 'Không tìm thấy nhân viên'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Lấy dữ liệu đặc trưng khuôn mặt của nhân viên từ collection trainner
+        trainer_data = db.trainner.find_one({'employee_id': employee_id})
+        
+        if not trainer_data or 'feature_vector' not in trainer_data:
+            return Response({
+                'success': False,
+                'message': 'Không tìm thấy dữ liệu đặc trưng khuôn mặt của nhân viên'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Trích xuất đặc trưng từ ảnh được gửi lên
+        from .face_recognition import extract_face_features
+        face_encoding, face, _ = extract_face_features(image_data)
+        
+        if face_encoding is None:
+            return Response({
+                'success': False,
+                'message': 'Không phát hiện khuôn mặt trong ảnh'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # So sánh đặc trưng với dữ liệu đã lưu
+        import numpy as np
+        stored_features = np.array(trainer_data['feature_vector'])
+        distance = np.linalg.norm(face_encoding - stored_features)
+        
+        # Sử dụng ngưỡng từ cấu hình hệ thống
+        from .face_recognition import RECOGNITION_THRESHOLD
+        threshold = request.data.get('threshold', RECOGNITION_THRESHOLD)
+        
+        # Tạo kết quả
+        result = {
+            'employee_id': str(employee['_id']),
+            'name': employee.get('name', ''),
+            'job_position': employee.get('job_position', ''),
+            'email': employee.get('email', ''),
+            'phone': employee.get('phone', ''),
+            'timestamp': datetime.now().isoformat(),
+            'confidence': float(1 - distance),
+            'distance': float(distance),
+            'threshold': threshold,
+            'success': distance < threshold
+        }
+        
+        # Lưu kết quả test vào collection testdata nếu cấu hình cho phép
+        if result['success'] and request.data.get('save_test_result', False):
+            # Lưu ảnh hiện tại vào thư mục test_results
+            import os
+            from .face_recognition import BASE_DIR
+            
+            TEST_RESULTS_DIR = os.path.join(BASE_DIR, "test_results")
+            os.makedirs(TEST_RESULTS_DIR, exist_ok=True)
+            
+            # Lưu ảnh với tên người dùng và timestamp
+            person_name = employee['name'].lower().replace(' ', '_')
+            now = datetime.now()
+            img_filename = f"{person_name}_test_{now.strftime('%Y%m%d_%H%M%S')}.jpg"
+            img_path = os.path.join(TEST_RESULTS_DIR, img_filename)
+            
+            # Lưu ảnh nhận diện vào file
+            if image_data.startswith('data:image'):
+                # Tách phần header và dữ liệu
+                format, imgstr = image_data.split(';base64,')
+                # Giải mã base64
+                imgdata = base64.b64decode(imgstr)
+                # Lưu ảnh
+                with open(img_path, 'wb') as f:
+                    f.write(imgdata)
+                
+                # Lấy đường dẫn tương đối
+                relative_path = os.path.relpath(img_path, BASE_DIR)
+                
+                # Lưu vào collection testdata
+                from .database import save_attendance
+                attendance_result = save_attendance(
+                    employee['name'], 
+                    relative_path,
+                    employee
+                )
+                result['attendance_saved'] = attendance_result
+        
+        return Response(result)
+        
+    except Exception as e:
+        logger.error(f"Error in test_face_recognition_with_image: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return Response({
+            'success': False,
+            'message': f'Lỗi: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_trainer_data(request, employee_id=None):
+    """API kiểm tra dữ liệu trainner"""
+    try:
+        query = {}
+        if employee_id:
+            query['employee_id'] = employee_id
+            
+        trainers = list(db.trainner.find(query, {
+            'employee_id': 1,
+            'name': 1,
+            'feature_vector': 1,
+            'image_path': 1
+        }))
+        
+        result = []
+        for trainer in trainers:
+            trainer['_id'] = str(trainer['_id'])
+            has_features = 'feature_vector' in trainer and trainer['feature_vector'] is not None
+            vector_length = len(trainer['feature_vector']) if has_features else 0
+            result.append({
+                'employee_id': trainer.get('employee_id'),
+                'name': trainer.get('name'),
+                'has_features': has_features,
+                'feature_vector_length': vector_length,
+                'image_path': trainer.get('image_path')
+            })
+            
+        return Response({
+            'success': True,
+            'count': len(result),
+            'trainers': result
+        })
+        
+    except Exception as e:
+        logger.error(f"Error checking trainer data: {str(e)}")
+        return Response({
+            'success': False,
+            'message': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

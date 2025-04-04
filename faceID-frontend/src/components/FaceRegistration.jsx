@@ -14,20 +14,27 @@ export default function FaceRegistration({ employee, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  
   useEffect(() => {
+    // Chỉ gọi startCamera một lần khi component mount
     startCamera();
     
+    // Cleanup khi component unmount
     return () => {
-      // Cleanup camera stream
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, []);
+  }, []); // Bỏ stream dependency để tránh gọi lại startCamera mỗi khi stream thay đổi
 
   const startCamera = async () => {
     setError(null);
     try {
+      // Dừng stream cũ nếu có
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
       const cameraStream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           width: { ideal: 640 },
@@ -35,6 +42,7 @@ export default function FaceRegistration({ employee, onSuccess }) {
           facingMode: "user"
         } 
       });
+      
       setStream(cameraStream);
       
       if (videoRef.current) {
@@ -60,84 +68,79 @@ export default function FaceRegistration({ employee, onSuccess }) {
     // Vẽ video frame lên canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Trả về dạng base64 thay vì blob
+    // Chuyển sang JPEG với chất lượng cao
     const dataURL = canvas.toDataURL('image/jpeg', 0.95);
     
-    // Đảm bảo định dạng base64 có header đúng
+    // Kiểm tra định dạng base64
     if (dataURL.startsWith('data:image/jpeg')) {
+      const sizeKB = Math.round(dataURL.length / 1.37 / 1024);
+      console.log(`Image captured successfully: ${sizeKB}KB`);
+      
+      // Nếu ảnh quá lớn, giảm kích thước
+      if (sizeKB > 1000) {
+        return canvas.toDataURL('image/jpeg', 0.8); // Giảm chất lượng để giảm kích thước
+      }
+      
       return dataURL;
     } else {
-      console.error("Invalid image format generated:");
-      console.log(dataURL.substring(0, 50) + "...");
+      console.error("Invalid image format:", dataURL.substring(0, 30));
       return null;
     }
   };
   
   const registerFace = async () => {
     try {
-      // Lấy ảnh dạng base64 trực tiếp
+      setLoading(true);
+      setError(null);
+      
+      // Lấy ảnh dạng base64
       const imageBase64 = captureImage();
       
       if (!imageBase64) {
-        setError("Không thể chụp ảnh. Vui lòng thử lại.");
+        setError("Không thể chụp ảnh. Vui lòng kiểm tra camera và thử lại.");
+        setLoading(false);
         return;
       }
-      
-      // Kiểm tra định dạng base64
-      if (!imageBase64.startsWith('data:image')) {
-        setError("Định dạng ảnh không hợp lệ. Vui lòng thử lại.");
-        return;
-      }
-      
-      console.log("Image format check:", {
-        isPNG: imageBase64.startsWith('data:image/png'),
-        isJPEG: imageBase64.startsWith('data:image/jpeg'),
-        sizeEstimate: Math.round(imageBase64.length / 1.37 / 1024) + "KB"
-      });
-      
-      setLoading(true);
-      setError(null);
       
       // Lưu ảnh để hiển thị
       setCapturedImage(imageBase64);
       
-      try {
-        // Gửi trực tiếp dạng base64 mà không cần chuyển đổi
-        const response = await faceAPI.register(
-          employee._id, 
-          employee.name, 
-          imageBase64  // Gửi base64 thay vì File/Blob
-        );
-        
-        if (response.data.success) {
-          setRegistrationComplete(true);
-          if (onSuccess) {
-            onSuccess({
-              ...response.data,
-              imageData: imageBase64
-            });
-          }
-        } else {
-          setError(response.data.message || "Đăng ký không thành công. Vui lòng thử lại.");
+      console.log("Sending registration request for:", employee.name);
+      
+      // Gửi trực tiếp dạng base64
+      const response = await faceAPI.register(
+        employee._id, 
+        employee.name, 
+        imageBase64
+      );
+      
+      console.log("Registration response:", response.data);
+      
+      if (response.data.success) {
+        setRegistrationComplete(true);
+        if (onSuccess) {
+          onSuccess({
+            ...response.data,
+            imageData: imageBase64
+          });
         }
-      } catch (err) {
-        console.error("Error registering face:", err);
-        
-        // Ghi log chi tiết hơn về lỗi
-        if (err.response) {
-          console.error("Server response:", err.response.data);
-          console.error("Status:", err.response.status);
-          console.error("Headers:", err.response.headers);
-        }
-        
-        const errorMsg = err.response?.data?.message || 
-                        err.response?.data?.detail || 
-                        "Lỗi khi đăng ký khuôn mặt. Vui lòng thử lại.";
-        setError(errorMsg);
+      } else {
+        setError(response.data.message || "Đăng ký không thành công. Vui lòng thử lại.");
       }
     } catch (err) {
-      console.error("Error capturing image:", err);
-      setError("Lỗi khi chụp ảnh. Vui lòng thử lại.");
+      console.error("Error registering face:", err);
+      
+      if (err.response) {
+        console.error("Server response:", err.response.data);
+        console.error("Status:", err.response.status);
+        console.error("Headers:", err.response.headers);
+        
+        setError(err.response.data.message || "Lỗi server. Vui lòng thử lại sau.");
+      } else if (err.request) {
+        setError("Không nhận được phản hồi từ server. Vui lòng kiểm tra kết nối mạng.");
+      } else {
+        setError("Lỗi khi gửi yêu cầu: " + err.message);
+      }
     } finally {
       setLoading(false);
     }

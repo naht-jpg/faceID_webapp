@@ -1,0 +1,45 @@
+INFO 2025-04-04 14:17:37,299 database MongoDB connection successful
+INFO 2025-04-04 14:26:12,350 database MongoDB connection successful
+INFO 2025-04-04 14:41:12,169 database MongoDB connection successful
+INFO 2025-04-04 14:41:28,639 database MongoDB connection successful
+INFO 2025-04-04 14:47:29,191 database MongoDB connection successful
+INFO 2025-04-04 14:51:15,926 database MongoDB connection successful
+INFO 2025-04-04 14:56:09,148 database MongoDB connection successful
+INFO 2025-04-04 14:56:46,253 database MongoDB connection successful
+INFO 2025-04-04 15:00:29,196 database MongoDB connection successful
+INFO 2025-04-04 15:02:27,592 database MongoDB connection successful
+INFO 2025-04-04 15:10:23,380 database MongoDB connection successful
+ERROR 2025-04-04 15:45:12,465 views Face registration error: Multipart form parse error - Invalid boundary in multipart: None
+ERROR 2025-04-04 15:45:12,472 views Traceback (most recent call last):
+  File "D:\faceID_webapp\.venv\Lib\site-packages\rest_framework\parsers.py", line 109, in parse
+    parser = DjangoMultiPartParser(meta, stream, upload_handlers, encoding)
+  File "D:\faceID_webapp\.venv\Lib\site-packages\django\http\multipartparser.py", line 87, in __init__
+    raise MultiPartParserError(
+        "Invalid boundary in multipart: %s" % force_str(boundary)
+    )
+django.http.multipartparser.MultiPartParserError: Invalid boundary in multipart: None
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\faceID_webapp\faceID\faceIDatt\views.py", line 343, in post
+    data = request.data
+           ^^^^^^^^^^^^
+  File "D:\faceID_webapp\.venv\Lib\site-packages\rest_framework\request.py", line 220, in data
+    self._load_data_and_files()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\faceID_webapp\.venv\Lib\site-packages\rest_framework\request.py", line 283, in _load_data_and_files
+    self._data, self._files = self._parse()
+                              ~~~~~~~~~~~^^
+  File "D:\faceID_webapp\.venv\Lib\site-packages\rest_framework\request.py", line 358, in _parse
+    parsed = parser.parse(stream, media_type, self.parser_context)
+  File "D:\faceID_webapp\.venv\Lib\site-packages\rest_framework\parsers.py", line 113, in parse
+    raise ParseError('Multipart form parse error - %s' % str(exc))
+rest_framework.exceptions.ParseError: Multipart form parse error - Invalid boundary in multipart: None
+
+INFO 2025-04-04 15:54:31,026 database MongoDB connection successful
+INFO 2025-04-04 16:31:09,206 database MongoDB connection successful
+INFO 2025-04-04 16:31:37,232 database MongoDB connection successful
+INFO 2025-04-04 16:37:50,985 database MongoDB connection successful
+INFO 2025-04-04 16:39:38,024 database MongoDB connection successful
+INFO 2025-04-04 16:40:12,986 database MongoDB connection successful

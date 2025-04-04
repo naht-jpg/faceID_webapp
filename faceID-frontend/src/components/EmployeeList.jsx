@@ -129,49 +129,43 @@ function EmployeeList() {
                           )}
                         </ListItemAvatar>
                         <ListItemText
-                          primary={
-                            <Typography component="span" variant="h6">
-                              {employee.name} {employee.age && `(${employee.age})`}
-                            </Typography>
-                          }
+                          primary={employee.name}
                           secondary={
-                            <React.Fragment>
-                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  <WorkIcon fontSize="small" color="action" />
-                                  <Typography component="div" variant="body2">
-                                    {employee.job_position || 'Không có chức vụ'}
+                            <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                              <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <WorkIcon fontSize="small" color="action" />
+                                <Typography component="span" variant="body2">
+                                  {employee.job_position || 'Không có chức vụ'}
+                                </Typography>
+                              </Box>
+                              
+                              {employee.email && (
+                                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <EmailIcon fontSize="small" color="action" />
+                                  <Typography component="span" variant="body2">
+                                    {employee.email}
                                   </Typography>
                                 </Box>
-                                
-                                {employee.email && (
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <EmailIcon fontSize="small" color="action" />
-                                    <Typography component="div" variant="body2">
-                                      {employee.email}
-                                    </Typography>
-                                  </Box>
-                                )}
-                                
-                                {employee.phone && (
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <PhoneIcon fontSize="small" color="action" />
-                                    <Typography component="div" variant="body2">
-                                      {employee.phone}
-                                    </Typography>
-                                  </Box>
-                                )}
-                                
-                                {employee.location && (
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <LocationOnIcon fontSize="small" color="action" />
-                                    <Typography component="div" variant="body2">
-                                      {employee.location}
-                                    </Typography>
-                                  </Box>
-                                )}
-                              </Box>
-                            </React.Fragment>
+                              )}
+                              
+                              {employee.phone && (
+                                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <PhoneIcon fontSize="small" color="action" />
+                                  <Typography component="span" variant="body2">
+                                    {employee.phone}
+                                  </Typography>
+                                </Box>
+                              )}
+                              
+                              {employee.location && (
+                                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <LocationOnIcon fontSize="small" color="action" />
+                                  <Typography component="span" variant="body2">
+                                    {employee.location}
+                                  </Typography>
+                                </Box>
+                              )}
+                            </Box>
                           }
                         />
                       </ListItem>

@@ -11,7 +11,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import FaceRecognition from '../../FaceRecognition';
 import { faceAPI } from '../../../api';
-import { useAuth } from '../../../AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function AttendanceTab({ onAttendanceSuccess }) {
   const { currentUser } = useAuth();
@@ -27,14 +27,13 @@ export default function AttendanceTab({ onAttendanceSuccess }) {
   const steps = ['Chuẩn bị', 'Chụp ảnh', 'Xác nhận điểm danh'];
   
   useEffect(() => {
-    // Cleanup camera when component unmounts
+    // Không cần thực hiện gì khi component mount
+    
+    // Chỉ dọn dẹp khi component unmount
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
-      }
+      stopCamera(); // Gọi hàm stopCamera thay vì trực tiếp xử lý tracks
     };
-  }, []);
+  }, []); // Không có dependencies
   
   const handleStartAttendance = () => {
     setIsCapturing(true);

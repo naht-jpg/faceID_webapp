@@ -13,7 +13,7 @@ import {
   Badge as BadgeIcon,
   AccountBox as AccountBoxIcon
 } from '@mui/icons-material';
-import { useAuth } from '../../../AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import { attendanceAPI } from '../../../api';
 
 export default function DashboardTab({ lastAttendance }) {

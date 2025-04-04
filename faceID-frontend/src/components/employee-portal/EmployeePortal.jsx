@@ -12,7 +12,7 @@ import {
   CameraAlt as CameraIcon,
   Notifications as NotificationIcon
 } from '@mui/icons-material';
-import { useAuth } from '../../AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import DashboardTab from './components/DashboardTab';
 import AttendanceHistoryTab from './components/AttendanceHistoryTab';

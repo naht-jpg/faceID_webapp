@@ -16,7 +16,7 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon
 } from '@mui/icons-material';
-import { useAuth } from '../../../AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import { employeeAPI } from '../../../api';
 
 export default function ProfileTab({ userData }) {
