@@ -197,6 +197,7 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'x-timezone-offset',
     'cache-control',
     'pragma',
     'if-modified-since',

@@ -6,6 +6,8 @@ urlpatterns = [
     # 1. RESTful resources - Sử dụng class-based views
     path('employees/', views.EmployeeListAPIView.as_view(), name='employee-list'),
     path('employees/<str:employee_id>/', views.EmployeeDetailAPIView.as_view(), name='employee-detail'),
+    path('employees/<str:employee_id>/attendance/summary', views.employee_attendance_summary, name='employee-attendance-summary'),
+    path('employees/custom-id/<str:custom_id>/', views.get_employee_by_custom_id, name='employee-by-custom-id'),
     path('faces/register/', views.FaceRegisterAPIView.as_view(), name='face-register'),
     path('faces/recognize/', views.FaceRecognitionAPIView.as_view(), name='face-recognize'),
     path('faces/test-recognize-with-image/', views.test_face_recognition_with_image, name='test-face-recognition-with-image'),
@@ -29,4 +31,12 @@ urlpatterns = [
     # 4. Trainer endpoints
     path('trainer/check/', views.check_trainer_data, name='check-trainer-data'),
     path('trainer/check/<str:employee_id>/', views.check_trainer_data, name='check-trainer-data-by-id'),
+
+    # 5. Work Schedule endpoints
+    path('work-schedules/', views.WorkScheduleListAPIView.as_view(), name='work-schedule-list'),
+    path('work-schedules/<str:schedule_id>/', views.WorkScheduleDetailAPIView.as_view(), name='work-schedule-detail'),
+    path('work-schedules/active/', views.get_active_work_schedule, name='active-work-schedule'),
+
+    # 6. Admin endpoints
+    path('admin/attendance/', views.AdminAttendanceAPIView.as_view(), name='admin-attendance'),
 ]

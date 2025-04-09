@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { 
   Box, 
   TextField, 
@@ -11,10 +10,10 @@ import {
   Alert
 } from "@mui/material";
 import { employeeAPI } from "../api";
-
-
+import { useAuth } from "../hooks/useAuth";
 
 function EmployeeForm({ employee, onEmployeeSaved }) {
+  const { refreshUserData } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     age: "",
@@ -22,6 +21,8 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
     email: "",
     phone: "",
     job_position: "",
+    department: "",  
+    employee_id: ""  
   });
   
   const [loading, setLoading] = useState(false);
@@ -37,9 +38,10 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
         email: employee.email || "",
         phone: employee.phone || "",
         job_position: employee.job_position || "",
+        department: employee.department || "",  
+        employee_id: employee.employee_id || ""  
       });
     } else {
-      // Reset form when not editing
       setFormData({
         name: "",
         age: "",
@@ -47,6 +49,8 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
         email: "",
         phone: "",
         job_position: "",
+        department: "",  
+        employee_id: ""  
       });
     }
   }, [employee]);
@@ -68,7 +72,6 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
     setError(null);
     setSuccess(false);
   
-    // Tạo đối tượng dữ liệu để gửi lên API
     const dataToSend = {
       ...formData,
       age: formData.age ? parseInt(formData.age, 10) : null,
@@ -76,17 +79,23 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
   
     try {
       if (employee) {
-        // Cập nhật nhân viên
-        await employeeAPI.update(employee._id, dataToSend);
+        console.log("Updating employee:", employee._id);
+        console.log("With data:", dataToSend);
+        const response = await employeeAPI.update(employee._id, dataToSend);
+        console.log("Update response:", response.data);
+        
+        if (refreshUserData) {
+          console.log("Refreshing user data after employee update");
+          const result = await refreshUserData();
+          console.log("Refresh result:", result);
+        }
       } else {
-        // Thêm nhân viên mới 
         const response = await employeeAPI.create(dataToSend);
         console.log("Employee created:", response.data);
       }
   
       setSuccess(true);
       
-      // Reset form nếu thêm mới thành công
       if (!employee) {
         setFormData({
           name: "",
@@ -95,12 +104,14 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
           email: "",
           phone: "",
           job_position: "",
+          department: "",  
+          employee_id: ""  
         });
       }
   
       if (onEmployeeSaved) onEmployeeSaved();
     } catch (err) {
-      console.error("Lỗi khi lưu thông tin nhân viên:", err);
+      console.error("Error in employee form:", err);
       setError(err.response?.data?.detail || "Không thể lưu thông tin nhân viên. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
@@ -137,6 +148,28 @@ function EmployeeForm({ employee, onEmployeeSaved }) {
             value={formData.name}
             onChange={handleChange}
             autoFocus
+          />
+          
+          <TextField
+            margin="normal"
+            fullWidth
+            id="department"
+            label="Phòng Ban"
+            name="department"
+            value={formData.department}
+            onChange={handleChange}
+            placeholder="VD: Nhân sự, Kế toán, Kỹ thuật"
+          />
+          
+          <TextField
+            margin="normal"
+            fullWidth
+            id="employee_id"
+            label="Mã Nhân Viên"
+            name="employee_id"
+            value={formData.employee_id}
+            onChange={handleChange}
+            helperText="Để trống để tạo mã tự động theo phòng ban"
           />
           
           <TextField

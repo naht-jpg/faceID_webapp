@@ -4,6 +4,9 @@ import datetime
 import logging
 import ssl
 from bson.objectid import ObjectId
+from django.utils import timezone
+from unidecode import unidecode
+
 
 # Cấu hình logging
 logger = logging.getLogger(__name__)
@@ -32,6 +35,7 @@ try:
     signin_collection = db[settings.MONGO_COLLECTIONS.get('signin', 'signin')]  #lưu thông tin tài khoản đăng nhập cho từng nhân viên
     trainner_collection = db[settings.MONGO_COLLECTIONS.get('trainner', 'trainner')]  
     testdata_collection = db['testdata']  # Collection mới lưu thông tin điểm danh vào testdata
+    work_schedules_collection = db['work_schedules']  # Thêm collection work_schedules
     
 except Exception as e:
     logger.error(f"MongoDB connection error: {str(e)}")
@@ -58,6 +62,42 @@ def get_employee_by_id(employee_id):
         logger.error(f"Error getting employee by ID: {str(e)}")
         return None
 
+def generate_employee_id(department=None):
+    """Tạo mã nhân viên theo mẫu: [Mã phòng ban]-[Năm][Tháng][Số thứ tự]"""
+    try:
+        now = datetime.datetime.now()
+        year_month = now.strftime("%y%m")
+        
+        # Mã phòng ban, mặc định là EMP nếu không có
+        dept_code = "EMP"
+        if department:
+            # Lấy 2-3 ký tự đầu của phòng ban và chuyển thành in hoa
+            dept_code = department.strip().upper()[:3]
+            # Xóa dấu tiếng Việt nếu có
+            dept_code = unidecode(dept_code)
+        
+        # Tìm số thứ tự lớn nhất hiện tại
+        latest_employee = employees_collection.find_one(
+            {"employee_id": {"$regex": f"^{dept_code}-{year_month}"}},
+            sort=[("employee_id", -1)]
+        )
+        
+        if latest_employee and latest_employee.get('employee_id'):
+            # Tách phần số từ ID hiện có
+            try:
+                seq_num = int(latest_employee['employee_id'].split('-')[-1]) + 1
+            except (ValueError, IndexError):
+                seq_num = 1
+        else:
+            seq_num = 1
+            
+        # Tạo mã nhân viên mới với số thứ tự 3 chữ số
+        new_id = f"{dept_code}-{year_month}{seq_num:03d}"
+        return new_id
+    except Exception as e:
+        logger.error(f"Error generating employee ID: {str(e)}")
+        return f"EMP-{year_month}001"  # ID mặc định nếu có lỗi
+
 def add_employee(employee_data):
     """Thêm nhân viên mới vào collection employees"""
     try:
@@ -65,13 +105,18 @@ def add_employee(employee_data):
         employee_data['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         employee_data['created_at'] = datetime.datetime.now()
         
+        # Tạo mã nhân viên tự động nếu chưa có
+        if not employee_data.get('employee_id'):
+            employee_data['employee_id'] = generate_employee_id(employee_data.get('department'))
+        
         # Lưu thông tin nhân viên vào collection employees
         result = employees_collection.insert_one(employee_data)
-        employee_id = str(result.inserted_id)
+        mongodb_id = str(result.inserted_id)
         
         # Tạo bản ghi trong dataset để lưu đường dẫn khuôn mặt (trống ban đầu)
         dataset_record = {
-            'employee_id': employee_id,
+            'employee_id': employee_data['employee_id'],  # Dùng mã nhân viên đã tạo
+            'mongodb_id': mongodb_id,  # Lưu thêm MongoDB ID để tham chiếu
             'name': employee_data.get('name', ''),
             'image_path': None,
             'has_face': False,
@@ -79,7 +124,7 @@ def add_employee(employee_data):
         }
         dataset_collection.insert_one(dataset_record)
         
-        return employee_id
+        return mongodb_id
     except Exception as e:
         logger.error(f"Error adding employee: {str(e)}")
         raise
@@ -87,37 +132,43 @@ def add_employee(employee_data):
 def update_employee(employee_id, updated_data):
     """Cập nhật thông tin nhân viên trong collection employees"""
     try:
-        # Cập nhật thông tin trong employees collection
+        # Kiểm tra nếu employee_id là chuỗi rỗng, xóa khỏi dữ liệu cập nhật
+        if 'employee_id' in updated_data and not updated_data['employee_id']:
+            # Nếu không có employee_id, tạo mới dựa trên department
+            updated_data['employee_id'] = generate_employee_id(updated_data.get('department'))
+        
+        # Cập nhật thời gian
         updated_data['updated_at'] = datetime.datetime.now()
+        
+        # Cập nhật thông tin trong employees collection
         result = employees_collection.update_one(
             {'_id': ObjectId(employee_id)},
             {'$set': updated_data}
         )
         
-        # Nếu thông tin được cập nhật, kiểm tra trong trainner và dataset
+        # Cập nhật các collection liên quan
         if result.matched_count > 0:
-            # Lấy tên nhân viên từ dữ liệu mới hoặc từ DB
+            # Lấy tên và employee_id mới từ dữ liệu cập nhật hoặc từ DB
             employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
             if employee:
-                name = updated_data.get('name', employee.get('name'))
-                if name:
-                    # Cập nhật tên trong dataset nếu có
-                    dataset_collection.update_one(
-                        {'employee_id': employee_id},
-                        {'$set': {'name': name}}
+                # Tạo dictionary các trường cần cập nhật cho các collection khác
+                update_fields = {}
+                for field in ['name', 'employee_id', 'department', 'job_position', 'email', 'phone']:
+                    if field in updated_data:
+                        update_fields[field] = updated_data[field]
+                
+                if update_fields:
+                    # Cập nhật dataset collection
+                    dataset_collection.update_many(
+                        {'mongodb_id': employee_id},
+                        {'$set': update_fields}
                     )
                     
-                    # Cập nhật thông tin trong trainner nếu nhân viên đã đăng ký khuôn mặt
-                    trainner_update = {}
-                    for field in ['name', 'age', 'location', 'email', 'phone', 'job_position']:
-                        if field in updated_data:
-                            trainner_update[field] = updated_data[field]
-                    
-                    if trainner_update:
-                        trainner_collection.update_many(
-                            {'employee_id': employee_id},
-                            {'$set': trainner_update}
-                        )
+                    # Cập nhật trainner collection
+                    trainner_collection.update_many(
+                        {'employee_id': employee.get('employee_id')},
+                        {'$set': update_fields}
+                    )
         
         return result.matched_count > 0
     except Exception as e:
@@ -232,8 +283,8 @@ def save_face_feature(employee_id, name, feature_vector, image_path=None):
         logger.error(f"Error saving face feature: {str(e)}")
         return False
 
-def save_attendance(name, image_path, person_data=None):
-    """Lưu thông tin điểm danh vào collection testdata"""
+def save_attendance(name, image_path, person_data=None, is_check_out=False):
+    """Lưu thông tin điểm danh vào collection attendance"""
     try:
         # Nếu không có person_data, tìm trong trainner collection
         employee_id = None
@@ -253,13 +304,34 @@ def save_attendance(name, image_path, person_data=None):
             employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
         
         # Tính toán các thông số điểm danh
-        now = datetime.datetime.now()
+        now = timezone.now()  # Use Django's timezone-aware datetime
         timestamp = now.strftime("%H:%M ngày %d/%m/%Y")
+        
+        # Lấy cấu hình thời gian làm việc
+        work_schedule = get_work_schedule()
         
         # Cấu hình giờ làm việc
         work_hours = {
-            'start': datetime.datetime.combine(now.date(), datetime.time(7, 0)),  # 7:00 AM
-            'end': datetime.datetime.combine(now.date(), datetime.time(17, 0)),   # 5:00 PM
+            'start': timezone.make_aware(
+                datetime.datetime.combine(
+                    now.date(), 
+                    datetime.time(
+                        hour=work_schedule.get('start_hour', 7),
+                        minute=work_schedule.get('start_minute', 0)
+                    )
+                ),
+                timezone.get_current_timezone()
+            ),
+            'end': timezone.make_aware(
+                datetime.datetime.combine(
+                    now.date(), 
+                    datetime.time(
+                        hour=work_schedule.get('end_hour', 17),
+                        minute=work_schedule.get('end_minute', 0)
+                    )
+                ),
+                timezone.get_current_timezone()
+            )
         }
         
         # Tính toán các thông số đi muộn, về sớm
@@ -268,19 +340,35 @@ def save_attendance(name, image_path, person_data=None):
         early_leave_minutes = datetime.timedelta(0)
         late_leave_minutes = datetime.timedelta(0)
         
-        # Nếu đi làm muộn hơn giờ bắt đầu
-        if now > work_hours['start']:
-            late_minutes = now - work_hours['start']
-        else:
-            early_minutes = work_hours['start'] - now
+        # Nếu là check-out, tính toán thời gian về sớm/muộn
+        if is_check_out:
+            # Ensure timezone awareness
+            now_aware = timezone.localtime(now)
+            end_time_aware = timezone.localtime(work_hours['end'])
             
+            # Nếu về sớm hơn giờ kết thúc
+            if now_aware < end_time_aware:
+                early_leave_minutes = end_time_aware - now_aware
+            else:
+                late_leave_minutes = now_aware - end_time_aware
+        else:
+            # Ensure timezone awareness
+            now_aware = timezone.localtime(now)
+            start_time_aware = timezone.localtime(work_hours['start'])
+            
+            # Nếu đi làm muộn hơn giờ bắt đầu
+            if now_aware > start_time_aware:
+                late_minutes = now_aware - start_time_aware
+            else:
+                early_minutes = start_time_aware - now_aware
+        
         # Chuyển đổi thành chuỗi định dạng H:M:S
         early_minutes_str = str(early_minutes)
         late_minutes_str = str(late_minutes)
         early_leave_minutes_str = str(early_leave_minutes)
         late_leave_minutes_str = str(late_leave_minutes)
         
-        # Tạo dữ liệu điểm danh cho testdata collection
+        # Tạo dữ liệu điểm danh cho attendance collection
         attendance_data = {
             'name': name,
             'image_path': image_path,
@@ -289,12 +377,17 @@ def save_attendance(name, image_path, person_data=None):
             'late_minutes': late_minutes_str,
             'early_leave_minutes': early_leave_minutes_str,
             'late_leave_minutes': late_leave_minutes_str,
-            'created_at': now
+            'created_at': now,
+            'is_check_out': is_check_out,
+            'datetime': now,
+            'employee_id': str(employee_id) 
+
         }
         
         # Thêm thông tin nhân viên nếu có
         if employee:
             attendance_data.update({
+                'employee_id': str(employee.get('_id')),
                 'age': employee.get('age'),
                 'location': employee.get('location'),
                 'email': employee.get('email'),
@@ -303,6 +396,7 @@ def save_attendance(name, image_path, person_data=None):
             })
         elif person_data:
             attendance_data.update({
+                'employee_id': person_data.get('employee_id'),
                 'age': person_data.get('age'),
                 'location': person_data.get('location'),
                 'email': person_data.get('email'),
@@ -310,8 +404,53 @@ def save_attendance(name, image_path, person_data=None):
                 'job_position': person_data.get('job_position')
             })
         
-        # Lưu vào collection testdata thay vì attendance
-        result = testdata_collection.insert_one(attendance_data)
+        # Nếu là check-out, cần tìm bản ghi check-in gần nhất
+        if is_check_out and employee_id:
+            # Lấy ngày hiện tại - ensure timezone awareness
+            start_of_day = timezone.make_aware(
+                datetime.datetime.combine(now.date(), datetime.time(0, 0, 0)),
+                timezone.get_current_timezone()
+            )
+            
+            # Tìm bản ghi check-in gần nhất trong ngày
+            latest_check_in = attendance_collection.find_one({
+                'employee_id': str(employee_id),
+                'datetime': {'$gte': start_of_day},
+                'is_check_out': {'$ne': True}
+            }, sort=[('datetime', -1)])
+            
+            if latest_check_in:
+                # Cập nhật bản ghi check-in với thông tin check-out
+                attendance_collection.update_one(
+                    {'_id': latest_check_in['_id']},
+                    {
+                        '$set': {
+                            'check_out_time': now,
+                            'updated_at': now,
+                            'early_leave_minutes': early_leave_minutes_str,
+                            'late_leave_minutes': late_leave_minutes_str
+                        }
+                    }
+                )
+                
+                # Tính toán thời gian làm việc
+                work_time = calculate_work_time(latest_check_in['datetime'], now)
+                
+                # Cập nhật thời gian làm việc vào bản ghi
+                attendance_collection.update_one(
+                    {'_id': latest_check_in['_id']},
+                    {
+                        '$set': {
+                            'work_time': work_time,
+                            'updated_at': now
+                        }
+                    }
+                )
+                
+                return True
+        
+        # Lưu vào collection attendance thay vì testdata
+        result = attendance_collection.insert_one(attendance_data)
         return result.inserted_id is not None
     except Exception as e:
         logger.error(f"Error saving attendance: {str(e)}")
@@ -388,3 +527,167 @@ def update_dataset_image_path(employee_id, image_path):
     except Exception as e:
         logger.error(f"Error updating dataset image path: {str(e)}")
         return False
+
+def get_work_schedule(schedule_id=None):
+    """Lấy cấu hình thời gian làm việc"""
+    try:
+        if schedule_id:
+            return work_schedules_collection.find_one({'_id': ObjectId(schedule_id)})
+        else:
+            # Lấy cấu hình mặc định (active)
+            schedule = work_schedules_collection.find_one({'is_active': True})
+            if not schedule:
+                # Nếu không có cấu hình mặc định, tạo một cấu hình mặc định
+                default_schedule = {
+                    'name': 'Lịch Làm Việc Mặc Định',
+                    'start_hour': 7,
+                    'start_minute': 0,
+                    'end_hour': 17,
+                    'end_minute': 0,
+                    'is_active': True,
+                    'created_at': datetime.datetime.now()
+                }
+                result = work_schedules_collection.insert_one(default_schedule)
+                return work_schedules_collection.find_one({'_id': result.inserted_id})
+            return schedule
+    except Exception as e:
+        logger.error(f"Error getting work schedule: {str(e)}")
+        # Trả về cấu hình mặc định nếu có lỗi
+        return {
+            'name': 'Lịch Làm Việc Mặc Định',
+            'start_hour': 7,
+            'start_minute': 0,
+            'end_hour': 17,
+            'end_minute': 0,
+            'is_active': True
+        }
+
+def get_all_work_schedules():
+    """Lấy tất cả cấu hình thời gian làm việc"""
+    try:
+        return list(work_schedules_collection.find())
+    except Exception as e:
+        logger.error(f"Error getting all work schedules: {str(e)}")
+        return []
+
+def create_work_schedule(data):
+    """Tạo cấu hình thời gian làm việc mới"""
+    try:
+        # Nếu là cấu hình mặc định, vô hiệu hóa tất cả các cấu hình mặc định khác
+        if data.get('is_active', False):
+            work_schedules_collection.update_many(
+                {'is_active': True},
+                {'$set': {'is_active': False}}
+            )
+        
+        result = work_schedules_collection.insert_one(data)
+        return str(result.inserted_id)
+    except Exception as e:
+        logger.error(f"Error creating work schedule: {str(e)}")
+        return None
+
+def update_work_schedule(schedule_id, data):
+    """Cập nhật cấu hình thời gian làm việc"""
+    try:
+        # Nếu là cấu hình mặc định, vô hiệu hóa tất cả các cấu hình mặc định khác
+        if data.get('is_active', False):
+            work_schedules_collection.update_many(
+                {'is_active': True, '_id': {'$ne': ObjectId(schedule_id)}},
+                {'$set': {'is_active': False}}
+            )
+        
+        work_schedules_collection.update_one(
+            {'_id': ObjectId(schedule_id)},
+            {'$set': data}
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Error updating work schedule: {str(e)}")
+        return False
+
+def delete_work_schedule(schedule_id):
+    """Xóa cấu hình thời gian làm việc"""
+    try:
+        # Không cho phép xóa cấu hình mặc định duy nhất
+        schedule = work_schedules_collection.find_one({'_id': ObjectId(schedule_id)})
+        if schedule and schedule.get('is_active') and work_schedules_collection.count_documents({}) == 1:
+            return False
+        
+        result = work_schedules_collection.delete_one({'_id': ObjectId(schedule_id)})
+        return result.deleted_count > 0
+    except Exception as e:
+        logger.error(f"Error deleting work schedule: {str(e)}")
+        return False
+
+def calculate_work_time(check_in_time, check_out_time):
+    """Tính thời gian làm việc từ check-in đến check-out"""
+    try:
+        # Get the current timezone
+        current_tz = timezone.get_current_timezone()
+        
+        # Convert to datetime if string
+        if isinstance(check_in_time, str):
+            try:
+                # Try to parse with timezone info
+                check_in_time = datetime.datetime.fromisoformat(check_in_time.replace('Z', '+00:00'))
+            except ValueError:
+                # If parsing fails, create a naive datetime
+                check_in_time = datetime.datetime.strptime(check_in_time.split('.')[0], "%Y-%m-%dT%H:%M:%S")
+        
+        if isinstance(check_out_time, str):
+            try:
+                # Try to parse with timezone info
+                check_out_time = datetime.datetime.fromisoformat(check_out_time.replace('Z', '+00:00'))
+            except ValueError:
+                # If parsing fails, create a naive datetime
+                check_out_time = datetime.datetime.strptime(check_out_time.split('.')[0], "%Y-%m-%dT%H:%M:%S")
+        
+        # Make both datetimes timezone-aware consistently
+        if not timezone.is_aware(check_in_time):
+            check_in_time = timezone.make_aware(check_in_time, current_tz)
+            
+        if not timezone.is_aware(check_out_time):
+            check_out_time = timezone.make_aware(check_out_time, current_tz)
+        
+        # Now both datetimes are timezone-aware, we can safely subtract
+        work_time = check_out_time - check_in_time
+        
+        return str(work_time)
+    except Exception as e:
+        logger.error(f"Error calculating work time: {str(e)}")
+        return "0:00:00"
+
+# Cần cập nhật trong views.py hoặc database.py trên server
+
+
+# Khi nhận datetime từ client
+def handle_attendance(request, employee_id):
+    data = request.data
+    
+    # Đảm bảo datetime có timezone
+    if 'datetime' in data:
+        try:
+            # Nếu datetime đã có timezone (dạng ISO với Z hoặc +00:00)
+            datetime_obj = datetime.datetime.fromisoformat(data['datetime'].replace('Z', '+00:00'))
+            if not timezone.is_aware(datetime_obj):
+                datetime_obj = timezone.make_aware(datetime_obj)
+            data['datetime'] = datetime_obj
+        except (ValueError, TypeError):
+            # Nếu parse thất bại, sử dụng thời gian hiện tại
+            data['datetime'] = timezone.now()
+    
+    # Tiếp tục xử lý với datetime đã có timezone
+    # Thêm các trường cần thiết khác
+    if 'created_at' not in data:
+        data['created_at'] = timezone.now()
+    
+    # Lưu vào cơ sở dữ liệu
+    from .database import attendance_collection
+    
+    # Chuyển employee_id thành chuỗi nếu cần
+    if 'employee_id' not in data:
+        data['employee_id'] = str(employee_id)
+    
+    # Insert into MongoDB
+    result = attendance_collection.insert_one(data)
+    return result.inserted_id is not None

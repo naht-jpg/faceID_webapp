@@ -11,13 +11,12 @@ import {
   ExitToApp as ExitToAppIcon,
   CalendarToday as CalendarTodayIcon,
   Badge as BadgeIcon,
-  AccountBox as AccountBoxIcon
+  AccountBox as AccountBoxIcon,
+  Business as BusinessIcon
 } from '@mui/icons-material';
-import { useAuth } from '../../../hooks/useAuth';
 import { attendanceAPI } from '../../../api';
 
-export default function DashboardTab({ lastAttendance }) {
-  const { currentUser } = useAuth();
+export default function DashboardTab({ lastAttendance, onAttendanceRequest, userData }) {
   const [todayAttendance, setTodayAttendance] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -29,36 +28,57 @@ export default function DashboardTab({ lastAttendance }) {
   });
 
   useEffect(() => {
-    if (currentUser?.id) {
+    // Use pre-fetched attendance data if available
+    if (userData?.lastAttendance) {
+      setTodayAttendance(userData.lastAttendance);
+    } else {
+      // Otherwise fetch it directly
       fetchTodayAttendance();
-      fetchWorkingSummary();
     }
-  }, [currentUser]);
+    
+    // Always fetch the monthly summary
+    fetchWorkingSummary();
+  }, []);
 
   const fetchTodayAttendance = async () => {
-    if (!currentUser?.id) return;
+    if (!userData?.id && !userData?._id) return;
     
     setLoading(true);
     setError(null);
     
     try {
-      const response = await attendanceAPI.getTodayByEmployeeId(currentUser.id);
+      // Use the ID from the employees collection
+      const employeeId = userData.id || userData._id;
+      console.log("Fetching attendance with employee ID:", employeeId);
+      
+      const response = await attendanceAPI.getLatestOrToday(employeeId);
+      
+      console.log("Attendance API response:", response.data);
       
       if (response.data && response.data.success) {
-        setTodayAttendance(response.data.records[0] || null);
+        // Handle both response formats
+        if (response.data.data) {
+          setTodayAttendance(response.data.data);
+        } 
+        else if (response.data.records && response.data.records.length > 0) {
+          setTodayAttendance(response.data.records[0]);
+        } else {
+          setTodayAttendance(null);
+        }
       } else {
         setTodayAttendance(null);
       }
     } catch (err) {
-      console.error("Lỗi khi lấy dữ liệu điểm danh hôm nay:", err);
+      console.error("Error fetching attendance:", err);
       setError("Không thể tải dữ liệu điểm danh. Vui lòng thử lại sau.");
+      setTodayAttendance(null);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchWorkingSummary = async () => {
-    if (!currentUser?.id) return;
+    if (!userData?.id && !userData?._id) return;
     
     try {
       // Lấy tổng kết tháng hiện tại
@@ -66,7 +86,7 @@ export default function DashboardTab({ lastAttendance }) {
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
       
-      const response = await attendanceAPI.getMonthlySummary(currentUser.id, year, month);
+      const response = await attendanceAPI.getMonthlySummary(userData.id || userData._id, year, month);
       
       if (response.data && response.data.success) {
         setWorkingSummary({
@@ -100,14 +120,24 @@ export default function DashboardTab({ lastAttendance }) {
             <Button 
               variant="contained" 
               color="primary"
-              onClick={() => document.getElementById('attendance-tab').click()}
-            >
+              onClick={onAttendanceRequest || (() => console.log('onAttendanceRequest not provided'))}            >
               Điểm danh ngay
             </Button>
           </Box>
         </CardContent>
       </Card>
     );
+    const getFormattedTime = (dateString) => {
+      try {
+        return new Date(dateString).toLocaleTimeString('vi-VN', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+      } catch (e) {
+        console.error("Date formatting error:", e);
+        return dateString || "—";
+      }
+    };
     
     return (
       <Card sx={{ mb: 4, borderLeft: '4px solid', borderColor: 'success.main' }}>
@@ -129,7 +159,7 @@ export default function DashboardTab({ lastAttendance }) {
               <Stack>
                 <Typography variant="caption" color="text.secondary">Thời gian vào</Typography>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  {new Date(attendance.datetime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                 {getFormattedTime(attendance.datetime)}                
                 </Typography>
               </Stack>
             </Grid>
@@ -225,7 +255,7 @@ export default function DashboardTab({ lastAttendance }) {
           </Avatar>
           <Box>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-              Xin chào, {currentUser?.name}!
+              Xin chào, {userData?.name}!
             </Typography>
             <Typography variant="body1">
               Hôm nay là {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -337,30 +367,43 @@ export default function DashboardTab({ lastAttendance }) {
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Chip 
+                      icon={<BadgeIcon />} 
+                      label={userData?.employee_id || 'Chưa có mã NV'} 
+                      color="primary" 
+                      variant="outlined"
+                      sx={{ mr: 1 }}
+                    />
+                    <Chip 
+                      icon={<BusinessIcon />} 
+                      label={userData?.department || 'Chưa có phòng ban'} 
+                      color="default" 
+                      variant="outlined"
+                    />
+                  </Box>
+                </Grid>
                 <Grid item xs={4}>
                   <Typography variant="caption" color="text.secondary">Họ và tên</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{currentUser?.name}</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{userData?.name}</Typography>
                 </Grid>
                 <Grid item xs={4}>
                   <Typography variant="caption" color="text.secondary">Email</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{currentUser?.email || '—'}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="caption" color="text.secondary">Mã nhân viên</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{currentUser?.employee_id || '—'}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="caption" color="text.secondary">Phòng ban</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{currentUser?.department || '—'}</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{userData?.email || '—'}</Typography>
                 </Grid>
                 <Grid item xs={4}>
                   <Typography variant="caption" color="text.secondary">Chức vụ</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{currentUser?.job_position || '—'}</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{userData?.job_position || '—'}</Typography>
                 </Grid>
                 <Grid item xs={4}>
-                  <Typography variant="caption" color="text.secondary">Trạng thái</Typography>
+                  <Typography variant="caption" color="text.secondary">Số điện thoại</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>{userData?.phone || '—'}</Typography>
+                </Grid>
+                <Grid item xs={8}>
+                  <Typography variant="caption" color="text.secondary">Ngày tham gia</Typography>
                   <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                    <Chip label="Đang làm việc" color="success" size="small" />
+                    {userData?.created_at ? new Date(userData.created_at).toLocaleDateString('vi-VN') : '—'}
                   </Typography>
                 </Grid>
               </Grid>

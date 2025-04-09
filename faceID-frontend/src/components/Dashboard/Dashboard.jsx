@@ -12,6 +12,8 @@ import FaceRegistrationTab from './FaceRegistrationTab';
 import FaceRecognitionTab from './FaceRecognitionTab';
 import Home from '../../pages/Home';
 import AccountManagement from './AccountManagement';
+import WorkScheduleTab from './WorkScheduleTab';
+import AdminAttendanceTab from './AdminAttendanceTab';
 
 import {
   chartsCustomizations,
@@ -34,12 +36,15 @@ const tabTitles = {
   'face-registration': 'Đăng ký khuôn mặt',
   'face-recognition': 'Nhận diện khuôn mặt',
   'accounts': 'Quản lý tài khoản',
+  'work-schedule': 'Lịch làm việc',
+  'attendance': 'Quản lý Điểm danh',
+  'settings': 'Cài đặt'
 };
 
 export default function Dashboard(props) {
   const [currentTab, setCurrentTab] = useState('home');
   
-  const handleTabChange = (tabName) => {
+  const handleMenuTabChange = (tabName) => {
     setCurrentTab(tabName);
     updateWebTitle(tabName);
   };
@@ -47,25 +52,7 @@ export default function Dashboard(props) {
   // Hàm cập nhật tiêu đề trang web
   const updateWebTitle = (tab) => {
     const baseTitle = "Face ID System - ";
-    switch(tab) {
-      case 'home':
-        document.title = baseTitle + "Trang chủ";
-        break;
-      case 'employees':
-        document.title = baseTitle + "Quản lý nhân viên";
-        break;
-      case 'face-registration':
-        document.title = baseTitle + "Đăng ký khuôn mặt";
-        break;
-      case 'face-recognition':
-        document.title = baseTitle + "Nhận diện khuôn mặt";
-        break;
-      case 'accounts':
-        document.title = baseTitle + "Quản lý tài khoản";
-        break;
-      default:
-        document.title = baseTitle + "Dashboard";
-    }
+    document.title = baseTitle + (tabTitles[tab] || "Dashboard");
   };
 
   // Cập nhật title khi component mount
@@ -86,6 +73,12 @@ export default function Dashboard(props) {
         return <FaceRecognitionTab />;
       case 'accounts':
         return <AccountManagement />;
+      case 'work-schedule':
+        return <WorkScheduleTab />;
+      case 'attendance':
+        return <AdminAttendanceTab />;
+      case 'settings':
+        return <Typography variant="h6">Cài đặt</Typography>;
       default:
         return <Home />;
     }
@@ -95,17 +88,14 @@ export default function Dashboard(props) {
     <AppTheme {...props} themeComponents={xThemeComponents}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline enableColorScheme />
-        <AppBar
-          position="fixed"
-          sx={{ width: `calc(100% - 240px)`, ml: '240px' }}
-        >
+        <AppBar position="fixed" sx={{ width: `calc(100% - 240px)`, ml: '240px' }}>
           <Toolbar>
             <Typography variant="h6" noWrap component="div">
               {tabTitles[currentTab]}
             </Typography>
           </Toolbar>
         </AppBar>
-        <SideMenu currentTab={currentTab} onTabChange={handleTabChange} />
+        <SideMenu currentTab={currentTab} onTabChange={handleMenuTabChange} />
         <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
           {renderContent()}
         </Box>

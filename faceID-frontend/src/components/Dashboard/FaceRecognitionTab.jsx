@@ -859,6 +859,74 @@ export default function FaceRecognitionTab() {
                   </Alert>
                 )}
 
+                {recognitionResult.success && (
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Thông tin chấm công
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <Paper variant="outlined" sx={{ p: 2 }}>
+                          <Typography variant="subtitle2" gutterBottom>
+                            Thời gian vào làm
+                          </Typography>
+                          <Grid container spacing={1}>
+                            <Grid item xs={6}>
+                              <Typography variant="body2" color="text.secondary">
+                                Đến sớm:
+                              </Typography>
+                              <Typography variant="body1" color="success.main">
+                                {recognitionResult.early_minutes !== '0:00:00' 
+                                  ? recognitionResult.early_minutes 
+                                  : '—'}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body2" color="text.secondary">
+                                Đi muộn:
+                              </Typography>
+                              <Typography variant="body1" color="error.main">
+                                {recognitionResult.late_minutes !== '0:00:00' 
+                                  ? recognitionResult.late_minutes 
+                                  : '—'}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Paper variant="outlined" sx={{ p: 2 }}>
+                          <Typography variant="subtitle2" gutterBottom>
+                            Thời gian ra về
+                          </Typography>
+                          <Grid container spacing={1}>
+                            <Grid item xs={6}>
+                              <Typography variant="body2" color="text.secondary">
+                                Về sớm:
+                              </Typography>
+                              <Typography variant="body1" color="warning.main">
+                                {recognitionResult.early_leave_minutes !== '0:00:00' 
+                                  ? recognitionResult.early_leave_minutes 
+                                  : '—'}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body2" color="text.secondary">
+                                Về muộn:
+                              </Typography>
+                              <Typography variant="body1" color="info.main">
+                                {recognitionResult.late_leave_minutes !== '0:00:00' 
+                                  ? recognitionResult.late_leave_minutes 
+                                  : '—'}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Paper>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                )}
+
                 {testMode && recognitionResult.success && (
                   <Alert 
                     severity="info" 

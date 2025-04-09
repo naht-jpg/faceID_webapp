@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Paper, Typography, Grid, TextField, Button, Avatar,
   Divider, Card, CardContent, Alert, Snackbar, CircularProgress,
-  IconButton, InputAdornment
+  IconButton, InputAdornment, Chip
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -13,14 +13,15 @@ import {
   Phone as PhoneIcon,
   Work as WorkIcon,
   Badge as BadgeIcon,
+  Business as BusinessIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../../hooks/useAuth';
 import { employeeAPI } from '../../../api';
 
-export default function ProfileTab({ userData }) {
-  const { currentUser } = useAuth();
+export default function ProfileTab({ userData, onProfileUpdate }) {
+  const { currentUser, refreshUserData } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSnackbar, setShowSnackbar] = useState(false);
@@ -103,28 +104,65 @@ export default function ProfileTab({ userData }) {
     setLoading(true);
 
     try {
-      // Remove password fields if they are empty
+      // Chuẩn bị data
       const dataToSubmit = { ...formData };
       if (!dataToSubmit.password) {
         delete dataToSubmit.password;
         delete dataToSubmit.confirm_password;
       } else {
-        delete dataToSubmit.confirm_password; // Don't send confirm_password to API
+        delete dataToSubmit.confirm_password;
       }
 
-      // Call API to update profile
-      const response = await employeeAPI.update(userData.id || userData._id, dataToSubmit);
+      console.log("Submitting data:", dataToSubmit);
+
+      // Đảm bảo luôn dùng _id (MongoDB ID)
+      const userId = userData._id;
+      if (!userId) {
+        setError('Không thể xác định ID nhân viên để cập nhật');
+        return;
+      }
+
+      console.log("To user ID:", userId);
+
+      // Gọi API cập nhật thông tin
+      const response = await employeeAPI.update(userId, dataToSubmit);
+      console.log("Update API response:", response.data);
       
+      // Hiển thị thông báo thành công
       setShowSnackbar(true);
       setSnackbarMessage('Cập nhật thông tin thành công');
       setSnackbarSeverity('success');
+      
       setIsEditing(false);
       
-      // Update local user data if needed
-      // This might require refreshing the auth context or user data
+      // Cập nhật lại thông tin người dùng
+      if (refreshUserData && typeof refreshUserData === 'function') {
+        console.log("Calling refreshUserData...");
+        const refreshResult = await refreshUserData();
+        console.log("Refresh result:", refreshResult);
+        
+        // Cập nhật lại form data với dữ liệu mới nhất từ currentUser
+        if (refreshResult && currentUser) {
+          setFormData({
+            name: currentUser.name || '',
+            email: currentUser.email || '',
+            phone: currentUser.phone || '',
+            job_position: currentUser.job_position || '',
+            department: currentUser.department || '',
+            employee_id: currentUser.employee_id || '',
+            password: '',
+            confirm_password: ''
+          });
+        }
+      }
+
+      // Thông báo cho component cha biết dữ liệu đã được cập nhật
+      if (onProfileUpdate && typeof onProfileUpdate === 'function') {
+        onProfileUpdate();
+      }
     } catch (err) {
       console.error('Error updating profile:', err);
-      setError(err.response?.data?.message || 'Không thể cập nhật thông tin. Vui lòng thử lại sau.');
+      setError(err.response?.data?.message || err.response?.data?.error || 'Không thể cập nhật thông tin. Vui lòng thử lại sau.');
       setShowSnackbar(true);
       setSnackbarMessage('Không thể cập nhật thông tin');
       setSnackbarSeverity('error');
@@ -187,9 +225,25 @@ export default function ProfileTab({ userData }) {
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   {formData.job_position}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  ID: {formData.employee_id}
-                </Typography>
+                
+                {formData.employee_id && (
+                  <Chip 
+                    icon={<BadgeIcon />} 
+                    label={formData.employee_id} 
+                    color="primary" 
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                  />
+                )}
+                
+                {formData.department && (
+                  <Chip 
+                    icon={<BusinessIcon />} 
+                    label={formData.department} 
+                    color="default" 
+                    variant="outlined"
+                  />
+                )}
               </Box>
             </Grid>
 
@@ -255,18 +309,19 @@ export default function ProfileTab({ userData }) {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Vị trí"
-                    name="job_position"
-                    value={formData.job_position}
+                    label="Mã nhân viên"
+                    name="employee_id"
+                    value={formData.employee_id}
                     onChange={handleInputChange}
                     disabled={!isEditing || loading}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <WorkIcon color="action" />
+                          <BadgeIcon color="action" />
                         </InputAdornment>
                       ),
                     }}
+                    helperText={isEditing ? "Để trống để tạo mã tự động theo phòng ban" : ""}
                   />
                 </Grid>
                 
@@ -281,7 +336,25 @@ export default function ProfileTab({ userData }) {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <BadgeIcon color="action" />
+                          <BusinessIcon color="action" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Vị trí"
+                    name="job_position"
+                    value={formData.job_position}
+                    onChange={handleInputChange}
+                    disabled={!isEditing || loading}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <WorkIcon color="action" />
                         </InputAdornment>
                       ),
                     }}
@@ -347,17 +420,18 @@ export default function ProfileTab({ userData }) {
                 )}
                 
                 {isEditing && (
-                  <Grid item xs={12} sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      type="submit"
-                      disabled={loading}
-                      startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
-                      sx={{ px: 4 }}
-                    >
-                      {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
-                    </Button>
+                  <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
+                        disabled={loading}
+                      >
+                        {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                      </Button>
+                    </Box>
                   </Grid>
                 )}
               </Grid>
@@ -365,8 +439,8 @@ export default function ProfileTab({ userData }) {
           </Grid>
         </form>
       </Paper>
-
-      {!isEditing && (
+      
+      {userData && (
         <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>
             Thông Tin Bổ Sung

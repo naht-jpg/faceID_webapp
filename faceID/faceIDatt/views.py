@@ -18,7 +18,8 @@ import base64
 import numpy as np
 import cv2
 import dlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
+from django.utils import timezone
 
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -31,7 +32,9 @@ from .auth import MongoDBAuthBackend, get_tokens_for_user
 from .database import (
     get_employees, get_employee_by_id, add_employee,
     update_employee, delete_employee, get_attendance_history,
-    signin_collection, attendance_collection
+    signin_collection, attendance_collection,
+    get_work_schedule, get_all_work_schedules, 
+    create_work_schedule, update_work_schedule, delete_work_schedule
 )
 
 # Setup logger
@@ -56,6 +59,16 @@ def face_check(request):
     image = request.data.get('image')
     name = recognize_face(image)
     return Response({'name': name if name else "Unknown"})
+
+@api_view(['GET'])
+def test_api(request):
+    """Simple test API endpoint to check if the API is working"""
+    return Response({
+        'status': 'success',
+        'message': 'FaceID API is working properly',
+        'timestamp': datetime.now().isoformat(),
+        'version': '1.0.0'
+    })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -142,7 +155,6 @@ def mongodb_token_obtain(request):
 @permission_classes([IsAuthenticated])
 def current_user(request):
     try:
-        # Get username from the JWT token
         username = request.user.username
         
         # Find user in MongoDB
@@ -154,27 +166,40 @@ def current_user(request):
                 'role': 'admin' if request.user.is_staff else 'employee'
             })
         
-        # Return user data
-        return Response({
+        # Thêm code để tìm employee liên quan
+        employee_data = None
+        employee_id = user_data.get('employee_id')
+        
+        # Nếu có employee_id trong user_data, sử dụng nó
+        if employee_id:
+            from .database import employees_collection
+            try:
+                employee_data = employees_collection.find_one({'_id': ObjectId(employee_id)})
+            except:
+                # Thử tìm theo tên nếu không tìm được theo ID
+                employee_data = employees_collection.find_one({'name': username})
+        else:
+            # Tìm employee theo name
+            from .database import employees_collection
+            employee_data = employees_collection.find_one({'name': username})
+        
+        # Trả về cả hai ID
+        response_data = {
             'id': str(user_data.get('_id', '')),
             'name': user_data.get('name', username),
             'role': user_data.get('role', 'employee')
-        })
+        }
+        
+        if employee_data:
+            response_data['employee_id'] = str(employee_data.get('_id', ''))
+        
+        return Response(response_data)
     
     except Exception as e:
         logger.error(f"Current user error: {str(e)}")
         return Response({
             'detail': 'Lỗi khi lấy thông tin người dùng'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-@api_view(['GET'])
-def test_api(request):
-    """API kiểm tra kết nối"""
-    return Response({
-        'status': 'success',
-        'message': 'API is working',
-        'timestamp': datetime.now().isoformat()
-    })
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -274,6 +299,9 @@ class EmployeeDetailAPIView(APIView):
         try:
             employee = get_employee_by_id(employee_id)
             if employee:
+                # Chuyển _id thành string để serializable
+                if '_id' in employee:
+                    employee['_id'] = str(employee['_id'])
                 return Response(employee)
             else:
                 return Response({'error': 'Không tìm thấy nhân viên'}, status=status.HTTP_404_NOT_FOUND)
@@ -288,14 +316,26 @@ class EmployeeDetailAPIView(APIView):
             updated_data = request.data
             result = update_employee(employee_id, updated_data)
             if result:
-                return Response({
-                    'success': True,
-                    'message': 'Đã cập nhật thông tin nhân viên'
-                })
+                # Lấy thông tin nhân viên đã cập nhật để trả về
+                updated_employee = get_employee_by_id(employee_id)
+                if updated_employee:
+                    # Chuyển ObjectId thành string
+                    if '_id' in updated_employee:
+                        updated_employee['_id'] = str(updated_employee['_id'])
+                    return Response({
+                        'success': True,
+                        'message': 'Đã cập nhật thông tin nhân viên',
+                        'data': updated_employee
+                    })
+                else:
+                    return Response({
+                        'success': True,
+                        'message': 'Đã cập nhật thông tin nhân viên'
+                    })
             else:
-                return Response({'error': 'Không tìm thấy nhân viên'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'error': 'Không tìm thấy nhân viên'}, status=404)
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': str(e)}, status=500)
     
     def patch(self, request, employee_id):
         """PATCH method: Cập nhật một phần thông tin nhân viên"""
@@ -416,9 +456,18 @@ class AttendanceAPIView(APIView):
             day = request.query_params.get('day')
             latest = request.query_params.get('latest', False)
             today = request.query_params.get('today', False)
+            latest_or_today = request.query_params.get('latest_or_today', False)
             
             from .database import attendance_collection
             
+            # First try today, then try latest if no results
+            if latest_or_today:
+                today_response = self._get_today_attendance(employee_id)
+                if today_response.data.get('records') and len(today_response.data['records']) > 0:
+                    return today_response
+                else:
+                    return self._get_latest_attendance(employee_id)
+                    
             # Nếu yêu cầu bản ghi mới nhất
             if latest:
                 return self._get_latest_attendance(employee_id)
@@ -482,12 +531,14 @@ class AttendanceAPIView(APIView):
             )
             
             if not attendance_record:
+                # Change from 404 to 200 with empty data
                 return Response({
-                    'success': False,
-                    'message': 'Không tìm thấy dữ liệu điểm danh'
-                }, status=status.HTTP_404_NOT_FOUND)
+                    'success': True,
+                    'message': 'Không tìm thấy dữ liệu điểm danh',
+                    'data': None
+                })
                 
-            # Chuyển ObjectId thành string
+            # Rest of the method remains unchanged
             attendance_record['_id'] = str(attendance_record['_id'])
             
             # Chuyển datetime sang string
@@ -510,23 +561,36 @@ class AttendanceAPIView(APIView):
     def _get_today_attendance(self, employee_id):
         """Helper method to get today's attendance"""
         try:
-            # Lấy thời gian hiện tại
-            now = datetime.now()
-            start_of_day = datetime(now.year, now.month, now.day, 0, 0, 0)
-            end_of_day = datetime(now.year, now.month, now.day, 23, 59, 59)
+            # Use timezone-aware datetime objects
+            now = timezone.now()
+            start_of_day = timezone.make_aware(
+                datetime(now.year, now.month, now.day, 0, 0, 0),
+                timezone.get_current_timezone()
+            )
+            end_of_day = timezone.make_aware(
+                datetime(now.year, now.month, now.day, 23, 59, 59),
+                timezone.get_current_timezone()
+            )
             
             # Tìm các bản ghi điểm danh trong ngày
             from .database import attendance_collection
             
+            # Make sure employee_id is treated as string (as stored in the database)
+            query_employee_id = str(employee_id)
+            
+            logger.debug(f"Searching for attendance with query: employee_id={query_employee_id}, datetime between {start_of_day} and {end_of_day}")
+            
             today_attendance = list(attendance_collection.find({
-                'employee_id': employee_id,
+                'employee_id': query_employee_id,
                 'datetime': {
                     '$gte': start_of_day,
                     '$lte': end_of_day
                 }
             }).sort('datetime', -1))
             
-            # Xử lý dữ liệu trả về giống như trong phương thức get
+            logger.info(f"Found {len(today_attendance)} attendance records for employee {employee_id}")
+            
+            # Process the records for JSON serialization
             for record in today_attendance:
                 if '_id' in record:
                     record['_id'] = str(record['_id'])
@@ -534,6 +598,8 @@ class AttendanceAPIView(APIView):
                     record['datetime'] = record['datetime'].isoformat() if hasattr(record['datetime'], 'isoformat') else str(record['datetime'])
                 if 'created_at' in record:
                     record['created_at'] = record['created_at'].isoformat() if hasattr(record['created_at'], 'isoformat') else str(record['created_at'])
+                if 'check_out_time' in record and record['check_out_time']:
+                    record['check_out_time'] = record['check_out_time'].isoformat() if hasattr(record['check_out_time'], 'isoformat') else str(record['check_out_time'])
             
             return Response({
                 'success': True,
@@ -557,23 +623,358 @@ class AttendanceAPIView(APIView):
             
             # Đảm bảo data có employee_id
             if 'employee_id' not in data:
-                data['employee_id'] = employee_id
+                data['employee_id'] = str(employee_id)
                 
             # Thêm datetime nếu không có
             if 'datetime' not in data:
-                data['datetime'] = datetime.now()
+                data['datetime'] = timezone.now()
+            else:
+                # Đảm bảo datetime có timezone
+                try:
+                    # Nếu là string, chuyển thành datetime với timezone
+                    if isinstance(data['datetime'], str):
+                        datetime_obj = datetime.fromisoformat(data['datetime'].replace('Z', '+00:00'))
+                        if not timezone.is_aware(datetime_obj):
+                            datetime_obj = timezone.make_aware(datetime_obj)
+                        data['datetime'] = datetime_obj
+                    # Nếu là datetime nhưng không có timezone, thêm timezone
+                    elif isinstance(data['datetime'], datetime) and not timezone.is_aware(data['datetime']):
+                        data['datetime'] = timezone.make_aware(data['datetime'])
+                except (ValueError, TypeError):
+                    data['datetime'] = timezone.now()
+            
+            # Thêm các trường khác nếu cần
+            if 'created_at' not in data:
+                data['created_at'] = timezone.now()
+                
+            # Tính toán thông số đi muộn, về sớm dựa trên lịch làm việc
+            work_schedule = get_work_schedule()
+            now = data['datetime'] if isinstance(data['datetime'], datetime) else datetime.now()
+            
+            # Cấu hình giờ làm việc
+            current_tz = timezone.get_current_timezone()
+            work_hours = {
+                'start': timezone.make_aware(
+                    datetime.combine(
+                        now.date(), 
+                        time(
+                            hour=work_schedule.get('start_hour', 7),
+                            minute=work_schedule.get('start_minute', 0)
+                        )
+                    ),
+                    current_tz
+                ),  
+                'end': timezone.make_aware(
+                    datetime.combine(
+                        now.date(), 
+                        time(
+                            hour=work_schedule.get('end_hour', 17),
+                            minute=work_schedule.get('end_minute', 0)
+                        )
+                    ),
+                    current_tz
+                )
+            }
+            
+            # Tính toán các thông số đi muộn, về sớm
+            early_minutes = timedelta(0)
+            late_minutes = timedelta(0)
+            
+            # Nếu đi làm muộn hơn giờ bắt đầu
+            if now > work_hours['start']:
+                late_minutes = now - work_hours['start']
+                data['late_minutes'] = str(late_minutes)
+            else:
+                early_minutes = work_hours['start'] - now
+                data['early_minutes'] = str(early_minutes)
                 
             # Thêm vào cơ sở dữ liệu
             from .database import attendance_collection
             result = attendance_collection.insert_one(data)
             
+            # Lấy bản ghi mới tạo để trả về
+            created_record = attendance_collection.find_one({'_id': result.inserted_id})
+            if created_record:
+                created_record['_id'] = str(created_record['_id'])
+                for key in created_record:
+                    if isinstance(created_record[key], datetime):
+                        created_record[key] = created_record[key].isoformat()
+            
             return Response({
                 'success': True,
                 'message': 'Đã tạo bản ghi điểm danh',
-                'id': str(result.inserted_id)
+                'id': str(result.inserted_id),
+                'attendance': created_record
             }, status=status.HTTP_201_CREATED)
             
         except Exception as e:
+            import traceback
+            logger.error(f"Error creating attendance: {str(e)}")
+            logger.error(traceback.format_exc())
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def employee_attendance_summary(request, employee_id):
+    """API lấy tổng hợp thống kê điểm danh theo tháng"""
+    try:
+        # Get parameters
+        year = request.query_params.get('year')
+        month = request.query_params.get('month')
+        
+        if not year or not month:
+            return Response({
+                'success': False,
+                'message': 'Thiếu tham số year hoặc month'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Convert to int
+        year = int(year)
+        month = int(month)
+        
+        # Define time range for the month
+        start_date = datetime(year, month, 1, 0, 0, 0)
+        
+        # Calculate end date (first day of next month)
+        if month == 12:
+            end_date = datetime(year + 1, 1, 1, 0, 0, 0)
+        else:
+            end_date = datetime(year, month + 1, 1, 0, 0, 0)
+        
+        # Adjust end date to be the last moment of the current month
+        end_date = end_date - timedelta(seconds=1)
+        
+        # Query attendance records for this employee in the specified month
+        from .database import attendance_collection
+        
+        query = {
+            'employee_id': employee_id,
+            'datetime': {
+                '$gte': start_date,
+                '$lte': end_date
+            }
+        }
+        
+        attendance_records = list(attendance_collection.find(query))
+        
+        # Calculate statistics
+        total = len(attendance_records)
+        onTime = 0
+        late = 0
+        earlyLeave = 0
+        
+        for record in attendance_records:
+            if record.get('late_minutes') and record.get('late_minutes') != '0:00:00':
+                late += 1
+            else:
+                onTime += 1
+                
+            if record.get('early_leave_minutes') and record.get('early_leave_minutes') != '0:00:00':
+                earlyLeave += 1
+        
+        return Response({
+            'success': True,
+            'total': total,
+            'onTime': onTime,
+            'late': late,
+            'earlyLeave': earlyLeave
+        })
+        
+    except Exception as e:
+        import traceback
+        logger.error(f"Error getting attendance summary: {str(e)}")
+        logger.error(traceback.format_exc())
+        return Response({
+            'success': False,
+            'message': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AdminAttendanceAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    
+    def get(self, request):
+        """GET: Lấy thông tin điểm danh với các bộ lọc thời gian và nhân viên"""
+        try:
+            # Lấy các tham số query
+            employee_id = request.query_params.get('employee_id')
+            employee_name = request.query_params.get('employee_name')
+            year = request.query_params.get('year')
+            month = request.query_params.get('month')
+            day = request.query_params.get('day')
+            hour = request.query_params.get('hour')
+            minute = request.query_params.get('minute')
+            second = request.query_params.get('second')
+            date_range_start = request.query_params.get('date_range_start')
+            date_range_end = request.query_params.get('date_range_end')
+            
+            # Xây dựng query
+            query = {}
+            
+            # Lọc theo nhân viên
+            if employee_id:
+                query['employee_id'] = employee_id
+            if employee_name:
+                query['name'] = {'$regex': employee_name, '$options': 'i'}  # i for case-insensitive
+            
+            # Lọc theo thời gian
+            if date_range_start and date_range_end:
+                # Nếu có khoảng thời gian
+                start_date = datetime.fromisoformat(date_range_start.replace('Z', '+00:00'))
+                end_date = datetime.fromisoformat(date_range_end.replace('Z', '+00:00'))
+                query['datetime'] = {'$gte': start_date, '$lte': end_date}
+            else:
+                # Lọc theo các thành phần thời gian riêng lẻ
+                datetime_query = {}
+                
+                if year:
+                    start_year = datetime(int(year), 1, 1)
+                    end_year = datetime(int(year) + 1, 1, 1) - timedelta(seconds=1)
+                    datetime_query = {'$gte': start_year, '$lte': end_year}
+                
+                if month:
+                    if year:
+                        # Nếu đã có năm, tinh chỉnh khoảng thời gian
+                        year_val = int(year)
+                        month_val = int(month)
+                        if month_val == 12:
+                            next_month_year = year_val + 1
+                            next_month = 1
+                        else:
+                            next_month_year = year_val
+                            next_month = month_val + 1
+                            
+                        start_month = datetime(year_val, month_val, 1)
+                        end_month = datetime(next_month_year, next_month, 1) - timedelta(seconds=1)
+                        datetime_query = {'$gte': start_month, '$lte': end_month}
+                    else:
+                        # Nếu không có năm, lọc theo tháng của năm hiện tại
+                        current_year = datetime.now().year
+                        month_val = int(month)
+                        if month_val == 12:
+                            next_month_year = current_year + 1
+                            next_month = 1
+                        else:
+                            next_month_year = current_year
+                            next_month = month_val + 1
+                            
+                        start_month = datetime(current_year, month_val, 1)
+                        end_month = datetime(next_month_year, next_month, 1) - timedelta(seconds=1)
+                        datetime_query = {'$gte': start_month, '$lte': end_month}
+                
+                if day:
+                    # Lọc theo ngày cụ thể
+                    if year and month:
+                        day_val = int(day)
+                        year_val = int(year)
+                        month_val = int(month)
+                        
+                        start_day = datetime(year_val, month_val, day_val)
+                        end_day = datetime(year_val, month_val, day_val, 23, 59, 59)
+                        datetime_query = {'$gte': start_day, '$lte': end_day}
+                    else:
+                        # Nếu không có năm và tháng, lọc theo ngày của tháng hiện tại
+                        current_date = datetime.now()
+                        day_val = int(day)
+                        
+                        if day_val <= current_date.day:
+                            # Nếu ngày <= ngày hiện tại, lấy tháng hiện tại
+                            start_day = datetime(current_date.year, current_date.month, day_val)
+                            end_day = datetime(current_date.year, current_date.month, day_val, 23, 59, 59)
+                        else:
+                            # Nếu ngày > ngày hiện tại, lấy tháng trước
+                            if current_date.month == 1:
+                                prev_month_year = current_date.year - 1
+                                prev_month = 12
+                            else:
+                                prev_month_year = current_date.year
+                                prev_month = current_date.month - 1
+                                
+                            start_day = datetime(prev_month_year, prev_month, day_val)
+                            end_day = datetime(prev_month_year, prev_month, day_val, 23, 59, 59)
+                            
+                        datetime_query = {'$gte': start_day, '$lte': end_day}
+                
+                if hour or minute or second:
+                    # Lọc theo giờ, phút, giây (sử dụng ngày hiện tại nếu không có ngày được chỉ định)
+                    from .database import attendance_collection
+                    pipeline = []
+                    
+                    # Đầu tiên lấy các bản ghi phù hợp với các điều kiện khác
+                    match_stage = {'$match': query.copy() if query else {}}
+                    pipeline.append(match_stage)
+                    
+                    # Thêm stage để lọc theo giờ, phút, giây
+                    time_conditions = []
+                    if hour:
+                        time_conditions.append({'$eq': [{'$hour': '$datetime'}, int(hour)]})
+                    if minute:
+                        time_conditions.append({'$eq': [{'$minute': '$datetime'}, int(minute)]})
+                    if second:
+                        time_conditions.append({'$eq': [{'$second': '$datetime'}, int(second)]})
+                    
+                    if time_conditions:
+                        time_match = {'$match': {'$expr': {'$and': time_conditions}}}
+                        pipeline.append(time_match)
+                    
+                    # Thực hiện truy vấn pipeline
+                    attendance_records = list(attendance_collection.aggregate(pipeline))
+                    
+                    # Xử lý kết quả
+                    for record in attendance_records:
+                        if '_id' in record:
+                            record['_id'] = str(record['_id'])
+                        if 'datetime' in record:
+                            record['datetime'] = record['datetime'].isoformat() if hasattr(record['datetime'], 'isoformat') else str(record['datetime'])
+                        if 'created_at' in record:
+                            record['created_at'] = record['created_at'].isoformat() if hasattr(record['created_at'], 'isoformat') else str(record['created_at'])
+                    
+                    # Lấy danh sách tất cả nhân viên để hiển thị dropdown
+                    employees = get_employees()
+                    
+                    return Response({
+                        'success': True,
+                        'records': attendance_records,
+                        'employees': employees,
+                        'count': len(attendance_records)
+                    })
+                
+                # Nếu có query thời gian và không phải là truy vấn giờ/phút/giây
+                if datetime_query:
+                    query['datetime'] = datetime_query
+            
+            # Thực hiện truy vấn
+            from .database import attendance_collection
+            
+            # Sắp xếp theo thời gian giảm dần
+            attendance_records = list(attendance_collection.find(query).sort('datetime', -1))
+            
+            # Xử lý kết quả
+            for record in attendance_records:
+                if '_id' in record:
+                    record['_id'] = str(record['_id'])
+                if 'datetime' in record:
+                    record['datetime'] = record['datetime'].isoformat() if hasattr(record['datetime'], 'isoformat') else str(record['datetime'])
+                if 'created_at' in record:
+                    record['created_at'] = record['created_at'].isoformat() if hasattr(record['created_at'], 'isoformat') else str(record['created_at'])
+                if 'check_out_time' in record and record['check_out_time']:
+                    record['check_out_time'] = record['check_out_time'].isoformat() if hasattr(record['check_out_time'], 'isoformat') else str(record['check_out_time'])
+            
+            # Lấy danh sách tất cả nhân viên để hiển thị dropdown
+            employees = get_employees()
+            
+            return Response({
+                'success': True,
+                'records': attendance_records,
+                'employees': employees,
+                'count': len(attendance_records)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error in admin attendance view: {str(e)}")
+            logger.error(traceback.format_exc())
             return Response({
                 'success': False,
                 'message': str(e)
@@ -973,4 +1374,269 @@ def check_trainer_data(request, employee_id=None):
             'success': False,
             'message': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class WorkScheduleListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """GET: Lấy danh sách lịch làm việc"""
+        try:
+            schedules = get_all_work_schedules()
+            
+            # Chuyển ObjectId thành string
+            for schedule in schedules:
+                if '_id' in schedule:
+                    schedule['_id'] = str(schedule['_id'])
+                if 'created_at' in schedule:
+                    schedule['created_at'] = schedule['created_at'].isoformat() if hasattr(schedule['created_at'], 'isoformat') else str(schedule['created_at'])
+                if 'updated_at' in schedule:
+                    schedule['updated_at'] = schedule['updated_at'].isoformat() if hasattr(schedule['updated_at'], 'isoformat') else str(schedule['updated_at'])
+            
+            return Response({
+                'success': True,
+                'schedules': schedules
+            })
+        except Exception as e:
+            logger.error(f"Error getting work schedules: {str(e)}")
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def post(self, request):
+        """POST: Tạo lịch làm việc mới"""
+        try:
+            data = request.data
+            
+            # Thêm timestamp
+            data['created_at'] = datetime.now()
+            
+            # Đảm bảo các trường được định dạng đúng
+            if 'start_hour' in data:
+                data['start_hour'] = int(data['start_hour'])
+            if 'start_minute' in data:
+                data['start_minute'] = int(data['start_minute'])
+            if 'end_hour' in data:
+                data['end_hour'] = int(data['end_hour'])
+            if 'end_minute' in data:
+                data['end_minute'] = int(data['end_minute'])
+            
+            # Validate giá trị hợp lệ
+            if not all(key in data for key in ['name', 'start_hour', 'start_minute', 'end_hour', 'end_minute']):
+                return Response({
+                    'success': False,
+                    'message': 'Thiếu thông tin bắt buộc'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if data['start_hour'] < 0 or data['start_hour'] > 23 or data['end_hour'] < 0 or data['end_hour'] > 23:
+                return Response({
+                    'success': False,
+                    'message': 'Giờ phải từ 0 đến 23'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if data['start_minute'] < 0 or data['start_minute'] > 59 or data['end_minute'] < 0 or data['end_minute'] > 59:
+                return Response({
+                    'success': False,
+                    'message': 'Phút phải từ 0 đến 59'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Tạo lịch làm việc mới
+            schedule_id = create_work_schedule(data)
+            
+            if schedule_id:
+                # Lấy lịch vừa tạo
+                new_schedule = get_work_schedule(schedule_id)
+                if new_schedule:
+                    new_schedule['_id'] = str(new_schedule['_id'])
+                
+                return Response({
+                    'success': True,
+                    'message': 'Đã tạo lịch làm việc mới',
+                    'schedule': new_schedule
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    'success': False,
+                    'message': 'Không thể tạo lịch làm việc'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(f"Error creating work schedule: {str(e)}")
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class WorkScheduleDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, schedule_id):
+        """GET: Lấy thông tin lịch làm việc theo ID"""
+        try:
+            schedule = get_work_schedule(schedule_id)
+            
+            if not schedule:
+                return Response({
+                    'success': False,
+                    'message': 'Không tìm thấy lịch làm việc'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Chuyển ObjectId thành string
+            schedule['_id'] = str(schedule['_id'])
+            
+            # Chuyển datetime sang string
+            if 'created_at' in schedule:
+                schedule['created_at'] = schedule['created_at'].isoformat() if hasattr(schedule['created_at'], 'isoformat') else str(schedule['created_at'])
+            if 'updated_at' in schedule:
+                schedule['updated_at'] = schedule['updated_at'].isoformat() if hasattr(schedule['updated_at'], 'isoformat') else str(schedule['updated_at'])
+            
+            return Response({
+                'success': True,
+                'schedule': schedule
+            })
+        except Exception as e:
+            logger.error(f"Error getting work schedule: {str(e)}")
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def put(self, request, schedule_id):
+        """PUT: Cập nhật lịch làm việc"""
+        try:
+            data = request.data
+            
+            # Thêm timestamp
+            data['updated_at'] = datetime.now()
+            
+            # Đảm bảo các trường được định dạng đúng
+            if 'start_hour' in data:
+                data['start_hour'] = int(data['start_hour'])
+            if 'start_minute' in data:
+                data['start_minute'] = int(data['start_minute'])
+            if 'end_hour' in data:
+                data['end_hour'] = int(data['end_hour'])
+            if 'end_minute' in data:
+                data['end_minute'] = int(data['end_minute'])
+            
+            # Validate giá trị hợp lệ
+            if 'start_hour' in data and (data['start_hour'] < 0 or data['start_hour'] > 23):
+                return Response({
+                    'success': False,
+                    'message': 'Giờ bắt đầu phải từ 0 đến 23'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if 'start_minute' in data and (data['start_minute'] < 0 or data['start_minute'] > 59):
+                return Response({
+                    'success': False,
+                    'message': 'Phút bắt đầu phải từ 0 đến 59'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if 'end_hour' in data and (data['end_hour'] < 0 or data['end_hour'] > 23):
+                return Response({
+                    'success': False,
+                    'message': 'Giờ kết thúc phải từ 0 đến 23'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if 'end_minute' in data and (data['end_minute'] < 0 or data['end_minute'] > 59):
+                return Response({
+                    'success': False,
+                    'message': 'Phút kết thúc phải từ 0 đến 59'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Cập nhật lịch làm việc
+            result = update_work_schedule(schedule_id, data)
+            
+            if result:
+                # Lấy lịch làm việc đã cập nhật
+                updated_schedule = get_work_schedule(schedule_id)
+                if updated_schedule:
+                    updated_schedule['_id'] = str(updated_schedule['_id'])
+                
+                return Response({
+                    'success': True,
+                    'message': 'Đã cập nhật lịch làm việc',
+                    'schedule': updated_schedule
+                })
+            else:
+                return Response({
+                    'success': False,
+                    'message': 'Không thể cập nhật lịch làm việc'
+                }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error updating work schedule: {str(e)}")
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def delete(self, request, schedule_id):
+        """DELETE: Xóa lịch làm việc"""
+        try:
+            result = delete_work_schedule(schedule_id)
+            
+            if result:
+                return Response({
+                    'success': True,
+                    'message': 'Đã xóa lịch làm việc'
+                }, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({
+                    'success': False,
+                    'message': 'Không thể xóa lịch làm việc mặc định cuối cùng'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Error deleting work schedule: {str(e)}")
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_active_work_schedule(request):
+    """API lấy lịch làm việc đang active"""
+    try:
+        schedule = get_work_schedule()
+        
+        if not schedule:
+            return Response({
+                'success': False,
+                'message': 'Không tìm thấy lịch làm việc'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Chuyển ObjectId thành string
+        schedule['_id'] = str(schedule['_id'])
+        
+        # Chuyển datetime sang string
+        if 'created_at' in schedule:
+            schedule['created_at'] = schedule['created_at'].isoformat() if hasattr(schedule['created_at'], 'isoformat') else str(schedule['created_at'])
+        if 'updated_at' in schedule:
+            schedule['updated_at'] = schedule['updated_at'].isoformat() if hasattr(schedule['updated_at'], 'isoformat') else str(schedule['updated_at'])
+        
+        return Response({
+            'success': True,
+            'schedule': schedule
+        })
+    except Exception as e:
+        logger.error(f"Error getting active work schedule: {str(e)}")
+        return Response({
+            'success': False,
+            'message': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_employee_by_custom_id(request, custom_id):
+    """API lấy thông tin nhân viên theo employee_id tùy chỉnh"""
+    try:
+        employee = employees_collection.find_one({'employee_id': custom_id})
+        if employee:
+            # Chuyển _id thành string để serializable
+            if '_id' in employee:
+                employee['_id'] = str(employee['_id'])
+            return Response(employee)
+        else:
+            return Response({'error': 'Không tìm thấy nhân viên'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

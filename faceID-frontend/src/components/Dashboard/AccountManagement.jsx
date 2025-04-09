@@ -4,8 +4,7 @@ import {
   TableContainer, TableHead, TableRow, Paper, IconButton,
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Grid, Alert, CircularProgress,
-  FormControl, InputLabel, Select, MenuItem, Chip,
-  Tooltip
+  FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -28,7 +27,6 @@ export default function AccountManagement() {
   const [success, setSuccess] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [editAccount, setEditAccount] = useState(null);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     password: '',
@@ -47,7 +45,7 @@ export default function AccountManagement() {
   const fetchAccounts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL.replace('/api', '')}/api/signin/`, {
+      const response = await axios.get(`${API_URL.replace('/api', '')}/api/users/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
@@ -110,7 +108,6 @@ export default function AccountManagement() {
         employee_id: account.employee_id || ''
       });
       setEditAccount(account);
-      setSelectedEmployee(employees.find(emp => emp._id === account.employee_id) || null);
     } else {
       // Chế độ tạo mới
       setFormData({
@@ -123,7 +120,6 @@ export default function AccountManagement() {
         employee_id: ''
       });
       setEditAccount(null);
-      setSelectedEmployee(null);
     }
     setOpenDialog(true);
   };
@@ -131,7 +127,6 @@ export default function AccountManagement() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditAccount(null);
-    setSelectedEmployee(null);
   };
 
   const handleChange = (e) => {
@@ -147,7 +142,6 @@ export default function AccountManagement() {
     const employee = employees.find(emp => emp._id === employeeId);
     
     if (employee) {
-      setSelectedEmployee(employee);
       // Thiết lập tên đăng nhập mặc định từ email hoặc tên nhân viên
       const defaultUsername = employee.email 
         ? employee.email.split('@')[0] 
@@ -169,7 +163,7 @@ export default function AccountManagement() {
     
     setLoading(true);
     try {
-      await axios.delete(`${API_URL.replace('/api', '')}/api/signin/${accountId}/`, {
+      await axios.delete(`${API_URL.replace('/api', '')}/api/users/${accountId}/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
@@ -208,11 +202,10 @@ export default function AccountManagement() {
         data.password = formData.password;
       }
 
-      let response;
       if (editAccount) {
         // Update existing account
-        response = await axios.put(
-          `${API_URL.replace('/api', '')}/api/signin/${editAccount._id}/`,
+        await axios.put(
+          `${API_URL.replace('/api', '')}/api/users/${editAccount._id}/`,
           data,
           {
             headers: {
@@ -223,8 +216,8 @@ export default function AccountManagement() {
         setSuccess('Tài khoản đã được cập nhật thành công');
       } else {
         // Create new account
-        response = await axios.post(
-          `${API_URL.replace('/api', '')}/api/signin/`,
+        await axios.post(
+          `${API_URL.replace('/api', '')}/api/users/`,
           data,
           {
             headers: {
@@ -284,7 +277,7 @@ export default function AccountManagement() {
           
           // Tạo tài khoản với liên kết đến employee_id
           await axios.post(
-            `${API_URL.replace('/api', '')}/api/signin/`,
+            `${API_URL.replace('/api', '')}/api/users/`,
             {
               name: username,
               password: defaultPassword,

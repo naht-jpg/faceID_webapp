@@ -101,26 +101,17 @@ export const authAPI = {
   }),
   register: (userData) => apiClient.post('/auth/register/', userData),
   refreshToken: (refreshToken) => apiClient.post('/auth/token/refresh/', { refresh: refreshToken }),
-  getCurrentUser: () => apiClient.get('/auth/me/') // Đổi từ /user/ sang /auth/me/
+  getCurrentUser: () => apiClient.get('/auth/me/'),
 };
 
 // Employee API
 export const employeeAPI = {
   getAll: () => apiClient.get('/employees/'),
   getById: (id) => apiClient.get(`/employees/${id}/`),
+  getByCustomId: (customId) => apiClient.get(`/employees/custom-id/${customId}/`),
   create: (data) => apiClient.post('/employees/', data),
-  update: (id, data) => apiClient.put(`/employees/${id}/`, data), // Fixed missing data
-  patch: (id, data) => apiClient.patch(`/employees/${id}/`, data), // Fixed missing data
+  update: (id, data) => apiClient.put(`/employees/${id}/`, data),
   delete: (id) => apiClient.delete(`/employees/${id}/`),
-  getAttendance: (id, params) => apiClient.get(`/employees/${id}/attendance/`, { params }),
-  updateEmployeeStatus: async (employeeId) => {
-    try {
-      return await apiClient.put(`/employees/${employeeId}/status/`);
-    } catch (err) { // Renamed to err to avoid unused variable
-      console.error("Error updating employee status:", err);
-      throw err;
-    }
-  },
 };
 
 // Face API
@@ -135,8 +126,10 @@ export const faceAPI = {
     }
   }),
   
+  // Cập nhật phương thức recognize để bao gồm thông tin về employee_id
   recognize: (imageData) => apiClient.post('/faces/recognize/', {
-    image: imageData
+    image: imageData,
+    save_attendance: true  // Thêm flag để backend biết cần lưu vào attendance
   }, {
     headers: {
       'Content-Type': 'application/json'
@@ -167,32 +160,40 @@ export const faceAPI = {
   
   checkTrainerData: () => apiClient.get('/trainer/check/'),
   checkTrainerDataById: (employeeId) => apiClient.get(`/trainer/check/${employeeId}/`),
-  
-  saveAttendance: (recognitionData) => apiClient.post(`/attendance/${recognitionData.employee_id}/`, {
-    name: recognitionData.name,
-    employee_id: recognitionData.employee_id,
-    timestamp: recognitionData.timestamp || new Date().toISOString(),
-    confidence: recognitionData.confidence,
-    job_position: recognitionData.job_position,
-    email: recognitionData.email,
-    phone: recognitionData.phone
-  }),
 };
 
 // Attendance API
 export const attendanceAPI = {
   getByEmployeeId: (id, params) => apiClient.get(`/attendance/${id}/`, { params }),
-  create: (id, data) => apiClient.post(`/attendance/${id}/`, data),
   
-  // Hàm helper cho các trường hợp phổ biến
+  // Cập nhật phương thức create trong attendanceAPI
+  create: (id, data) => {
+    // Tạo datetime với định dạng YYYY-MM-DD HH:MM:SS cho backend
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    
+    // Thêm timezone offset vào body thay vì header để tránh lỗi CORS
+    const formattedData = {
+      ...data,
+      datetime: formattedDate,
+      timezone_offset: now.getTimezoneOffset(),
+      timezone_name: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+    
+    return apiClient.post(`/attendance/${id}/`, formattedData);
+  },
+  
   getLatest: (id) => apiClient.get(`/attendance/${id}/`, { params: { latest: true }}),
   getToday: (id) => apiClient.get(`/attendance/${id}/`, { params: { today: true }}),
-  getByMonth: (id, year, month) => apiClient.get(`/attendance/${id}/`, { 
+  getLatestOrToday: (id) => apiClient.get(`/attendance/${id}/`, { 
+    params: { latest_or_today: true }
+  }),
+  // Add this new function:
+  getMonthlySummary: (employeeId, year, month) => apiClient.get(`/employees/${employeeId}/attendance/summary`, {
     params: { year, month }
   }),
-  getMonthlySummary: (id, year, month) => apiClient.get(`/employees/${id}/attendance/summary`, {
-    params: { year, month }
-  }),
+  // If you need admin-specific attendance functions:
+  getAdminAttendance: (filters = {}) => apiClient.get('/admin/attendance/', { params: filters })
 };
 
 // User API (tài khoản người dùng)
@@ -203,6 +204,16 @@ export const userAPI = {
   update: (id, data) => apiClient.put(`/users/${id}/`, data),
   patch: (id, data) => apiClient.patch(`/users/${id}/`, data),
   delete: (id) => apiClient.delete(`/users/${id}/`),
+};
+
+// Work Schedule API
+export const workScheduleAPI = {
+  getAll: () => apiClient.get('/work-schedules/'),
+  getById: (id) => apiClient.get(`/work-schedules/${id}/`),
+  getActive: () => apiClient.get('/work-schedules/active/'),
+  create: (data) => apiClient.post('/work-schedules/', data),
+  update: (id, data) => apiClient.put(`/work-schedules/${id}/`, data),
+  delete: (id) => apiClient.delete(`/work-schedules/${id}/`),
 };
 
 export default apiClient;

@@ -12,6 +12,8 @@ import FaceIcon from "@mui/icons-material/Face";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import BadgeIcon from "@mui/icons-material/Badge";
+import BusinessIcon from "@mui/icons-material/Business";
 import EmployeeForm from "./EmployeeForm";
 
 function EmployeeList() {
@@ -129,9 +131,42 @@ function EmployeeList() {
                           )}
                         </ListItemAvatar>
                         <ListItemText
-                          primary={employee.name}
+                          primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              {employee.employee_id && (
+                                <Typography 
+                                  component="span" 
+                                  variant="body1" 
+                                  color="primary"
+                                  sx={{ 
+                                    fontWeight: 'medium', 
+                                    mr: 1,
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                  }}
+                                >
+                                  <BadgeIcon fontSize="small" sx={{ mr: 0.5 }} />
+                                  {employee.employee_id}
+                                </Typography>
+                              )}
+                              <Typography component="span" variant="body1">
+                                {employee.name}
+                              </Typography>
+                            </Box>
+                          }
                           secondary={
                             <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                              {/* Hiển thị phòng ban nếu có */}
+                              {employee.department && (
+                                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <BusinessIcon fontSize="small" color="action" />
+                                  <Typography component="span" variant="body2" color="text.secondary">
+                                    Phòng ban: {employee.department}
+                                  </Typography>
+                                </Box>
+                              )}
+                              
+                              {/* Hiển thị chức vụ */}
                               <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <WorkIcon fontSize="small" color="action" />
                                 <Typography component="span" variant="body2">
