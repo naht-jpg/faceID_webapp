@@ -865,3 +865,43 @@ ERROR 2025-04-12 18:46:43,689 database Error getting employee by ID: 'NHA-250400
 ERROR 2025-04-12 18:46:43,711 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
 INFO 2025-04-12 18:46:43,765 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
 INFO 2025-04-12 18:46:43,901 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 19:02:17,023 database Error saving attendance: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 19:02:17,134 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:02:38,425 views Found 0 attendance records for employee 67f500d81412ecf43022ea56
+INFO 2025-04-12 19:02:38,664 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 19:02:38,673 views Found 0 attendance records for employee 67f500d81412ecf43022ea56
+INFO 2025-04-12 19:02:38,788 views Found 0 attendance records for employee 67f500d81412ecf43022ea56
+INFO 2025-04-12 19:02:38,896 views Found 0 attendance records for employee 67f500d81412ecf43022ea56
+INFO 2025-04-12 19:02:44,671 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-04-12 19:02:44,872 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 19:02:44,987 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 19:02:45,058 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:02:45,199 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:02:45,604 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:02:45,711 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-04-12 19:03:15,760 database Error saving attendance: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 19:03:16,085 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 19:03:16,356 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:03:16,482 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-04-12 19:03:44,679 database Error saving attendance: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 19:03:45,154 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:03:45,256 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-04-12 19:03:45,269 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 19:03:45,484 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:03:45,590 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:05:58,454 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-04-12 19:05:58,480 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 19:05:58,504 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 19:05:58,526 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 19:05:58,614 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:05:58,776 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:06:20,538 views Found 0 attendance records for employee 67f500d81412ecf43022ea56
+INFO 2025-04-12 19:06:20,655 views Found 0 attendance records for employee 67f500d81412ecf43022ea56
+INFO 2025-04-12 19:06:20,707 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 19:06:20,890 views Found 0 attendance records for employee 67f500d81412ecf43022ea56
+INFO 2025-04-12 19:06:21,015 views Found 0 attendance records for employee 67f500d81412ecf43022ea56
+INFO 2025-04-12 19:06:33,853 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-04-12 19:06:33,906 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 19:06:33,982 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 19:06:34,023 views Found 1 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-04-12 19:06:34,136 views Found 1 attendance records for employee 67f500861412ecf43022ea54
