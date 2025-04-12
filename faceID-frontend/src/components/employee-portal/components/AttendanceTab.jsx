@@ -13,7 +13,8 @@ import FaceRecognition from '../../FaceRecognition';
 import { faceAPI, attendanceAPI } from '../../../api';
 import { useAuth } from '../../../hooks/useAuth';
 
-export default function AttendanceTab({ onAttendanceSuccess }) {
+// Cập nhật component để nhận prop isCheckOut
+export default function AttendanceTab({ onAttendanceSuccess, isCheckOut = false }) {
   const { currentUser } = useAuth();
   const [isCapturing, setIsCapturing] = useState(false);
   const [recognitionResult, setRecognitionResult] = useState(null);
@@ -27,13 +28,10 @@ export default function AttendanceTab({ onAttendanceSuccess }) {
   const steps = ['Chuẩn bị', 'Chụp ảnh', 'Xác nhận điểm danh'];
   
   useEffect(() => {
-    // Không cần thực hiện gì khi component mount
-    
-    // Chỉ dọn dẹp khi component unmount
     return () => {
-      stopCamera(); // Gọi hàm stopCamera thay vì trực tiếp xử lý tracks
+      stopCamera();
     };
-  }, []); // Không có dependencies
+  }, []);
   
   const handleStartAttendance = () => {
     setIsCapturing(true);
@@ -80,14 +78,11 @@ export default function AttendanceTab({ onAttendanceSuccess }) {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     
-    // Set canvas dimensions to match video
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
-    // Draw the video frame to the canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Get the image data as base64 encoded string
     const imageData = canvas.toDataURL('image/jpeg');
     setCapturedImage(imageData);
     setActiveStep(2);
@@ -105,93 +100,111 @@ export default function AttendanceTab({ onAttendanceSuccess }) {
     setActiveStep(1);
   };
   
-  // Cập nhật hàm handleConfirmAttendance để xử lý lỗi timezone và handle errors tốt hơn
-const handleConfirmAttendance = async () => {
-  if (!capturedImage) {
-    setError("Vui lòng chụp ảnh trước khi xác nhận điểm danh");
-    return;
-  }
   
-  setLoading(true);
-  
-  try {
-    // Gọi API nhận diện khuôn mặt với ảnh đã chụp
-    const result = await faceAPI.recognize(capturedImage);
-    
-    if (!result.data || !result.data.success) {
-      setError("Không thể nhận diện khuôn mặt. Vui lòng thử lại.");
-      setLoading(false);
+  // Cập nhật hàm handleConfirmAttendance để hỗ trợ điểm danh ra về
+  const handleConfirmAttendance = async () => {
+    if (!capturedImage) {
+      setError("Vui lòng chụp ảnh trước khi xác nhận điểm danh");
       return;
     }
     
-    // Lấy employee_id từ kết quả nhận diện (ID MongoDB của collection employees)
-    const employeeId = result.data.employee_id;
-    
-    if (!employeeId) {
-      setError("Không tìm thấy thông tin nhân viên. Vui lòng liên hệ quản trị viên.");
-      setLoading(false);
-      return;
-    }
-    
-    // Tạo dữ liệu điểm danh
-    const attendanceData = {
-      name: result.data.name,
-      employee_id: employeeId,
-      image_path: result.data.image_path,
-      job_position: result.data.job_position,
-      email: result.data.email,
-      phone: result.data.phone,
-      age: result.data.age,
-      location: result.data.location,
-      confidence: result.data.confidence
-    };
+    setLoading(true);
     
     try {
-      // Gọi API tạo bản ghi điểm danh
-      const attendanceResponse = await attendanceAPI.create(employeeId, attendanceData);
+      const result = await faceAPI.recognize(capturedImage);
       
-      if (attendanceResponse.data && attendanceResponse.data.success) {
-        // Lấy bản ghi điểm danh đã tạo
-        const attendanceRecord = attendanceResponse.data.attendance || {
-          ...attendanceData,
-          _id: attendanceResponse.data.id,
-          datetime: new Date().toISOString()
-        };
+      if (!result.data || !result.data.success) {
+        setError("Không thể nhận diện khuôn mặt. Vui lòng thử lại.");
+        setLoading(false);
+        return;
+      }
+      
+      const employeeId = result.data.employee_id;
+      
+      if (!employeeId) {
+        setError("Không tìm thấy thông tin nhân viên. Vui lòng liên hệ quản trị viên.");
+        setLoading(false);
+        return;
+      }
+      
+      const attendanceData = {
+        name: result.data.name,
+        employee_id: employeeId,
+        image_path: result.data.image_path,
+        job_position: result.data.job_position,
+        email: result.data.email,
+        phone: result.data.phone,
+        age: result.data.age,
+        location: result.data.location,
+        confidence: result.data.confidence
+      };
+      
+      try {
+        const attendanceResponse = await attendanceAPI.create(employeeId, attendanceData, isCheckOut);
         
-        // Cập nhật trạng thái với kết quả thành công
-        setRecognitionResult({
-          ...result.data,
-          attendanceId: attendanceResponse.data.id,
-          attendanceData: attendanceRecord
-        });
-        
-        // Lưu vào localStorage để kiểm tra điểm danh hôm nay
-        localStorage.setItem('last_attendance', JSON.stringify(attendanceRecord));
-        
-        // Thông báo cho parent component
-        if (onAttendanceSuccess) {
-          onAttendanceSuccess(attendanceRecord);
+        if (attendanceResponse.data && attendanceResponse.data.success) {
+          // Với check-out, lấy dữ liệu đã được cập nhật từ server
+          if (isCheckOut) {
+            try {
+              // Lấy bản ghi điểm danh mới nhất sau khi check-out
+              const latestResponse = await attendanceAPI.getToday(employeeId);
+              if (latestResponse.data.success && latestResponse.data.records?.length > 0) {
+                const updatedRecord = latestResponse.data.records[0];
+                if (onAttendanceSuccess) {
+                  onAttendanceSuccess(updatedRecord, isCheckOut);
+                }
+                
+                // Cập nhật localStorage
+                localStorage.setItem('last_attendance', JSON.stringify(updatedRecord));
+              }
+            } catch (fetchError) {
+              console.error("Error fetching updated attendance:", fetchError);
+            }
+          } else {
+            // Xử lý check-in như trước
+            const attendanceRecord = attendanceResponse.data.attendance || {
+              ...attendanceData,
+              _id: attendanceResponse.data.id,
+              datetime: new Date().toISOString(),
+            };
+            
+            localStorage.setItem('last_attendance', JSON.stringify(attendanceRecord));
+            
+            if (onAttendanceSuccess) {
+              onAttendanceSuccess(attendanceRecord, false);
+            }
+          }
+          
+          setRecognitionResult({
+            ...result.data,
+            attendanceId: attendanceResponse.data.id,
+            attendanceData: attendanceResponse.data.attendance || {
+              ...attendanceData,
+              _id: attendanceResponse.data.id,
+              datetime: new Date().toISOString(),
+              is_check_out: isCheckOut
+            },
+            is_check_out: isCheckOut
+          });
+          
+          setIsCapturing(false);
+          stopCamera();
+          setActiveStep(3);
+        } else {
+          throw new Error(attendanceResponse.data?.message || "Không thể lưu điểm danh");
         }
-        
-        // Reset các trạng thái
-        setIsCapturing(false);
-        stopCamera();
-        setActiveStep(3); // Chuyển đến bước hoàn thành
-      } else {
-        throw new Error(attendanceResponse.data?.message || "Không thể lưu điểm danh");
+      } catch (err) {
+        console.error("Error in saving attendance:", err);
+        setError("Lỗi lưu điểm danh: " + (err.message || "Lỗi không xác định"));
       }
     } catch (err) {
-      console.error("Error in saving attendance:", err);
-      setError("Lỗi lưu điểm danh: " + (err.message || "Lỗi không xác định"));
+      console.error("Error in face recognition:", err);
+      setError("Lỗi nhận diện khuôn mặt: " + (err.message || "Lỗi không xác định"));
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error in face recognition:", err);
-    setError("Lỗi nhận diện khuôn mặt: " + (err.message || "Lỗi không xác định"));
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
+  
   const renderContent = () => {
     if (recognitionResult) {
       return (
@@ -207,10 +220,9 @@ const handleConfirmAttendance = async () => {
             
             <Divider sx={{ my: 2 }} />
             
-            {/* Sau khi nhận diện khuôn mặt thành công, hiển thị thông tin nhân viên */}
             <Box sx={{ textAlign: 'left', maxWidth: 400, mx: 'auto' }}>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Mã NV:</strong> {recognitionResult.employee_id || 'Không có mã'}
+                <strong>Mã NV:</strong> {recognitionResult.custom_employee_id || recognitionResult.employee_id || 'Không có mã'}
               </Typography>
               {recognitionResult.department && (
                 <Typography variant="body1" sx={{ mb: 1 }}>
@@ -295,7 +307,6 @@ const handleConfirmAttendance = async () => {
                 }}
               />
               
-              {/* Khung định vị khuôn mặt */}
               <Box sx={{
                 position: 'absolute',
                 top: '50%',
@@ -308,7 +319,6 @@ const handleConfirmAttendance = async () => {
                 pointerEvents: 'none'
               }} />
               
-              {/* Canvas ẩn để xử lý ảnh */}
               <canvas ref={canvasRef} style={{ display: 'none' }} />
             </Box>
             
@@ -390,14 +400,17 @@ const handleConfirmAttendance = async () => {
     );
   };
 
+  const getAttendanceTitle = () => {
+    return isCheckOut ? "Hệ Thống Điểm Danh Ra Về" : "Hệ Thống Điểm Danh FaceID";
+  };
+  
   return (
     <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
       <Typography variant="h5" gutterBottom align="center" sx={{ mb: 3, fontWeight: 'medium' }}>
         <FaceIcon sx={{ mr: 1, verticalAlign: 'text-bottom' }} />
-        Hệ Thống Điểm Danh FaceID
+        {getAttendanceTitle()}
       </Typography>
       
-      {/* Thêm cảnh báo về lỗi múi giờ nếu xảy ra */}
       {error && (
         <Alert 
           severity="error" 
@@ -405,7 +418,6 @@ const handleConfirmAttendance = async () => {
           onClose={() => setError(null)}
           action={
             <Button color="inherit" size="small" onClick={() => {
-              // Nếu là lỗi múi giờ, cung cấp hướng dẫn thêm
               if (error.includes("múi giờ")) {
                 setError("Vui lòng kiểm tra cài đặt múi giờ trên máy tính của bạn và thử lại.");
               } else {

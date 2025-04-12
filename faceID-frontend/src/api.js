@@ -166,18 +166,19 @@ export const faceAPI = {
 export const attendanceAPI = {
   getByEmployeeId: (id, params) => apiClient.get(`/attendance/${id}/`, { params }),
   
-  // Cập nhật phương thức create trong attendanceAPI
-  create: (id, data) => {
-    // Tạo datetime với định dạng YYYY-MM-DD HH:MM:SS cho backend
+  // Cập nhật để gửi thông tin múi giờ rõ ràng hơn
+  create: (id, data, isCheckOut = false) => {
+    // Mốc thời gian UTC để đảm bảo backend hiểu đúng
     const now = new Date();
-    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    const localTime = new Date();
     
-    // Thêm timezone offset vào body thay vì header để tránh lỗi CORS
     const formattedData = {
       ...data,
-      datetime: formattedDate,
-      timezone_offset: now.getTimezoneOffset(),
-      timezone_name: Intl.DateTimeFormat().resolvedOptions().timeZone
+      datetime: now.toISOString(),  // UTC time in ISO format
+      timezone_offset: now.getTimezoneOffset(), // Negative for timezones ahead of UTC
+      timezone_name: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      local_time: localTime.toString(), // Thêm thông tin giờ địa phương để debug
+      is_check_out: isCheckOut
     };
     
     return apiClient.post(`/attendance/${id}/`, formattedData);

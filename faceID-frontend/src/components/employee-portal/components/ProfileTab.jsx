@@ -50,7 +50,7 @@ export default function ProfileTab({ userData, onProfileUpdate }) {
         phone: userData.phone || '',
         job_position: userData.job_position || '',
         department: userData.department || '',
-        employee_id: userData.employee_id || '',
+        employee_id: userData.custom_employee_id || userData.employee_id || '',
         password: '',
         confirm_password: ''
       });

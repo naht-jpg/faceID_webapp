@@ -4,7 +4,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TablePagination, Card, CardContent, Chip, InputAdornment,
   FormControl, InputLabel, Select, CircularProgress, Alert,
-  Tooltip, IconButton
+  Tooltip, IconButton, Stack
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -456,27 +456,42 @@ export default function AdminAttendanceTab() {
                           <TableCell>{formatDate(record.datetime)}</TableCell>
                           <TableCell>{record.name}</TableCell>
                           <TableCell>
-                            {record.is_check_out ? (
-                              <Chip label="Đã checkout" color="info" size="small" />
-                            ) : record.late_minutes !== '0:00:00' ? (
-                              <Chip label="Đi muộn" color="error" size="small" />
-                            ) : record.early_minutes !== '0:00:00' ? (
-                              <Chip label="Đến sớm" color="success" size="small" />
-                            ) : (
-                              <Chip label="Đúng giờ" color="primary" size="small" />
-                            )}
+                            <Stack direction="row" spacing={1}>
+                              {record.is_check_out && (
+                                <Chip label="Đã checkout" color="info" size="small" />
+                              )}
+                              {record.late_minutes && record.late_minutes !== '0:00:00' && (
+                                <Chip label="Đi muộn" color="error" size="small" />
+                              )}
+                              {record.early_minutes && record.early_minutes !== '0:00:00' && (
+                                <Chip label="Đến sớm" color="success" size="small" />
+                              )}
+                              {record.early_leave_minutes && record.early_leave_minutes !== '0:00:00' && (
+                                <Chip label="Về sớm" color="warning" size="small" />
+                              )}
+                              {record.late_leave_minutes && record.late_leave_minutes !== '0:00:00' && (
+                                <Chip label="Về muộn" color="secondary" size="small" />
+                              )}
+                              {!record.is_check_out && 
+                               !record.late_minutes && 
+                               !record.early_minutes && 
+                               !record.early_leave_minutes && 
+                               !record.late_leave_minutes && (
+                                <Chip label="Đúng giờ" color="primary" size="small" />
+                              )}
+                            </Stack>
                           </TableCell>
                           <TableCell>
-                            {record.late_minutes !== '0:00:00' ? (
+                            {record.late_minutes && record.late_minutes !== '0:00:00' && !record.late_minutes.startsWith('0:00:00') ? (
                               <Typography color="error">{record.late_minutes}</Typography>
-                            ) : record.early_minutes !== '0:00:00' ? (
+                            ) : record.early_minutes && record.early_minutes !== '0:00:00' && !record.early_minutes.startsWith('0:00:00') ? (
                               <Typography color="success.main">{record.early_minutes}</Typography>
                             ) : "—"}
                           </TableCell>
                           <TableCell>
-                            {record.early_leave_minutes !== '0:00:00' ? (
+                            {record.early_leave_minutes && record.early_leave_minutes !== '0:00:00' && !record.early_leave_minutes.startsWith('0:00:00') ? (
                               <Typography color="warning.main">{record.early_leave_minutes}</Typography>
-                            ) : record.late_leave_minutes !== '0:00:00' ? (
+                            ) : record.late_leave_minutes && record.late_leave_minutes !== '0:00:00' && !record.late_leave_minutes.startsWith('0:00:00') ? (
                               <Typography color="info.main">{record.late_leave_minutes}</Typography>
                             ) : "—"}
                           </TableCell>

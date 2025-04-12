@@ -14,7 +14,9 @@ import {
   Notifications as NotificationIcon,
   Badge as BadgeIcon,
   Business as BusinessIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  CheckCircle as CheckCircleIcon,
+  ExitToApp as ExitToAppIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +24,7 @@ import DashboardTab from './components/DashboardTab';
 import AttendanceHistoryTab from './components/AttendanceHistoryTab';
 import ProfileTab from './components/ProfileTab';
 import AttendanceTab from './components/AttendanceTab';
-import { employeeAPI,attendanceAPI } from '../../api';  // Sửa import để sử dụng named export
+import { employeeAPI, attendanceAPI } from '../../api';  // Sửa import để sử dụng named export
 
 export default function EmployeePortal() {
   const { currentUser, logout, refreshUserData } = useAuth();
@@ -37,6 +39,11 @@ export default function EmployeePortal() {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [completeUserData, setCompleteUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasCheckedOut, setHasCheckedOut] = useState(false);
+  const [isCheckOut, setIsCheckOut] = useState(false);
+
+  // IMPORTANT: Move this declaration up, before any useEffect that uses it
+  const userData = completeUserData || currentUser;
 
   // Khi component mount, kiểm tra thông tin điểm danh gần nhất
   useEffect(() => {
@@ -49,6 +56,11 @@ export default function EmployeePortal() {
         const today = new Date();
         if (attendanceDate.toDateString() === today.toDateString()) {
           setLastAttendance(parsedAttendance);
+
+          // Kiểm tra nếu đã check-out
+          if (parsedAttendance.check_out_time || parsedAttendance.is_check_out) {
+            setHasCheckedOut(true);
+          }
         }
       } catch (err) {
         console.error("Error parsing saved attendance:", err);
@@ -68,45 +80,40 @@ export default function EmployeePortal() {
     console.log("Current user data:", currentUser);
     
     try {
-      // First, get the employee MongoDB ID either from employee_id or _id
+      // Lấy ID MongoDB từ employee_id hoặc _id
       const employeeMongoId = currentUser.employee_id || currentUser._id;
       
       if (employeeMongoId) {
         console.log("Fetching employee data with ID:", employeeMongoId);
         
         try {
-          // Fetch employee data from employees collection
           const employeeResponse = await employeeAPI.getById(employeeMongoId);
           
           if (employeeResponse.data) {
             console.log("Successfully fetched employee data:", employeeResponse.data);
             
-            // Next, fetch the latest attendance data
+            // Lấy attendance data
             const attendanceResponse = await attendanceAPI.getLatestOrToday(employeeMongoId);
             const attendanceData = attendanceResponse.data && 
               (attendanceResponse.data.data || 
               (attendanceResponse.data.records && attendanceResponse.data.records.length > 0 ? 
                 attendanceResponse.data.records[0] : null));
             
-            console.log("Latest attendance data:", attendanceData);
-            
-            // Combine all data sources
+            // Kết hợp dữ liệu, đảm bảo lưu giữ custom_employee_id
             const completeData = {
-              // Base user data from signin
               ...currentUser,
-              // Employee details from employees collection
               ...employeeResponse.data,
-              // Keep track of important IDs
               signin_id: currentUser.id || currentUser._id,
               _id: employeeMongoId,
               id: employeeMongoId,
-              // Add latest attendance data
+              // Lưu trữ custom employee ID từ employeeResponse.data.employee_id
+              custom_employee_id: employeeResponse.data.employee_id || currentUser.custom_employee_id,
               lastAttendance: attendanceData || null
             };
             
             setCompleteUserData(completeData);
             
-            // Update last attendance in state if available
+            // Update last attendance nếu có
             if (attendanceData) {
               const today = new Date();
               const attendanceDate = new Date(attendanceData.datetime);
@@ -145,8 +152,11 @@ export default function EmployeePortal() {
         console.warn("No employee_id found in current user data");
       }
       
-      // Fallback
-      setCompleteUserData(currentUser);
+      // Fallback với custom_employee_id nếu có
+      setCompleteUserData({
+        ...currentUser,
+        custom_employee_id: currentUser.custom_employee_id
+      });
     } catch (error) {
       console.error("Lỗi trong quá trình lấy dữ liệu:", error.message || error);
       setCompleteUserData(currentUser);
@@ -183,14 +193,77 @@ export default function EmployeePortal() {
     fetchEmployeeData();
   }, [fetchEmployeeData]);
 
+  // Cập nhật việc kiểm tra điểm danh ra về
+  useEffect(() => {
+    const checkAttendanceStatus = async () => {
+      if (!userData?.id) return;
+      
+      try {
+        // Lấy dữ liệu điểm danh của ngày hôm nay
+        const response = await attendanceAPI.getToday(userData.id);
+        
+        if (response.data && response.data.success) {
+          // Nếu có dữ liệu điểm danh hôm nay
+          if (response.data.records && response.data.records.length > 0) {
+            // Lấy bản ghi mới nhất
+            const latestRecord = response.data.records[0];
+            setLastAttendance(latestRecord);
+            
+            // Kiểm tra xem có check-out chưa
+            if (latestRecord.check_out_time || 
+                latestRecord.is_check_out_record || 
+                latestRecord.is_check_out) {
+              setHasCheckedOut(true);
+            } else {
+              setHasCheckedOut(false);
+            }
+          } else {
+            // Không có dữ liệu điểm danh cho hôm nay, reset lại trạng thái
+            setLastAttendance(null);
+            setHasCheckedOut(false);
+            localStorage.removeItem('last_attendance');
+          }
+        }
+      } catch (error) {
+        console.error("Error checking attendance status:", error);
+        // Trong trường hợp lỗi, cũng reset lại trạng thái để người dùng có thể điểm danh
+        setLastAttendance(null);
+        setHasCheckedOut(false);
+        localStorage.removeItem('last_attendance');
+      }
+    };
+    
+    checkAttendanceStatus();
+  }, [userData?.id]);
+
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
     setShowAttendance(false);
   };
 
-  const handleAttendanceSuccess = (attendance) => {
-    setLastAttendance(attendance);
-    setSnackbarMessage(`Điểm danh thành công lúc ${new Date(attendance.datetime).toLocaleTimeString('vi-VN')}`);
+  const handleAttendanceSuccess = async (attendance, isCheckOut = false) => {
+    if (isCheckOut) {
+      setHasCheckedOut(true);
+      setSnackbarMessage(`Điểm danh ra về thành công lúc ${new Date().toLocaleTimeString('vi-VN')}`);
+      
+      // Fetch lại dữ liệu điểm danh mới nhất thay vì chỉ dựa vào dữ liệu cục bộ
+      try {
+        const employeeId = userData.id || userData._id;
+        const response = await attendanceAPI.getToday(employeeId);
+        if (response.data.success && response.data.records?.length > 0) {
+          setLastAttendance(response.data.records[0]);
+        }
+      } catch (error) {
+        console.error("Không thể cập nhật dữ liệu điểm danh:", error);
+      }
+    } else {
+      setLastAttendance(attendance);
+      setSnackbarMessage(`Điểm danh vào làm thành công lúc ${new Date(attendance.datetime).toLocaleTimeString('vi-VN')}`);
+    }
+    
+    // Cập nhật lại toàn bộ dữ liệu
+    await fetchEmployeeData();
+    
     setSnackbarSeverity('success');
     setOpenSnackbar(true);
     setNotificationCount(prev => prev + 1);
@@ -213,7 +286,8 @@ export default function EmployeePortal() {
     navigate('/login');
   };
 
-  const toggleAttendance = () => {
+  const toggleAttendance = (isCheckOut = false) => {
+    setIsCheckOut(isCheckOut);
     setShowAttendance(!showAttendance);
   };
 
@@ -253,9 +327,6 @@ export default function EmployeePortal() {
       setLoading(false);
     }
   };
-
-  // Sử dụng dữ liệu đầy đủ hoặc fallback về currentUser
-  const userData = completeUserData || currentUser;
 
   // Hiển thị nội dung tab sử dụng dữ liệu đầy đủ
   const renderContent = () => {
@@ -307,24 +378,67 @@ export default function EmployeePortal() {
             FaceID Attendance
           </Typography>
           
-          <Tooltip title={lastAttendance ? "Bạn đã điểm danh hôm nay" : "Điểm danh ngay"}>
-            <Button
-              variant={showAttendance ? "contained" : "outlined"}
-              color="primary"
-              onClick={toggleAttendance}
-              startIcon={<CameraIcon />}
-              disabled={lastAttendance !== null}
-              sx={{ 
-                mr: 2, 
-                borderRadius: 28,
-                px: 2,
-                py: 0.8,
-                fontWeight: 'medium'
-              }}
-            >
-              {lastAttendance ? "Đã điểm danh" : (showAttendance ? "Đóng Camera" : "Điểm Danh")}
-            </Button>
-          </Tooltip>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title={lastAttendance ? "Bạn đã điểm danh hôm nay" : "Điểm danh vào"}>
+              <span> {/* Wrapper span để Tooltip hoạt động với disabled Button */}
+                <Button
+                  variant={showAttendance && !isCheckOut ? "contained" : "outlined"}
+                  color="primary"
+                  onClick={() => toggleAttendance(false)}
+                  startIcon={<CameraIcon />}
+                  disabled={lastAttendance !== null && !showAttendance}
+                  sx={{ 
+                    borderRadius: 28,
+                    px: 2,
+                    py: 0.8,
+                    fontWeight: 'medium'
+                  }}
+                >
+                  {lastAttendance ? "Đã điểm danh" : (showAttendance && !isCheckOut ? "Đóng Camera" : "Điểm Danh")}
+                </Button>
+              </span>
+            </Tooltip>
+            
+            {/* Chỉ hiển thị nút điểm danh ra về khi đã điểm danh vào và chưa điểm danh ra */}
+            {lastAttendance && !hasCheckedOut && (
+              <Tooltip title="Điểm danh ra về">
+                <Button
+                  variant={showAttendance && isCheckOut ? "contained" : "outlined"}
+                  color="secondary"
+                  onClick={() => toggleAttendance(true)}
+                  startIcon={<ExitToAppIcon />}
+                  sx={{ 
+                    borderRadius: 28,
+                    px: 2,
+                    py: 0.8,
+                    fontWeight: 'medium'
+                  }}
+                >
+                  {showAttendance && isCheckOut ? "Đóng Camera" : "Điểm Danh Ra"}
+                </Button>
+              </Tooltip>
+            )}
+            
+            {/* Hiển thị thông báo đã điểm danh ra về khi cả hai đều hoàn tất */}
+            {hasCheckedOut && (
+              <Tooltip title="Đã điểm danh đầy đủ">
+                <Button
+                  variant="outlined"
+                  color="success"
+                  disabled
+                  startIcon={<CheckCircleIcon />}
+                  sx={{ 
+                    borderRadius: 28,
+                    px: 2,
+                    py: 0.8,
+                    fontWeight: 'medium'
+                  }}
+                >
+                  Đã Điểm Danh Đủ
+                </Button>
+              </Tooltip>
+            )}
+          </Box>
           
           <Tooltip title="Thông báo">
             <IconButton sx={{ mr: 2 }}>
@@ -352,7 +466,7 @@ export default function EmployeePortal() {
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
                 <BadgeIcon fontSize="small" sx={{ mr: 0.5, fontSize: 12 }} />
-                {userData?.employee_id || 'Chưa có mã NV'}
+                {userData?.custom_employee_id || userData?.employee_id || 'Chưa có mã NV'}
                 {userData?.department && (
                   <>
                     <Box component="span" sx={{ mx: 0.5 }}>•</Box>
@@ -392,12 +506,12 @@ export default function EmployeePortal() {
                   {userData?.name}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" display="block">
-                  {userData?.employee_id && (
+                  {userData?.custom_employee_id || userData?.employee_id ? (
                     <>
                       <BadgeIcon fontSize="small" sx={{ mr: 0.5, fontSize: 12, verticalAlign: 'middle' }} />
-                      {userData.employee_id}
+                      {userData.custom_employee_id || userData.employee_id}
                     </>
-                  )}
+                  ) : null}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" display="block">
                   {userData?.department && (
@@ -433,10 +547,13 @@ export default function EmployeePortal() {
           <Paper elevation={3} sx={{ mb: 3, p: 3, borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 'medium' }}>
               <CameraIcon sx={{ mr: 1, verticalAlign: 'text-bottom' }} />
-              Điểm Danh Khuôn Mặt
+              {isCheckOut ? "Điểm Danh Ra Về" : "Điểm Danh Vào Làm"}
             </Typography>
             <Divider sx={{ mb: 3 }} />
-            <AttendanceTab onAttendanceSuccess={handleAttendanceSuccess} />
+            <AttendanceTab 
+              onAttendanceSuccess={handleAttendanceSuccess} 
+              isCheckOut={isCheckOut}
+            />
           </Paper>
         )}
         

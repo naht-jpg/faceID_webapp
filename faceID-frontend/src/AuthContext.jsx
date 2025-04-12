@@ -25,6 +25,7 @@ export function AuthProvider({ children }) {
       if (userResponse.data) {
         const signinId = userResponse.data.id || userResponse.data._id;
         const employeeMongoId = userResponse.data.employee_id;
+        const customEmployeeId = userResponse.data.custom_employee_id;
 
         // If employee_id exists in user data
         if (employeeMongoId) {
@@ -48,6 +49,8 @@ export function AuthProvider({ children }) {
                 _id: employeeMongoId,
                 id: employeeMongoId,
                 role: userResponse.data.role || 'employee',
+                // Ensure custom employee ID is preserved
+                custom_employee_id: employeeResponse.data.employee_id || customEmployeeId,
                 lastAttendance: attendanceData || null
               };
               
@@ -82,7 +85,10 @@ export function AuthProvider({ children }) {
         }
         
         // Fallback nếu không lấy được dữ liệu employee
-        setCurrentUser(userResponse.data);
+        setCurrentUser({
+          ...userResponse.data,
+          custom_employee_id: customEmployeeId // Ensure we keep the custom ID in the fallback
+        });
         setIsAdmin(userResponse.data.role === 'admin');
         return true;
       }

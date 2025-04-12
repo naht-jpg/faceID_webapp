@@ -169,19 +169,26 @@ def current_user(request):
         # Thêm code để tìm employee liên quan
         employee_data = None
         employee_id = user_data.get('employee_id')
+        custom_employee_id = None
         
         # Nếu có employee_id trong user_data, sử dụng nó
         if employee_id:
             from .database import employees_collection
             try:
                 employee_data = employees_collection.find_one({'_id': ObjectId(employee_id)})
+                if employee_data and 'employee_id' in employee_data:
+                    custom_employee_id = employee_data.get('employee_id')
             except:
                 # Thử tìm theo tên nếu không tìm được theo ID
                 employee_data = employees_collection.find_one({'name': username})
+                if employee_data and 'employee_id' in employee_data:
+                    custom_employee_id = employee_data.get('employee_id')
         else:
             # Tìm employee theo name
             from .database import employees_collection
             employee_data = employees_collection.find_one({'name': username})
+            if employee_data and 'employee_id' in employee_data:
+                custom_employee_id = employee_data.get('employee_id')
         
         # Trả về cả hai ID
         response_data = {
@@ -192,6 +199,8 @@ def current_user(request):
         
         if employee_data:
             response_data['employee_id'] = str(employee_data.get('_id', ''))
+            # Thêm custom employee_id vào response
+            response_data['custom_employee_id'] = custom_employee_id
         
         return Response(response_data)
     
@@ -629,84 +638,175 @@ class AttendanceAPIView(APIView):
             if 'datetime' not in data:
                 data['datetime'] = timezone.now()
             else:
-                # Đảm bảo datetime có timezone
+                # Đảm bảo datetime có timezone và sử dụng timezone_offset từ client
                 try:
                     # Nếu là string, chuyển thành datetime với timezone
                     if isinstance(data['datetime'], str):
                         datetime_obj = datetime.fromisoformat(data['datetime'].replace('Z', '+00:00'))
+                        
+                        # Apply timezone offset from client if provided
+                        if 'timezone_offset' in data:
+                            try:
+                                # Convert minutes to seconds
+                                offset_seconds = -int(data['timezone_offset']) * 60
+                                datetime_obj = datetime_obj + timedelta(seconds=offset_seconds)
+                            except (ValueError, TypeError):
+                                pass
+                                
                         if not timezone.is_aware(datetime_obj):
                             datetime_obj = timezone.make_aware(datetime_obj)
                         data['datetime'] = datetime_obj
-                    # Nếu là datetime nhưng không có timezone, thêm timezone
-                    elif isinstance(data['datetime'], datetime) and not timezone.is_aware(data['datetime']):
-                        data['datetime'] = timezone.make_aware(data['datetime'])
                 except (ValueError, TypeError):
                     data['datetime'] = timezone.now()
             
             # Thêm các trường khác nếu cần
             if 'created_at' not in data:
                 data['created_at'] = timezone.now()
-                
-            # Tính toán thông số đi muộn, về sớm dựa trên lịch làm việc
-            work_schedule = get_work_schedule()
-            now = data['datetime'] if isinstance(data['datetime'], datetime) else datetime.now()
             
-            # Cấu hình giờ làm việc
-            current_tz = timezone.get_current_timezone()
-            work_hours = {
-                'start': timezone.make_aware(
-                    datetime.combine(
-                        now.date(), 
-                        time(
-                            hour=work_schedule.get('start_hour', 7),
-                            minute=work_schedule.get('start_minute', 0)
-                        )
-                    ),
-                    current_tz
-                ),  
-                'end': timezone.make_aware(
-                    datetime.combine(
-                        now.date(), 
-                        time(
-                            hour=work_schedule.get('end_hour', 17),
-                            minute=work_schedule.get('end_minute', 0)
-                        )
-                    ),
-                    current_tz
+            # Xử lý check-out: Tìm và cập nhật bản ghi check-in thay vì tạo record mới
+            if data.get('is_check_out'):
+                now = data['datetime']
+                # Tìm bản ghi check-in gần nhất của ngày hôm nay
+                start_of_day = timezone.make_aware(
+                    datetime.combine(now.date(), time(0, 0, 0)),
+                    timezone.get_current_timezone()
                 )
-            }
-            
-            # Tính toán các thông số đi muộn, về sớm
-            early_minutes = timedelta(0)
-            late_minutes = timedelta(0)
-            
-            # Nếu đi làm muộn hơn giờ bắt đầu
-            if now > work_hours['start']:
-                late_minutes = now - work_hours['start']
-                data['late_minutes'] = str(late_minutes)
-            else:
-                early_minutes = work_hours['start'] - now
-                data['early_minutes'] = str(early_minutes)
                 
-            # Thêm vào cơ sở dữ liệu
-            from .database import attendance_collection
-            result = attendance_collection.insert_one(data)
-            
-            # Lấy bản ghi mới tạo để trả về
-            created_record = attendance_collection.find_one({'_id': result.inserted_id})
-            if created_record:
-                created_record['_id'] = str(created_record['_id'])
-                for key in created_record:
-                    if isinstance(created_record[key], datetime):
-                        created_record[key] = created_record[key].isoformat()
-            
-            return Response({
-                'success': True,
-                'message': 'Đã tạo bản ghi điểm danh',
-                'id': str(result.inserted_id),
-                'attendance': created_record
-            }, status=status.HTTP_201_CREATED)
-            
+                # Tìm bản ghi check-in gần nhất
+                check_in_record = attendance_collection.find_one({
+                    'employee_id': str(employee_id),
+                    'datetime': {'$gte': start_of_day},
+                    'is_check_out': {'$ne': True}
+                }, sort=[('datetime', -1)])
+                
+                if check_in_record:
+                    # Lấy cấu hình thời gian làm việc
+                    work_schedule = get_work_schedule()
+                    
+                    # Cấu hình giờ làm việc
+                    current_tz = timezone.get_current_timezone()
+                    end_work_time = timezone.make_aware(
+                        datetime.combine(
+                            now.date(), 
+                            time(
+                                hour=work_schedule.get('end_hour', 17),
+                                minute=work_schedule.get('end_minute', 0)
+                            )
+                        ),
+                        current_tz
+                    )
+                    
+                    # Tính toán thời gian về sớm/muộn
+                    early_leave_minutes = timedelta(0)
+                    late_leave_minutes = timedelta(0)
+                    
+                    # Ensure now is timezone aware
+                    if not timezone.is_aware(now):
+                        now = timezone.make_aware(now, current_tz)
+                        
+                    # Ensure end_work_time is timezone aware
+                    if not timezone.is_aware(end_work_time):
+                        end_work_time = timezone.make_aware(end_work_time, current_tz)
+                        
+                    if now < end_work_time:
+                        early_leave_minutes = end_work_time - now
+                    else:
+                        late_leave_minutes = now - end_work_time
+                    
+                    # Ensure check_in_time is timezone aware
+                    check_in_time = check_in_record['datetime']
+                    if not timezone.is_aware(check_in_time):
+                        check_in_time = timezone.make_aware(check_in_time, current_tz)
+                        
+                    # Tính thời gian làm việc
+                    work_duration = now - check_in_time
+                    work_time = str(work_duration)
+                    
+                    # Cập nhật bản ghi check-in
+                    update_result = attendance_collection.update_one(
+                        {'_id': check_in_record['_id']},
+                        {'$set': {
+                            'check_out_time': now,
+                            'early_leave_minutes': str(early_leave_minutes),
+                            'late_leave_minutes': str(late_leave_minutes),
+                            'is_check_out': True,
+                            'work_time': work_time,
+                            'updated_at': timezone.now()
+                        }}
+                    )
+                    
+                    # Lấy bản ghi đã cập nhật để trả về
+                    updated_record = attendance_collection.find_one({'_id': check_in_record['_id']})
+                    
+                    if updated_record:
+                        updated_record['_id'] = str(updated_record['_id'])
+                        for key in updated_record:
+                            if isinstance(updated_record[key], datetime):
+                                updated_record[key] = updated_record[key].isoformat()
+                    
+                    return Response({
+                        'success': True,
+                        'message': 'Đã cập nhật bản ghi điểm danh',
+                        'id': str(check_in_record['_id']),
+                        'attendance': updated_record
+                    }, status=status.HTTP_200_OK)
+                else:
+                    return Response({
+                        'success': False,
+                        'message': 'Không tìm thấy bản ghi điểm danh vào để cập nhật'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                    
+            # Xử lý check-in: Tính toán thời gian đến sớm/muộn
+            else:
+                # Tính toán thông số đi muộn, về sớm dựa trên lịch làm việc
+                work_schedule = get_work_schedule()
+                now = data['datetime']
+                
+                # Cấu hình giờ làm việc
+                current_tz = timezone.get_current_timezone()
+                work_hours = {
+                    'start': timezone.make_aware(
+                        datetime.combine(
+                            now.date(), 
+                            time(
+                                hour=work_schedule.get('start_hour', 7),
+                                minute=work_schedule.get('start_minute', 0)
+                            )
+                        ),
+                        current_tz
+                    )
+                }
+                
+                # Tính toán các thông số đi muộn, đến sớm
+                early_minutes = timedelta(0)
+                late_minutes = timedelta(0)
+                
+                # Nếu đi làm muộn hơn giờ bắt đầu
+                if now > work_hours['start']:
+                    late_minutes = now - work_hours['start']
+                    data['late_minutes'] = str(late_minutes)
+                else:
+                    early_minutes = work_hours['start'] - now
+                    data['early_minutes'] = str(early_minutes)
+                    
+                # Thêm vào cơ sở dữ liệu
+                result = attendance_collection.insert_one(data)
+                
+                # Lấy bản ghi mới tạo để trả về
+                created_record = attendance_collection.find_one({'_id': result.inserted_id})
+                if created_record:
+                    created_record['_id'] = str(created_record['_id'])
+                    for key in created_record:
+                        if isinstance(created_record[key], datetime):
+                            created_record[key] = created_record[key].isoformat()
+                
+                return Response({
+                    'success': True,
+                    'message': 'Đã tạo bản ghi điểm danh',
+                    'id': str(result.inserted_id),
+                    'attendance': created_record
+                }, status=status.HTTP_201_CREATED)
+                
         except Exception as e:
             import traceback
             logger.error(f"Error creating attendance: {str(e)}")

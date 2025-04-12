@@ -539,3 +539,329 @@ ERROR 2025-04-09 03:06:52,703 database Error getting employee by ID: 'NHA-250400
 ERROR 2025-04-09 03:06:52,710 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
 INFO 2025-04-09 03:06:52,717 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
 ERROR 2025-04-09 03:06:52,953 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-09 22:45:50,257 database MongoDB connection successful
+INFO 2025-04-09 22:49:22,059 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-09 22:49:22,145 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-09 22:49:22,152 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-09 22:49:22,176 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-09 22:49:22,302 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-09 22:49:28,021 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-09 22:49:28,055 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-09 22:49:28,061 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-09 22:49:28,210 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-09 22:49:28,240 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+WARNING 2025-04-09 22:49:39,137 auth Invalid password for user: Nhat
+INFO 2025-04-09 22:49:43,987 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-09 22:49:44,207 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-09 22:49:52,470 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-09 22:49:52,579 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-09 23:06:16,135 database MongoDB connection successful
+INFO 2025-04-09 23:08:43,092 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-09 23:08:43,168 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-09 23:08:43,172 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-09 23:09:20,615 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-09 23:09:56,231 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-09 23:09:56,237 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-09 23:09:56,250 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-09 23:09:56,256 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-09 23:11:54,649 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-09 23:11:55,612 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-10 00:22:23,234 database MongoDB connection successful
+INFO 2025-04-10 00:25:04,495 database MongoDB connection successful
+INFO 2025-04-10 00:25:53,040 database MongoDB connection successful
+INFO 2025-04-10 00:26:35,871 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-10 00:26:35,943 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-10 00:26:35,949 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-10 00:26:35,975 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-10 00:26:36,060 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-10 06:33:30,837 database MongoDB connection successful
+INFO 2025-04-10 23:06:02,665 database MongoDB connection successful
+INFO 2025-04-10 23:14:57,754 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-10 23:14:57,997 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-10 23:15:13,566 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-10 23:15:13,699 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-10 23:15:13,704 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-10 23:15:42,109 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-10 23:15:48,086 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-10 23:15:48,093 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-10 23:15:48,108 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-10 23:15:48,116 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-10 23:16:13,915 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-10 23:16:18,144 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-10 23:16:18,149 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-10 23:16:18,178 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-10 23:16:18,183 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 22:06:39,284 database MongoDB connection successful
+INFO 2025-04-11 22:37:55,906 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:37:56,135 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 22:37:56,299 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 22:37:56,346 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 22:37:56,409 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 22:38:07,746 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:07,974 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:30,747 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:30,968 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:32,398 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:32,632 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:41,881 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:42,103 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:44,737 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:44,965 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:49,121 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:38:49,345 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:41:38,404 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:41:38,628 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:56:58,420 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 22:56:58,655 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:04:16,903 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:04:17,097 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:05:02,186 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:05:02,397 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:05:02,748 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:05:02,762 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:05:02,859 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:05:02,910 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:05:02,965 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:05:03,515 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:05:03,617 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:05:16,758 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:05:16,864 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:05:16,879 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:05:16,888 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:05:16,981 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:05:17,085 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:24:13,362 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:24:13,577 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:24:13,634 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:24:13,687 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:24:13,751 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:24:13,775 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:24:13,868 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:24:41,075 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:24:41,294 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:24:41,314 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:24:41,326 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:24:41,423 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:24:41,540 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:28:43,221 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:28:43,452 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:28:43,470 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:28:43,471 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:28:43,565 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:28:43,697 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:28:43,829 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:28:46,737 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:29:07,657 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:29:08,019 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:29:24,719 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:29:25,067 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:29:30,570 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:29:30,678 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:29:30,686 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:29:30,784 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:29:30,786 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:29:30,899 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:29:30,901 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:36:16,808 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:43:11,422 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-11 23:43:11,534 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-11 23:43:11,640 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:43:11,737 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-11 23:43:11,840 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-11 23:43:18,811 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:43:18,916 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:43:21,882 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:43:21,985 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:43:23,125 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:43:23,149 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:43:23,154 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:43:23,247 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:43:23,351 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:48:56,816 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:50:57,770 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:50:57,872 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:55:58,790 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:56:39,794 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:56:39,832 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:56:39,903 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:56:39,932 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:56:40,008 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:56:40,037 views Found 2 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:56:40,041 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:58:13,337 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:58:13,482 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:58:13,487 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:58:13,540 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:13,578 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:13,679 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:58:13,684 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:58:13,784 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:13,888 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:13,989 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:14,092 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:29,545 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-11 23:58:29,652 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-11 23:58:29,674 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:29,757 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-11 23:58:29,862 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-11 23:58:36,493 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:58:36,655 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-11 23:58:36,662 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:58:36,703 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:36,750 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:36,853 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-11 23:58:36,859 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-11 23:58:36,954 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:37,053 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:37,152 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:37,251 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:41,885 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:42,615 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:46,859 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:46,963 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:51,990 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-11 23:58:52,093 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:03:52,811 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:08:52,811 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:13:52,810 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:18:52,495 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:19:16,649 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:19:16,758 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:19:17,018 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:19:17,142 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:19:18,445 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:19:18,551 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:19:18,661 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:19:18,772 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:20:11,590 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:20:12,186 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:20:35,671 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:20:36,018 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:20:36,193 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:20:36,301 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:20:55,029 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:20:55,453 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:21:03,653 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:21:03,768 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:21:03,799 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:21:03,808 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:21:03,897 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:21:04,004 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:26:15,800 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:31:15,492 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:36:15,808 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:36:39,060 database MongoDB connection successful
+INFO 2025-04-12 00:37:04,086 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:37:32,139 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:37:32,295 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:37:32,300 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:37:32,359 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:37:32,397 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:37:32,494 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:37:32,500 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:37:32,605 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:37:32,712 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:37:32,820 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:37:32,924 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:37:44,209 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:37:44,513 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:37:44,661 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:37:44,768 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:37:57,694 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:37:58,139 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:38:07,110 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:38:07,222 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:38:07,240 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:38:07,247 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:38:07,347 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:38:07,461 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:44:41,999 database MongoDB connection successful
+INFO 2025-04-12 00:45:23,817 database MongoDB connection successful
+INFO 2025-04-12 00:45:32,669 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:45:32,892 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-12 00:45:32,995 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-12 00:45:33,097 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-12 00:45:33,197 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-12 00:45:38,264 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:45:38,386 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:45:38,393 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:45:38,482 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:45:38,584 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:46:07,185 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:46:07,293 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:46:07,308 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:46:07,313 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:46:07,404 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:46:07,504 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:46:07,605 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:46:07,705 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:46:22,384 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:46:22,682 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:46:22,826 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:46:22,933 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:46:26,870 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:46:26,971 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:46:26,984 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:46:26,989 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:46:27,080 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:46:27,186 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:46:51,158 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:46:51,456 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:47:09,708 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:47:09,906 views Error creating attendance: can't subtract offset-naive and offset-aware datetimes
+ERROR 2025-04-12 00:47:09,921 views Traceback (most recent call last):
+  File "D:\faceID_webapp\faceID\faceIDatt\views.py", line 710, in post
+    work_duration = now - check_in_time
+                    ~~~~^~~~~~~~~~~~~~~
+TypeError: can't subtract offset-naive and offset-aware datetimes
+
+INFO 2025-04-12 00:48:11,218 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:48:11,368 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:48:11,374 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:48:11,410 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:48:11,463 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:48:11,549 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:48:11,563 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:48:11,663 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:48:11,762 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:48:11,870 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:48:11,970 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:48:21,684 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:48:22,026 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:48:22,191 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:48:22,298 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:48:35,352 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:48:35,548 views Error creating attendance: can't subtract offset-naive and offset-aware datetimes
+ERROR 2025-04-12 00:48:35,548 views Traceback (most recent call last):
+  File "D:\faceID_webapp\faceID\faceIDatt\views.py", line 710, in post
+    work_duration = now - check_in_time
+                    ~~~~^~~~~~~~~~~~~~~
+TypeError: can't subtract offset-naive and offset-aware datetimes
+
+INFO 2025-04-12 00:51:24,330 database MongoDB connection successful
+ERROR 2025-04-12 00:51:37,353 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:51:37,883 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:51:46,938 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:51:47,050 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:51:47,082 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:51:47,093 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:51:47,183 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:51:47,287 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:52:27,846 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:52:28,005 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 00:52:28,011 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:52:28,065 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 00:52:28,106 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 00:52:28,205 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 00:52:28,211 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 18:45:48,533 database MongoDB connection successful
+INFO 2025-04-12 18:46:37,841 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-12 18:46:38,524 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 18:46:38,539 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-12 18:46:38,642 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-12 18:46:38,771 views Found 0 attendance records for employee 67f56678aa5e06c258464faf
+INFO 2025-04-12 18:46:43,586 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-04-12 18:46:43,689 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-04-12 18:46:43,711 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-04-12 18:46:43,765 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-04-12 18:46:43,901 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8

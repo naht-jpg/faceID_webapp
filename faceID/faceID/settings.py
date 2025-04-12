@@ -26,7 +26,10 @@ MONGO_COLLECTIONS = {
     'dataset': 'dataset',
     'signin': 'signin',
     'testdata': 'testdata',
-    'trainner': 'trainner'
+    'trainner': 'trainner',
+    'attendance': 'attendance',
+    'employees': 'employees',
+    'work_schedule': 'work_schedule',
 }
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -165,9 +168,6 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
-# Update CORS settings for development
-CORS_ALLOW_ALL_ORIGINS = True  # For development only
-CORS_ALLOW_CREDENTIALS = True
 
 # CORS Settings - Chỉ cho phép frontend origin cụ thể thay vì tất cả
 #CORS_ALLOW_ALL_ORIGINS = False  # Tắt CORS cho tất cả origin
@@ -178,7 +178,6 @@ CORS_ALLOW_CREDENTIALS = True
 #    # Thêm domain production của bạn
 #]
 
-CORS_ALLOW_CREDENTIALS = True
 
 # Thêm custom backend vào AUTHENTICATION_BACKENDS
 AUTHENTICATION_BACKENDS = [

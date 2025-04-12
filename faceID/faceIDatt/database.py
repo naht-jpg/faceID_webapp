@@ -404,15 +404,21 @@ def save_attendance(name, image_path, person_data=None, is_check_out=False):
                 'job_position': person_data.get('job_position')
             })
         
-        # Nếu là check-out, cần tìm bản ghi check-in gần nhất
+        # Nếu là check-out, ƯU TIÊN CẬP NHẬT bản ghi check-in
         if is_check_out and employee_id:
-            # Lấy ngày hiện tại - ensure timezone awareness
+            # Apply timezone offset from client if provided
+            client_timezone_offset = attendance_data.get('timezone_offset')
+            if client_timezone_offset is not None:
+                # Convert minutes to seconds (multiply by 60)
+                offset_seconds = -int(client_timezone_offset) * 60
+                now = now + datetime.timedelta(seconds=offset_seconds)
+            
+            # Tìm bản ghi check-in hôm nay
             start_of_day = timezone.make_aware(
                 datetime.datetime.combine(now.date(), datetime.time(0, 0, 0)),
                 timezone.get_current_timezone()
             )
             
-            # Tìm bản ghi check-in gần nhất trong ngày
             latest_check_in = attendance_collection.find_one({
                 'employee_id': str(employee_id),
                 'datetime': {'$gte': start_of_day},
@@ -420,7 +426,7 @@ def save_attendance(name, image_path, person_data=None, is_check_out=False):
             }, sort=[('datetime', -1)])
             
             if latest_check_in:
-                # Cập nhật bản ghi check-in với thông tin check-out
+                # Cập nhật bản ghi check-in với thông tin check-out thay vì tạo mới
                 attendance_collection.update_one(
                     {'_id': latest_check_in['_id']},
                     {
@@ -428,25 +434,13 @@ def save_attendance(name, image_path, person_data=None, is_check_out=False):
                             'check_out_time': now,
                             'updated_at': now,
                             'early_leave_minutes': early_leave_minutes_str,
-                            'late_leave_minutes': late_leave_minutes_str
+                            'late_leave_minutes': late_leave_minutes_str,
+                            'is_check_out_record': True  # Đánh dấu đã check-out
                         }
                     }
                 )
                 
-                # Tính toán thời gian làm việc
-                work_time = calculate_work_time(latest_check_in['datetime'], now)
-                
-                # Cập nhật thời gian làm việc vào bản ghi
-                attendance_collection.update_one(
-                    {'_id': latest_check_in['_id']},
-                    {
-                        '$set': {
-                            'work_time': work_time,
-                            'updated_at': now
-                        }
-                    }
-                )
-                
+                # Không tạo bản ghi mới sau khi cập nhật thành công
                 return True
         
         # Lưu vào collection attendance thay vì testdata
