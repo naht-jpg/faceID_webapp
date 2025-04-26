@@ -14,6 +14,7 @@ import FaceIcon from '@mui/icons-material/Face';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { useAuth } from '../../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { CalendarIcon } from '@mui/x-date-pickers';
@@ -59,8 +60,12 @@ export default function SideMenu({ currentTab, onTabChange }) {
       id: 'attendance', 
       icon: <CalendarIcon />, 
       text: 'Quản lý Điểm danh' 
+    },
+    {
+      id: 'salary-calculation',
+      icon: <MonetizationOnIcon />,
+      text: 'Tính lương'
     }
-
   ];
   
   const handleLogout = () => {

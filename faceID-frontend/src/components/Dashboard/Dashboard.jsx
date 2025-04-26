@@ -14,6 +14,8 @@ import Home from '../../pages/Home';
 import AccountManagement from './AccountManagement';
 import WorkScheduleTab from './WorkScheduleTab';
 import AdminAttendanceTab from './AdminAttendanceTab';
+import SalaryCalculationTab from './SalaryCalculationTab';
+import { MonetizationOn as MonetizationOnIcon } from '@mui/icons-material';
 
 import {
   chartsCustomizations,
@@ -37,8 +39,10 @@ const tabTitles = {
   'face-recognition': 'Nhận diện khuôn mặt',
   'accounts': 'Quản lý tài khoản',
   'work-schedule': 'Lịch làm việc',
+  'salary-calculation': 'Tính lương',
   'attendance': 'Quản lý Điểm danh',
-  'settings': 'Cài đặt'
+  'settings': 'Cài đặt',
+  
 };
 
 export default function Dashboard(props) {
@@ -77,6 +81,8 @@ export default function Dashboard(props) {
         return <WorkScheduleTab />;
       case 'attendance':
         return <AdminAttendanceTab />;
+      case 'salary-calculation':
+        return <SalaryCalculationTab />;
       case 'settings':
         return <Typography variant="h6">Cài đặt</Typography>;
       default:

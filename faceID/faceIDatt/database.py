@@ -29,13 +29,13 @@ try:
     
     # Database và Collections - cập nhật theo cấu trúc mới
     db = client[settings.MONGO_DB_NAME]
-    dataset_collection = db['dataset']  # Lưu đường dẫn khuôn mặt
-    employees_collection = db['employees']  # Collection mới lưu thông tin nhân viên
-    attendance_collection = db['attendance']  # Collection mới lưu thông tin điểm danh
-    signin_collection = db[settings.MONGO_COLLECTIONS.get('signin', 'signin')]  #lưu thông tin tài khoản đăng nhập cho từng nhân viên
-    trainner_collection = db[settings.MONGO_COLLECTIONS.get('trainner', 'trainner')]  
-    testdata_collection = db['testdata']  # Collection mới lưu thông tin điểm danh vào testdata
-    work_schedules_collection = db['work_schedules']  # Thêm collection work_schedules
+    dataset_collection = db['dataset']  # Collection lưu đường dẫn khuôn mặt
+    employees_collection = db['employees']  # Collection lưu thông tin nhân viên
+    attendance_collection = db['attendance']  # Collection lưu thông tin điểm danh
+    signin_collection = db[settings.MONGO_COLLECTIONS.get('signin', 'signin')]  #Collection lưu thông tin tài khoản đăng nhập cho từng nhân viên
+    trainner_collection = db[settings.MONGO_COLLECTIONS.get('trainner', 'trainner')]  # Collection lưu thông tin dữ liệu khuôn mặt đã được đổi thành Array
+    testdata_collection = db['testdata']  # Collection lưu thông tin test vào testdata
+    work_schedules_collection = db['work_schedules']  # Collection lưu thông tin lịch làm việc tùy chỉnh
     
 except Exception as e:
     logger.error(f"MongoDB connection error: {str(e)}")

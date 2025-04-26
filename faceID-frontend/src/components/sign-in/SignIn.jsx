@@ -16,6 +16,7 @@ import { Visibility, VisibilityOff, Face as FaceIcon } from '@mui/icons-material
 import { useAuth } from '../../hooks/useAuth';
 import { authAPI } from '../../api';
 
+
 // Tạo theme với màu sắc phù hợp hơn
 const theme = createTheme({
   palette: {
@@ -61,6 +62,46 @@ export default function SignIn() {
       [name]: value
     });
   };
+
+  const handleLoginSuccess = async (response) => {
+    try {
+      // Đăng nhập thành công, lưu token và thông tin người dùng
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
+      localStorage.setItem('login_timestamp', Date.now().toString());
+
+      // Reset lại các bộ đếm lỗi khi đăng nhập lại
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('failed_fetch_') || key === 'refresh_count' || key === 'last_refresh_time') {
+          keysToRemove.push(key);
+        }
+      }
+      
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      const userData = response.data.user || {
+        name: formData.username,
+        role: response.data.role || 'employee'
+      };
+
+      // Đảm bảo login hoàn tất trước khi chuyển hướng
+      await login(userData);
+      
+      // Thêm một chút delay để đảm bảo dữ liệu được tải
+      setTimeout(() => {
+        if (userData.role === 'admin') {
+          navigate('/dashboard');
+        } else {
+          navigate('/employee-portal');
+        }
+      }, 300);
+    } catch (error) {
+      console.error("Error during login completion", error);
+      setErrorMessage("Lỗi xảy ra trong quá trình đăng nhập");
+    }
+  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,21 +120,7 @@ export default function SignIn() {
         password: formData.password
       });
       
-      localStorage.setItem('access_token', response.data.access);
-      localStorage.setItem('refresh_token', response.data.refresh);
-      
-      const userData = response.data.user || {
-        name: formData.username,
-        role: response.data.role || 'employee'
-      };
-      
-      await login(userData);
-      
-      if (userData.role === 'admin') {
-        navigate('/dashboard');
-      } else {
-        navigate('/employee-portal');
-      }
+      await handleLoginSuccess(response);
     } catch (err) {
       console.error("Login failed:", err);
       const errorMessage = err.response?.data?.detail || 

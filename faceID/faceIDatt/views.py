@@ -32,7 +32,7 @@ from .auth import MongoDBAuthBackend, get_tokens_for_user
 from .database import (
     get_employees, get_employee_by_id, add_employee,
     update_employee, delete_employee, get_attendance_history,
-    signin_collection, attendance_collection,
+    signin_collection, attendance_collection, employees_collection,
     get_work_schedule, get_all_work_schedules, 
     create_work_schedule, update_work_schedule, delete_work_schedule
 )
@@ -751,10 +751,22 @@ class AttendanceAPIView(APIView):
                         'attendance': updated_record
                     }, status=status.HTTP_200_OK)
                 else:
+                    # Fallback: Create a new check-out record if no check-in found
+                    logger.warning(f"No check-in record found for employee {employee_id} for checkout. Creating new record.")
+                    
+                    # Add checkout flag to data
+                    data['is_check_out'] = True
+                    data['is_check_out_record'] = True
+                    
+                    # Insert new record
+                    result = attendance_collection.insert_one(data)
+                    
                     return Response({
-                        'success': False,
-                        'message': 'Không tìm thấy bản ghi điểm danh vào để cập nhật'
-                    }, status=status.HTTP_400_BAD_REQUEST)
+                        'success': True,
+                        'message': 'Đã tạo bản ghi check-out mới (không tìm thấy check-in)',
+                        'id': str(result.inserted_id),
+                        'attendance': data
+                    }, status=status.HTTP_201_CREATED)
                     
             # Xử lý check-in: Tính toán thời gian đến sớm/muộn
             else:

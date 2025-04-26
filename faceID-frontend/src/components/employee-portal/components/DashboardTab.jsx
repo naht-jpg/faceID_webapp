@@ -31,18 +31,42 @@ export default function DashboardTab({ lastAttendance, onAttendanceRequest, user
     earlyLeaveCount: 0
   });
 
+  // Cải thiện useEffect trong DashboardTab để xử lý dữ liệu tốt hơn
   useEffect(() => {
-    // Use pre-fetched attendance data if available
-    if (userData?.lastAttendance) {
-      setTodayAttendance(userData.lastAttendance);
-    } else {
-      // Otherwise fetch it directly
-      fetchTodayAttendance();
+    // Log dữ liệu người dùng để debug
+    console.log("DashboardTab received userData:", userData);
+    console.log("DashboardTab received lastAttendance:", lastAttendance);
+    
+    // Kiểm tra và sử dụng dữ liệu sẵn có trước khi fetch mới
+    if (lastAttendance) {
+      setTodayAttendance(lastAttendance);
     }
     
-    // Always fetch the monthly summary
-    fetchWorkingSummary();
-  }, []);
+    // Tải dữ liệu nếu chúng ta có ID người dùng và dữ liệu điểm danh chưa được tải
+    const shouldFetchAttendance = (userData?.id || userData?._id) && !todayAttendance;
+    const shouldFetchSummary = (userData?.id || userData?._id) && !workingSummary.daysThisMonth;
+    
+    // Fetch dữ liệu song song cho nhanh hơn
+    const loadData = async () => {
+      // Tạo mảng các promises để chạy song song
+      const promises = [];
+      
+      if (shouldFetchAttendance) {
+        promises.push(fetchTodayAttendance());
+      }
+      
+      if (shouldFetchSummary) {
+        promises.push(fetchWorkingSummary());
+      }
+      
+      // Chạy tất cả các requests cùng lúc
+      if (promises.length > 0) {
+        await Promise.all(promises);
+      }
+    };
+    
+    loadData();
+  }, [userData, lastAttendance]);
 
   useEffect(() => {
     // Khởi tạo interval để tự động làm mới mỗi 5 phút (300000ms)
@@ -170,17 +194,18 @@ export default function DashboardTab({ lastAttendance, onAttendanceRequest, user
             </Box>
             
             <Box>
-              <Tooltip title="Làm mới dữ liệu">
-                <IconButton
-                  onClick={() => fetchTodayAttendance(true)}
-                  size="small"
-                  disabled={refreshing}
-                  sx={{ mr: 1 }}
-                >
-                  <RefreshIcon fontSize="small" sx={{ animation: refreshing ? 'spin 2s linear infinite' : 'none' }} />
-                </IconButton>
-              </Tooltip>
-              <Typography variant="caption" color="text.secondary">
+              <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                startIcon={<RefreshIcon />}
+                onClick={() => fetchTodayAttendance(true)}
+                disabled={refreshing}
+                sx={{ mb: 1 }}
+              >
+                Làm mới trạng thái
+              </Button>
+              <Typography variant="caption" color="text.secondary" display="block">
                 Cập nhật lúc: {lastRefresh.toLocaleTimeString('vi-VN')}
               </Typography>
             </Box>

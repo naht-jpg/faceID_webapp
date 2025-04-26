@@ -1,7 +1,6 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
-import { authAPI, employeeAPI,attendanceAPI } from './api';
-
-export const AuthContext = createContext(null);
+import React, { useState, useEffect, useCallback } from 'react';
+import { authAPI, employeeAPI, attendanceAPI } from './api';
+import { AuthContext } from './contexts/auth';
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -60,27 +59,13 @@ export function AuthProvider({ children }) {
             }
           } catch (err) {
             console.error("Error fetching employee data:", err);
-            // Try alternative methods if needed
-            // Thử một cách khác nếu API getById thất bại
-            try {
-              // Dùng API tùy chọn để lấy theo custom employee_id
-              const customIdResponse = await employeeAPI.getByCustomId(employeeMongoId);
-              if (customIdResponse.data) {
-                const mergedData = {
-                  ...userResponse.data,
-                  ...customIdResponse.data,
-                  signin_id: signinId,
-                  _id: customIdResponse.data._id,
-                  id: customIdResponse.data._id
-                };
-                
-                setCurrentUser(mergedData);
-                setIsAdmin(userResponse.data.role === 'admin');
-                return true;
-              }
-            } catch (altErr) {
-              console.error("Cả hai phương thức đều thất bại:", altErr);
-            }
+            // Sử dụng dữ liệu user cơ bản
+            setCurrentUser({
+              ...userResponse.data,
+              custom_employee_id: customEmployeeId 
+            });
+            setIsAdmin(userResponse.data.role === 'admin');
+            return true;
           }
         }
         
@@ -145,9 +130,31 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, [refreshUserData]);
 
+  // Cải thiện hàm login để tải đầy đủ dữ liệu ngay sau khi đăng nhập
   const login = async (userData) => {
     setCurrentUser(userData);
     setIsAdmin(userData.role === 'admin');
+    
+    // Đánh dấu thời điểm đăng nhập
+    localStorage.setItem('login_timestamp', Date.now().toString());
+    
+    // Reset các biến đếm lỗi khi đăng nhập mới
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('failed_fetch_')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Thêm dòng này để đảm bảo tải đầy đủ dữ liệu ngay sau khi đăng nhập
+    try {
+      console.log("Starting comprehensive data refresh after login");
+      await refreshUserData();
+      console.log("Data refresh completed after login");
+      return true;
+    } catch (error) {
+      console.error("Error refreshing data after login:", error);
+      return false;
+    }
   };
 
   const logout = () => {
