@@ -6805,3 +6805,899 @@ INFO 2025-04-15 17:12:12,042 views Found 1 attendance records for employee 67f56
 INFO 2025-04-15 17:12:42,378 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
 INFO 2025-04-15 17:13:14,101 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
 INFO 2025-04-17 18:26:49,207 database MongoDB connection successful
+INFO 2025-05-05 14:54:44,781 database MongoDB connection successful
+WARNING 2025-05-05 14:55:50,421 auth Invalid password for user: Nhat
+WARNING 2025-05-05 14:55:54,789 auth Invalid password for user: Nhat
+INFO 2025-05-05 14:56:07,292 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:07,821 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:56:07,832 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:08,109 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:08,522 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:08,811 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:08,816 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:56:08,826 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:56:08,837 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:09,067 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:09,177 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:09,191 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:09,263 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:09,417 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:09,423 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:09,639 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:09,645 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:09,750 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:09,769 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:09,784 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:09,955 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:09,965 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:10,086 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:56:10,120 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:10,154 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:10,215 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:10,271 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:10,307 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:10,421 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:10,442 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:10,563 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:10,564 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:10,660 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:10,696 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:10,706 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:10,864 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:10,970 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,031 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:11,039 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:56:11,047 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:11,072 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,161 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,164 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,259 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,277 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,293 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,405 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,414 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,473 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:11,515 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:20,979 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:56:21,448 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:56:21,470 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:56:21,494 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:56:21,556 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:21,612 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:21,671 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:21,762 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:21,864 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:21,897 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:56:22,009 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+WARNING 2025-05-05 14:56:48,312 auth Invalid password for user: Nhat
+INFO 2025-05-05 14:56:52,125 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:57:22,442 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:57:52,452 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+WARNING 2025-05-05 14:58:03,874 auth Invalid password for user: Nhat
+INFO 2025-05-05 14:58:12,491 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:12,934 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:58:12,951 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:58:12,969 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:13,074 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:13,157 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:13,173 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:13,272 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:13,369 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:13,463 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:58:13,482 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:58:13,490 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:13,834 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:13,882 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:13,930 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:58:13,943 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:58:13,946 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:14,069 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:14,119 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:14,182 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:14,299 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:14,331 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:14,351 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:14,404 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:14,406 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:14,451 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:14,555 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:14,564 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:14,656 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:14,677 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:14,679 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:14,765 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:14,857 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:14,958 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:15,082 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:15,120 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:15,126 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:58:15,127 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:58:15,206 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:15,236 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:15,240 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:15,339 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:15,346 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:58:15,428 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:20,848 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:21,004 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:59:21,011 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:21,544 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:21,555 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:21,658 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:21,799 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:59:21,811 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:59:21,822 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:21,865 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:21,936 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:22,077 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:22,215 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:22,483 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:22,530 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:22,532 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:22,556 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:22,596 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:22,650 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:59:22,661 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:22,709 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:22,715 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:59:22,723 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:22,773 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:22,978 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:23,019 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:23,020 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:23,052 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:23,088 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:23,206 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:23,448 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:23,517 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:23,551 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:23,558 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:23,561 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:23,578 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:23,706 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:23,715 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-05 14:59:23,761 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:23,823 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-05 14:59:23,830 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-05 14:59:23,830 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:23,939 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:23,950 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:24,011 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:24,067 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:24,112 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:24,188 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:24,216 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:24,301 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:24,324 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-05 14:59:24,428 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:26:15,723 database MongoDB connection successful
+WARNING 2025-05-09 15:26:27,195 auth Invalid password for user: Nhat
+WARNING 2025-05-09 15:26:33,991 auth Invalid password for user: Nhat
+WARNING 2025-05-09 15:26:37,277 auth Invalid password for user: Nhat
+WARNING 2025-05-09 15:26:49,523 auth Invalid password for user: Khoi
+WARNING 2025-05-09 15:26:55,720 auth Invalid password for user: Nhat
+WARNING 2025-05-09 15:27:36,836 auth Invalid password for user: Nhat
+WARNING 2025-05-09 15:27:45,995 auth Invalid password for user: Khoi
+INFO 2025-05-09 15:29:36,401 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:36,883 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:29:36,889 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:37,170 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:37,580 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:37,697 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:37,707 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:29:37,716 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:37,774 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:37,782 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:38,066 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:38,082 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:38,282 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:38,405 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:38,498 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:38,505 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:29:38,509 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:29:38,513 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:38,591 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:38,676 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:38,697 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:38,724 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:38,854 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:38,873 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:38,877 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:29:39,137 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:39,139 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:39,225 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:39,229 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:39,303 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:39,339 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:39,405 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:39,440 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:39,446 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:29:39,458 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:39,564 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:39,649 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:39,668 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:39,750 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:39,781 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:39,848 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:39,851 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:39,948 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:39,963 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:40,046 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:40,069 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:40,145 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:40,150 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:40,196 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:40,247 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:40,345 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:40,448 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:50,034 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+ERROR 2025-05-09 15:29:50,167 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:29:50,181 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:29:50,188 database Error getting employee by ID: 'KE -2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:29:50,278 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:50,304 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:50,386 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:50,497 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:50,630 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:50,735 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+INFO 2025-05-09 15:29:50,740 views Found 0 attendance records for employee 67f500861412ecf43022ea54
+WARNING 2025-05-09 15:30:01,446 auth Invalid password for user: Nhat
+INFO 2025-05-09 15:30:05,137 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:05,343 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:30:05,344 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:05,709 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:05,928 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:06,035 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:06,166 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:30:06,174 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:06,232 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:06,275 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:06,341 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:06,405 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:06,556 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:06,562 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:30:06,624 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:06,661 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:06,702 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:06,723 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:06,888 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:06,896 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:30:06,906 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:06,961 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,006 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,368 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:07,373 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:30:07,378 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:07,404 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,406 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,466 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,482 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,518 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:07,522 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:07,570 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:07,632 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:07,647 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,757 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,796 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:30:07,825 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:30:07,852 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:07,908 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:08,206 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:08,255 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:08,272 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:08,282 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:08,331 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:08,355 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:08,376 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:30:36,844 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,084 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:31:01,237 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:31:01,241 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:31:01,279 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,462 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,477 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,523 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,655 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:31:01,665 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:31:01,678 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:31:01,760 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,796 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,889 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,915 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:01,943 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:02,027 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:31:02,031 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:31:02,040 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:31:02,127 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:02,253 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:02,321 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:31:02,353 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+WARNING 2025-05-09 15:33:07,869 auth Invalid password for user: Phuc
+INFO 2025-05-09 15:33:12,037 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:12,488 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:12,493 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:12,669 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:12,769 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:12,867 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:12,881 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:12,977 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:13,041 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:13,046 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:13,171 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:13,208 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:13,307 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:13,376 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:13,445 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:13,480 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:13,488 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:13,588 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:13,631 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:13,843 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:13,845 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:13,858 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:13,872 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:13,890 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:13,959 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,013 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,117 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:14,215 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:14,216 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:14,226 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,339 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,343 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,375 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,458 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,492 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:14,649 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:14,683 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:14,755 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,786 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:14,793 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:14,860 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:33:14,867 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:14,888 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,888 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:14,996 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:15,000 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:15,108 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:15,113 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:15,205 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:15,275 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:15,307 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:15,381 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:33:50,138 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:50,289 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:50,292 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:50,522 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:50,527 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:50,738 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:50,941 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:51,049 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:51,074 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:51,162 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:51,225 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:51,373 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:51,582 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:51,595 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:51,601 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:51,669 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:51,728 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:51,781 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:51,888 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:51,934 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:51,956 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:51,963 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:51,996 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:52,047 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:52,099 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:52,145 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:52,338 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:52,407 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:52,412 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:52,440 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:52,443 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:52,553 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:52,655 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:52,742 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:52,757 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:52,782 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:33:52,805 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:52,870 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:52,875 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:33:52,877 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:33:52,988 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,002 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,088 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,192 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,199 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,255 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,302 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,363 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,371 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,407 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:53,505 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:54,968 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:33:55,081 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:34:19,522 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:19,659 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:34:19,663 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:19,877 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:19,883 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:20,067 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:20,258 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:20,354 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:34:20,526 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:34:20,555 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:20,624 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:20,843 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:20,883 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:34:20,897 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:34:20,899 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:20,916 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,021 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,105 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,121 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,317 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,370 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,402 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:21,418 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:21,471 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:21,574 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:21,678 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,710 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,749 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:21,749 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:21,751 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:34:21,766 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:21,888 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:21,950 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:21,983 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:22,060 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:22,069 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:22,172 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:22,232 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:22,337 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+ERROR 2025-05-09 15:34:22,341 database Error getting employee by ID: 'GAM-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:34:22,367 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:22,443 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:22,506 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:22,514 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:25,271 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:25,369 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:36,425 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:36,520 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:38,028 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:38,135 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:41,569 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:41,668 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+INFO 2025-05-09 15:34:50,475 views Found 0 attendance records for employee 67fe2136d43994487fa8c6a2
+WARNING 2025-05-09 15:35:04,360 auth Invalid password for user: Nhat
+WARNING 2025-05-09 15:35:08,400 auth Invalid password for user: Nhat
+INFO 2025-05-09 15:35:12,305 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:35:12,446 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:35:12,450 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:35:12,662 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:12,677 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:12,856 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:13,215 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:35:13,316 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:35:13,363 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:35:13,369 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:35:13,479 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:13,582 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:13,589 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:35:13,596 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:35:13,606 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:35:13,742 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:35:13,766 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:13,863 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:13,927 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,137 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,174 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,252 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:35:14,277 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:35:14,283 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:35:14,337 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,361 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,379 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,391 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,489 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,538 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:35:14,582 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:35:14,607 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:35:14,640 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,777 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:14,830 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:35:14,838 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:35:14,936 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:15,037 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:35:15,118 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:35:15,132 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:15,226 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:15,253 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:35:43,880 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:36:13,852 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:36:32,346 database MongoDB connection successful
+INFO 2025-05-09 15:36:44,203 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:36:58,957 database MongoDB connection successful
+INFO 2025-05-09 15:37:14,207 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:37:43,857 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:38:14,166 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:39:01,848 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:39:17,853 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:39:43,851 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:13,853 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:45,457 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:45,668 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:46,334 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:46,347 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:46,735 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:47,480 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:47,538 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:47,678 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:48,019 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:48,021 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:48,105 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:48,500 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:48,510 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:48,529 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:48,618 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:48,627 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:48,669 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:48,948 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:48,967 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:49,094 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:49,141 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:49,148 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:49,154 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:49,164 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:49,282 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:49,402 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:49,505 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:49,537 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:49,540 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:49,614 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:49,764 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:49,824 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:49,875 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:49,901 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:50,011 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,014 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:50,153 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:50,209 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,227 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:50,235 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:50,274 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:40:50,280 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+ERROR 2025-05-09 15:40:50,287 database Error getting employee by ID: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:40:50,423 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,477 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,532 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,601 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,642 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,726 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,749 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,773 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:40:50,858 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:41:18,855 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:41:48,865 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:42:18,865 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:42:48,851 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:43:18,854 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:43:48,863 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:44:18,858 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:45:17,860 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:45:50,850 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:46:17,875 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:47:17,857 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:48:18,175 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:00,414 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:00,637 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:01,282 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:01,366 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:01,377 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:01,488 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:01,620 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:01,715 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:01,935 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:02,054 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:02,110 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:02,274 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:02,359 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:02,389 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:02,577 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:02,713 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:02,959 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,296 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,425 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,468 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,515 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,535 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,585 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,625 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,625 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,644 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,700 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,743 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,817 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,962 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:03,965 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:04,009 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:09,872 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,099 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,323 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,526 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,646 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,753 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,754 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,870 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,878 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,996 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:10,998 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:19,149 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:19,412 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:19,676 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:19,993 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:19,995 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,113 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,117 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,145 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,261 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,375 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,491 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,560 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,614 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,648 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:20,671 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+ERROR 2025-05-09 15:49:45,476 database Error saving attendance: 'NHA-2504001' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
+INFO 2025-05-09 15:49:45,977 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:46,943 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:49:49,646 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:04,601 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:04,825 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:04,981 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,114 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,236 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,306 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,310 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,424 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,535 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,673 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,781 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:05,800 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:06,218 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:15,802 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:15,942 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:16,060 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:16,272 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:16,396 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:16,527 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:46,864 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:55,809 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,174 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,345 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,353 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,481 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,485 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,597 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,769 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,826 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,921 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:56,996 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:57,035 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:50:57,104 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:26,901 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:43,714 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:44,318 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:44,650 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:44,764 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:44,776 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:45,120 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:45,237 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:45,317 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:45,418 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:45,496 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:45,608 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:45,721 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,088 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,149 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,175 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,213 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,269 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,331 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,365 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,500 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,504 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,634 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,762 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,874 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:46,989 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:47,023 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:47,119 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 15:51:47,142 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:22,202 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:22,839 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,125 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,157 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,321 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,428 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,516 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,541 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,707 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,814 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,972 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:23,979 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,089 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,330 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,438 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,459 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,544 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,658 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,707 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,882 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:24,931 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:25,043 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:25,156 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:25,226 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:25,306 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:25,335 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:25,439 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:25,518 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:25,548 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:05:53,849 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:06:23,851 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:06:53,861 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:07:23,846 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:07:53,847 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:08:23,889 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:08:53,848 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:09:23,852 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:09:53,856 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:10:23,865 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:10:24,852 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:10:53,848 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:11:23,851 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:11:53,847 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:12:23,848 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:12:53,855 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:13:23,862 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:13:53,858 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:14:23,860 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:14:53,856 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:15:23,847 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:15:24,861 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:15:53,860 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:16:23,855 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:16:53,850 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:17:23,856 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:17:53,853 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:18:23,849 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:18:53,859 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:19:23,861 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:19:53,854 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:20:23,854 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:20:24,846 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:20:53,857 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-09 16:21:23,296 views Found 1 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:22,560 database MongoDB connection successful
+INFO 2025-05-10 23:30:38,906 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:40,151 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:40,359 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:40,584 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:40,946 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,043 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,066 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,068 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,179 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,290 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,503 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,514 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,765 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,790 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,897 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:41,954 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,118 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,188 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,237 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,362 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,549 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,597 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,762 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,789 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:42,919 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,016 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,019 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,098 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,168 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,189 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,272 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,335 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,336 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,467 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:43,596 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:54,043 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:54,403 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:54,637 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:54,713 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:54,803 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:54,875 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:54,895 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:30:54,910 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:24,854 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:27,332 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:27,871 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:27,994 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:28,033 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:28,096 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:28,138 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:28,197 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:28,247 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:30,407 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:30,522 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:33,720 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:31:33,837 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:29,109 database MongoDB connection successful
+INFO 2025-05-10 23:35:41,983 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:42,179 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:42,986 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:43,109 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:43,218 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:43,231 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:43,434 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:43,638 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:43,815 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:43,932 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,070 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,129 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,336 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,399 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,474 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,617 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,647 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,699 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,729 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,936 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:44,965 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,183 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,184 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,410 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,470 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,488 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,591 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,643 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,744 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,755 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,827 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,849 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,893 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:45,952 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:46,001 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:46,051 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:46,100 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:46,200 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:53,100 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:53,307 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:53,385 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:53,487 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:53,588 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:53,699 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:53,708 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:53,860 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:54,105 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:54,225 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:54,346 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:54,420 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:54,497 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:54,520 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:35:54,609 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:00,002 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:00,108 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:04,285 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:04,524 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:04,637 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:04,842 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:04,857 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:04,939 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:04,959 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-10 23:36:04,979 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-12 15:01:06,369 database MongoDB connection successful

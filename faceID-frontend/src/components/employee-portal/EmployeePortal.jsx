@@ -44,6 +44,7 @@ export default function EmployeePortal() {
   const [isCheckOut, setIsCheckOut] = useState(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [justLoggedIn, setJustLoggedIn] = useState(true);
+  const [error, setError] = useState(null);
 
   // IMPORTANT: Move this declaration up, before any useEffect that uses it
   const userData = completeUserData || currentUser;
@@ -175,82 +176,80 @@ export default function EmployeePortal() {
       setLoading(false);
       return null;
     }
+    console.log("👤 Fetching employee data for (currentUser):", JSON.stringify(currentUser, null, 2));
 
-    console.log("👤 Fetching employee data for:", currentUser);
-    
     try {
-      // Get MongoDB ID
-      const employeeId = currentUser.employee_id || currentUser._id;
-      console.log("🆔 Working with employee ID:", employeeId);
+      // Sử dụng currentUser.id (hoặc currentUser._id) đã được AuthContext thiết lập là MongoDB ObjectId
+      const idForApiCall = currentUser.id || currentUser._id; 
+
+      console.log("🆔 Using ID for API call:", idForApiCall);
+
+      if (!idForApiCall || typeof idForApiCall !== 'string' || idForApiCall.length < 20) { 
+        console.warn("⚠️ Invalid or missing MongoDB ObjectId in currentUser for API call:", idForApiCall, "currentUser was:", currentUser);
+        setCompleteUserData(currentUser);
+        if (!currentUser || (!currentUser.id && !currentUser._id)) {
+            setError("Không thể xác định ID nhân viên hợp lệ để tải dữ liệu chi tiết.");
+        }
+        return currentUser;
+      }
+
+      const failedAttemptsKey = `failed_fetch_${idForApiCall}`;
+      const failedAttempts = localStorage.getItem(failedAttemptsKey) || 0;
       
-      // Kiểm tra ID có hợp lệ không
-      if (!employeeId || employeeId === 'undefined' || employeeId === 'null') {
-        console.warn("⚠️ Invalid employee ID:", employeeId);
-        // Sử dụng dữ liệu hiện có
+      // Reset lại số lần thất bại nếu đăng nhập lại
+      if (justLoggedIn) {
+        localStorage.removeItem(failedAttemptsKey);
+      } else if (parseInt(failedAttempts) >= 3) {
+        console.warn(`⚠️ Skipping fetch for ID ${idForApiCall} after 3 failed attempts`);
         setCompleteUserData(currentUser);
         return currentUser;
       }
       
-      if (employeeId) {
-        // Kiểm tra xem ID này đã bị từ chối trước đó chưa
-        const failedAttemptsKey = `failed_fetch_${employeeId}`;
-        const failedAttempts = localStorage.getItem(failedAttemptsKey) || 0;
+      try {
+        // Thêm timestamp vào URL để tránh cache
+        const timestamp = new Date().getTime();
+        const employeeResponse = await employeeAPI.getById(`${idForApiCall}?t=${timestamp}`);
         
-        // Reset lại số lần thất bại nếu đăng nhập lại
-        if (justLoggedIn) {
+        if (employeeResponse && employeeResponse.data) {
+          console.log("✅ Successfully fetched employee data:", employeeResponse.data);
+          // Xóa số lần thất bại khi thành công
           localStorage.removeItem(failedAttemptsKey);
-        } else if (parseInt(failedAttempts) >= 3) {
-          console.warn(`⚠️ Skipping fetch for ID ${employeeId} after 3 failed attempts`);
-          setCompleteUserData(currentUser);
-          return currentUser;
+          
+          // Save custom employee ID
+          const customEmployeeId = employeeResponse.data.employee_id || currentUser.custom_employee_id;
+          
+          // Create complete user data object
+          const completeData = {
+            ...currentUser,
+            ...employeeResponse.data,
+            signin_id: currentUser.id || currentUser._id,
+            _id: idForApiCall,
+            id: idForApiCall,
+            custom_employee_id: customEmployeeId
+          };
+          
+          // Set complete user data
+          setCompleteUserData(completeData);
+          return completeData;
         }
+      } catch (error) {
+        console.error("❌ Error fetching employee data:", error);
         
-        try {
-          // Thêm timestamp vào URL để tránh cache
-          const timestamp = new Date().getTime();
-          const employeeResponse = await employeeAPI.getById(`${employeeId}?t=${timestamp}`);
+        // Tăng số lần thất bại
+        localStorage.setItem(failedAttemptsKey, parseInt(failedAttempts) + 1);
+        
+        // Nếu lỗi là 404, cần cập nhật ID người dùng trong localStorage
+        if (error.response && error.response.status === 404) {
+          console.warn(`⚠️ Employee ID ${idForApiCall} not found in database. Using current user data.`);
           
-          if (employeeResponse && employeeResponse.data) {
-            console.log("✅ Successfully fetched employee data:", employeeResponse.data);
-            // Xóa số lần thất bại khi thành công
-            localStorage.removeItem(failedAttemptsKey);
-            
-            // Save custom employee ID
-            const customEmployeeId = employeeResponse.data.employee_id || currentUser.custom_employee_id;
-            
-            // Create complete user data object
-            const completeData = {
-              ...currentUser,
-              ...employeeResponse.data,
-              signin_id: currentUser.id || currentUser._id,
-              _id: employeeId,
-              id: employeeId,
-              custom_employee_id: customEmployeeId
-            };
-            
-            // Set complete user data
-            setCompleteUserData(completeData);
-            return completeData;
-          }
-        } catch (error) {
-          console.error("❌ Error fetching employee data:", error);
+          // Sử dụng dữ liệu hiện có nhưng đánh dấu ID là không hợp lệ
+          const updatedUser = {
+            ...currentUser,
+            invalid_employee_id: idForApiCall
+          };
           
-          // Tăng số lần thất bại
-          localStorage.setItem(failedAttemptsKey, parseInt(failedAttempts) + 1);
-          
-          // Nếu lỗi là 404, cần cập nhật ID người dùng trong localStorage
-          if (error.response && error.response.status === 404) {
-            console.warn(`⚠️ Employee ID ${employeeId} not found in database. Using current user data.`);
-            
-            // Sử dụng dữ liệu hiện có nhưng đánh dấu ID là không hợp lệ
-            const updatedUser = {
-              ...currentUser,
-              invalid_employee_id: employeeId
-            };
-            
-            setCompleteUserData(updatedUser);
-            return updatedUser;
-          }
+          setCompleteUserData(updatedUser);
+          return updatedUser;
         }
       }
       
@@ -268,7 +267,7 @@ export default function EmployeePortal() {
       setCompleteUserData(fallbackData);
       return fallbackData;
     }
-  }, [currentUser, justLoggedIn]);
+  }, [currentUser, justLoggedIn, initialDataLoaded]);
   
   // Sử dụng trong useEffect
   useEffect(() => {

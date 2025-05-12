@@ -328,7 +328,6 @@ class EmployeeDetailAPIView(APIView):
                 # Lấy thông tin nhân viên đã cập nhật để trả về
                 updated_employee = get_employee_by_id(employee_id)
                 if updated_employee:
-                    # Chuyển ObjectId thành string
                     if '_id' in updated_employee:
                         updated_employee['_id'] = str(updated_employee['_id'])
                     return Response({
@@ -584,7 +583,7 @@ class AttendanceAPIView(APIView):
             # Tìm các bản ghi điểm danh trong ngày
             from .database import attendance_collection
             
-            # Make sure employee_id is treated as string (as stored in the database)
+            
             query_employee_id = str(employee_id)
             
             logger.debug(f"Searching for attendance with query: employee_id={query_employee_id}, datetime between {start_of_day} and {end_of_day}")
@@ -599,7 +598,7 @@ class AttendanceAPIView(APIView):
             
             logger.info(f"Found {len(today_attendance)} attendance records for employee {employee_id}")
             
-            # Process the records for JSON serialization
+            # Nếu không tìm thấy bản ghi nào, trả về thông báo
             for record in today_attendance:
                 if '_id' in record:
                     record['_id'] = str(record['_id'])
