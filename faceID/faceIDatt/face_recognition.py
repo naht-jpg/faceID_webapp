@@ -5,6 +5,8 @@ import cv2
 import base64
 import logging
 import time
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from django.conf import settings
 from .database import get_face_features, save_face_feature, save_attendance, update_dataset_image_path
@@ -195,10 +197,6 @@ def register_face(employee_id, name, image_data):
         # Sử dụng đường dẫn tương đối với forward slashes (/) cho MongoDB
         relative_path = os.path.relpath(image_path, BASE_DIR).replace('\\', '/')
         relative_folder_path = os.path.relpath(employee_folder_path, BASE_DIR).replace('\\', '/')
-        
-        # Cập nhật collection dataset
-        from pymongo import MongoClient
-        from bson.objectid import ObjectId
         
         client = MongoClient(settings.MONGO_URI)
         db = client[settings.MONGO_DB_NAME]

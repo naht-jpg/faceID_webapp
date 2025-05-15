@@ -21,12 +21,10 @@ export default function WorkScheduleTab() {
   const [error, setError] = useState(null);
   const [activeId, setActiveId] = useState(null);
   
-  // Dialog state
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMode, setDialogMode] = useState('add'); // 'add' or 'edit'
   const [editingSchedule, setEditingSchedule] = useState(null);
   
-  // Form state
   const [scheduleName, setScheduleName] = useState('');
   const [startHour, setStartHour] = useState(7);
   const [startMinute, setStartMinute] = useState(0);
@@ -34,11 +32,10 @@ export default function WorkScheduleTab() {
   const [endMinute, setEndMinute] = useState(0);
   const [isActive, setIsActive] = useState(false);
   
-  // Delete dialog
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
   
-  // Load schedules on mount
+  // Tải danh sách lịch làm việc khi component được mount
   useEffect(() => {
     fetchSchedules();
   }, []);
@@ -52,7 +49,7 @@ export default function WorkScheduleTab() {
       
       if (response.data && response.data.success) {
         setSchedules(response.data.schedules || []);
-        // Find active schedule
+        // Tìm lịch làm việc đang hoạt động
         const activeSchedule = response.data.schedules.find(s => s.is_active);
         if (activeSchedule) {
           setActiveId(activeSchedule._id);
@@ -69,7 +66,6 @@ export default function WorkScheduleTab() {
   };
   
   const handleOpenAddDialog = () => {
-    // Reset form for adding
     setScheduleName('Lịch làm việc mới');
     setStartHour(7);
     setStartMinute(0);
@@ -120,7 +116,7 @@ export default function WorkScheduleTab() {
         
         if (response.data && response.data.success) {
           setActiveId(scheduleId);
-          fetchSchedules(); // Refresh to get updated schedules
+          fetchSchedules(); 
         } else {
           setError('Không thể cập nhật trạng thái lịch làm việc');
         }
@@ -134,7 +130,7 @@ export default function WorkScheduleTab() {
   };
   
   const handleSubmitForm = async () => {
-    // Validate inputs
+    // Xác thực dữ liệu
     if (!scheduleName.trim()) {
       setError('Tên lịch làm việc không được để trống');
       return;
@@ -164,7 +160,7 @@ export default function WorkScheduleTab() {
     
     try {
       if (dialogMode === 'add') {
-        // Create new schedule
+        // Tạo lịch làm việc mới
         const response = await workScheduleAPI.create(scheduleData);
         if (response.data && response.data.success) {
           fetchSchedules();
@@ -173,7 +169,7 @@ export default function WorkScheduleTab() {
           setError('Không thể tạo lịch làm việc mới');
         }
       } else {
-        // Update existing schedule
+        // Cập nhật lịch làm việc hiện tại
         const response = await workScheduleAPI.update(editingSchedule._id, scheduleData);
         if (response.data && response.data.success) {
           fetchSchedules();
@@ -212,7 +208,7 @@ export default function WorkScheduleTab() {
     }
   };
   
-  // Format time function
+  // Định dạng thời gian
   const formatTime = (hour, minute) => {
     return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
   };
@@ -309,7 +305,7 @@ export default function WorkScheduleTab() {
         </TableContainer>
       )}
       
-      {/* Add/Edit Dialog */}
+      {/* Thêm/chỉnh sửa */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
           {dialogMode === 'add' ? 'Thêm Lịch Làm Việc Mới' : 'Chỉnh Sửa Lịch Làm Việc'}
@@ -410,7 +406,7 @@ export default function WorkScheduleTab() {
         </DialogActions>
       </Dialog>
       
-      {/* Delete Confirmation Dialog */}
+      {/* Xác nhận xóa */}
       <Dialog
         open={openDeleteDialog}
         onClose={handleCloseDeleteDialog}
@@ -441,7 +437,7 @@ export default function WorkScheduleTab() {
         </DialogActions>
       </Dialog>
       
-      {/* Additional information card */}
+      {/* Các thông tin thêm */}
       <Card sx={{ mt: 3 }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

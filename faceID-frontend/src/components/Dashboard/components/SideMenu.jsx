@@ -110,14 +110,6 @@ export default function SideMenu({ currentTab, onTabChange }) {
       <Box sx={{ mt: 'auto' }}>
         <List>
           <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <SettingsIcon />
-              </ListItemIcon>
-              <ListItemText primary="Cài đặt" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
             <ListItemButton onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon />

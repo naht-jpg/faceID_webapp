@@ -64,11 +64,11 @@ export default function Dashboard(props) {
     updateWebTitle(currentTab);
   }, [currentTab]);
 
-  // Render appropriate content based on selected tab
+  // Hàm render nội dung dựa trên tab hiện tại
   const renderContent = () => {
     switch (currentTab) {
       case 'home':
-        return <Home />;
+        return <Home onTabChange={handleMenuTabChange}  />;
       case 'employees':
         return <Employees />;
       case 'face-registration':

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+console.log('Connecting to API at:', API_URL);
 
 // Tạo axios instance với baseURL
 const apiClient = axios.create({
@@ -8,7 +9,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000, // Thêm timeout 15 giây
+  timeout: 15000, // Timeout 15 giây
 });
 
 // Interceptor để tự động thêm token vào mọi request

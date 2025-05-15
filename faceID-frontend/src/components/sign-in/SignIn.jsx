@@ -15,7 +15,7 @@ import { Alert, CircularProgress, Card, InputAdornment, IconButton, Container } 
 import { Visibility, VisibilityOff, Face as FaceIcon } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
 import { authAPI } from '../../api';
-
+import FaceIDImage from '../../assets/images/FaceID.jpg'; 
 
 // Tạo theme với màu sắc phù hợp hơn
 const theme = createTheme({
@@ -151,14 +151,14 @@ export default function SignIn() {
             overflow: 'hidden',
             boxShadow: '0 8px 40px rgba(0,0,0,0.12)'
           }}>
-            {/* Left panel with image */}
+            {/* Panel bên phải với hình ảnh */}
             <Grid
               item
               xs={false}
               sm={5}
               md={6}
               sx={{
-                backgroundImage: 'url(/images/login-bg.jpg)',
+                backgroundImage: `url(${FaceIDImage})`, 
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -192,7 +192,7 @@ export default function SignIn() {
               </Box>
             </Grid>
             
-            {/* Right panel with login form */}
+            {/* Panel bên trái với form login */}
             <Grid item xs={12} sm={7} md={6} component={Box} sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box
                 sx={{
@@ -204,7 +204,7 @@ export default function SignIn() {
                   flex: 1
                 }}
               >
-                {/* Logo and title */}
+                {/* Logo và tiêu đề */}
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
                   <FaceIcon sx={{ color: 'primary.main', fontSize: 32, mr: 1.5 }} />
                   <Typography 
@@ -220,7 +220,7 @@ export default function SignIn() {
                   </Typography>
                 </Box>
                 
-                {/* Welcome text */}
+                {/* Văn bản chào mừng */}
                 <Typography component="h1" variant="h5" sx={{ mb: 1, fontWeight: 'medium' }}>
                   Đăng Nhập
                 </Typography>
@@ -228,7 +228,7 @@ export default function SignIn() {
                   Nhập thông tin đăng nhập để truy cập hệ thống
                 </Typography>
                 
-                {/* Messages */}
+                {/* Tin nhắn */}
                 {message && (
                   <Alert severity="success" sx={{ mb: 3, width: '100%' }}>
                     {message}
@@ -241,7 +241,7 @@ export default function SignIn() {
                   </Alert>
                 )}
                 
-                {/* Login form */}
+                {/* form login */}
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ width: '100%' }}>
                   <TextField
                     margin="normal"
@@ -311,17 +311,6 @@ export default function SignIn() {
                       'Đăng Nhập'
                     )}
                   </Button>
-                  
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Link component={RouterLink} to="/register" variant="body2" sx={{ 
-                      textDecoration: 'none',
-                      '&:hover': {
-                        textDecoration: 'underline'
-                      }
-                    }}>
-                      Chưa có tài khoản? Đăng ký ngay
-                    </Link>
-                  </Box>
                 </Box>
               </Box>
               

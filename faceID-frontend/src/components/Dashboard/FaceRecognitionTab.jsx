@@ -410,7 +410,7 @@ export default function FaceRecognitionTab() {
                           },
                           // Thêm màu chữ cho input
                           '& .MuiOutlinedInput-input': {
-                            color: '#333333',  // Màu chữ tối cho văn bản nhập
+                            color: '#333333',  
                           },
                           // Đảm bảo label có màu phù hợp
                           '& .MuiInputLabel-root': {
@@ -430,7 +430,7 @@ export default function FaceRecognitionTab() {
                     ListboxProps={{
                       sx: {
                         '& .MuiAutocomplete-option': {
-                          color: '#333333',  // Màu chữ cho các tùy chọn dropdown
+                          color: 'white',  // Màu chữ cho các tùy chọn dropdown
                           '&:hover': {
                             backgroundColor: '#f0f7ff',
                           },

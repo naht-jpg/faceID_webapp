@@ -46,17 +46,14 @@ export default function EmployeePortal() {
   const [justLoggedIn, setJustLoggedIn] = useState(true);
   const [error, setError] = useState(null);
 
-  // IMPORTANT: Move this declaration up, before any useEffect that uses it
   const userData = completeUserData || currentUser;
 
-  // Add this helper function to avoid code duplication
   const tryLocalStorageForAttendance = useCallback(() => {
     const savedAttendance = localStorage.getItem('last_attendance');
     if (savedAttendance && savedAttendance !== 'undefined') {
       try {
         const parsedAttendance = JSON.parse(savedAttendance);
         
-        // Only use localStorage data if it's from today
         const attendanceDate = new Date(parsedAttendance.datetime);
         const today = new Date();
         
@@ -73,7 +70,7 @@ export default function EmployeePortal() {
           setHasCheckedOut(finalCheckoutStatus);
           return true;
         } else {
-          // Attendance is not from today
+          // Điểm danh không phải của hôm nay - xóa dữ liệu
           console.log("🗑️ Cached attendance is not from today - clearing");
           localStorage.removeItem('last_attendance');
           setLastAttendance(null);
@@ -87,7 +84,7 @@ export default function EmployeePortal() {
     return false;
   }, []);
 
-  // Update the initial localStorage check in useEffect
+  // Kiểm tra xem có dữ liệu điểm danh nào trong localStorage không
   useEffect(() => {
     console.log("🏁 Initial application load, checking localStorage for attendance data");
     
@@ -96,7 +93,7 @@ export default function EmployeePortal() {
       try {
         const parsedAttendance = JSON.parse(savedAttendance);
         
-        // Validate data format
+        // Xác minh định dạng dữ liệu
         if (!parsedAttendance || !parsedAttendance.datetime) {
           console.error("❌ Invalid attendance data format in localStorage");
           localStorage.removeItem('last_attendance');
@@ -117,7 +114,6 @@ export default function EmployeePortal() {
         if (attendanceDate.toDateString() === today.toDateString()) {
           console.log("💾 Initial load: Found today's attendance in localStorage:", parsedAttendance);
           
-          // Use consistent checkout detection
           const hasCheckOutTime = !!parsedAttendance.check_out_time;
           const isCheckOutRecord = parsedAttendance.is_check_out_record === true;
           const isCheckOut = parsedAttendance.is_check_out === true;
@@ -131,7 +127,6 @@ export default function EmployeePortal() {
             final_status: finalCheckoutStatus
           });
           
-          // Set both states together for consistency
           setLastAttendance(parsedAttendance);
           setHasCheckedOut(finalCheckoutStatus);
         } else {
@@ -147,7 +142,7 @@ export default function EmployeePortal() {
     }
   }, []);
 
-  // Thêm useEffect để kiểm tra xem người dùng vừa đăng nhập không
+  // useEffect để kiểm tra xem người dùng có vừa đăng nhập không
   useEffect(() => {
     const checkIfJustLoggedIn = () => {
       const loginTimestamp = localStorage.getItem('login_timestamp');
@@ -170,7 +165,7 @@ export default function EmployeePortal() {
     checkIfJustLoggedIn();
   }, []);
 
-  // Cải thiện hàm fetchEmployeeData
+  // Lấy dữ liệu nhân viên đầy đủ
   const fetchEmployeeData = useCallback(async () => {
     if (!currentUser) {
       setLoading(false);
@@ -180,7 +175,7 @@ export default function EmployeePortal() {
 
     try {
       // Sử dụng currentUser.id (hoặc currentUser._id) đã được AuthContext thiết lập là MongoDB ObjectId
-      const idForApiCall = currentUser.id || currentUser._id; 
+      const idForApiCall = currentUser.id || currentUser._id || currentUser.employee_id; 
 
       console.log("🆔 Using ID for API call:", idForApiCall);
 
@@ -215,10 +210,10 @@ export default function EmployeePortal() {
           // Xóa số lần thất bại khi thành công
           localStorage.removeItem(failedAttemptsKey);
           
-          // Save custom employee ID
+          // Lưu custom employee_id
           const customEmployeeId = employeeResponse.data.employee_id || currentUser.custom_employee_id;
           
-          // Create complete user data object
+          // Tạo dữ liệu người dùng hoàn chỉnh
           const completeData = {
             ...currentUser,
             ...employeeResponse.data,
@@ -228,7 +223,7 @@ export default function EmployeePortal() {
             custom_employee_id: customEmployeeId
           };
           
-          // Set complete user data
+          // Cập nhật state với dữ liệu người dùng hoàn chỉnh
           setCompleteUserData(completeData);
           return completeData;
         }
@@ -269,7 +264,7 @@ export default function EmployeePortal() {
     }
   }, [currentUser, justLoggedIn, initialDataLoaded]);
   
-  // Sử dụng trong useEffect
+  // Hàm này sẽ được gọi khi người dùng nhấn nút làm mới
   useEffect(() => {
     const loadAllData = async () => {
       setLoading(true);
@@ -303,7 +298,7 @@ export default function EmployeePortal() {
     }
   }, [currentUser, initialDataLoaded]);
 
-  // Cải thiện hàm checkAttendanceStatus
+  // Kiểm tra trạng thái điểm danh
   const checkAttendanceStatus = useCallback(async () => {
     if (!userData?.id && !userData?._id) return;
     
@@ -319,17 +314,13 @@ export default function EmployeePortal() {
       console.log("📊 Server response for today's attendance:", response.data);
       
       if (response.data && response.data.success) {
-        // If we have server data
         if (response.data.records && response.data.records.length > 0) {
           const latestRecord = response.data.records[0];
           
-          // Log the raw record for debugging
           console.log("🔍 Latest attendance record from server:", latestRecord);
           
-          // Lưu vào localStorage để tránh mất dữ liệu khi refresh
           localStorage.setItem('last_attendance', JSON.stringify(latestRecord));
-          
-          // Phân tích trạng thái checkout
+
           const hasCheckOutTime = !!latestRecord.check_out_time;
           const isCheckOutRecord = latestRecord.is_check_out_record === true;
           const isCheckOut = latestRecord.is_check_out === true;
@@ -349,7 +340,7 @@ export default function EmployeePortal() {
           
           return latestRecord;
         } else {
-          // No attendance today - clear states
+          // Không có bản ghi nào - xóa dữ liệu trong localStorage
           console.log("📝 No attendance records found for today");
           setLastAttendance(null);
           setHasCheckedOut(false);
@@ -357,18 +348,18 @@ export default function EmployeePortal() {
           return null;
         }
       } else {
-        // API call was not successful - try localStorage as fallback
+        // Nếu API trả về không thành công, thử lại với localStorage
         console.log("⚠️ API call failed or returned unsuccessful status");
         return tryLocalStorageForAttendance();
       }
     } catch (error) {
       console.error("❌ Error checking attendance status:", error);
-      // On error, always try localStorage as fallback
+      // Nếu có lỗi, thử lại với localStorage
       return tryLocalStorageForAttendance();
     }
   }, [userData, tryLocalStorageForAttendance]);
 
-  // Thêm một useEffect để tự động làm mới dữ liệu khi userData thay đổi
+  // useEffect để tự động làm mới dữ liệu khi userData thay đổi
   useEffect(() => {
     if (userData && !initialDataLoaded) {
       console.log("userData changed - triggering data refresh");
@@ -376,7 +367,7 @@ export default function EmployeePortal() {
     }
   }, [userData, initialDataLoaded]);
 
-  // Updated autoRefreshData for consistency with our new checks
+  // Cập nhật dữ liệu tự động mỗi 30 giây
   const autoRefreshData = useCallback(async () => {
     if (!userData?.id && !userData?._id) return;
     
@@ -384,14 +375,12 @@ export default function EmployeePortal() {
       const employeeId = userData?.id || userData?._id;
       console.log("🔄 Auto-refreshing attendance data for:", employeeId);
       
-      // Get latest attendance data
       const attendanceResponse = await attendanceAPI.getToday(employeeId);
       
       if (attendanceResponse.data?.success && attendanceResponse.data.records?.length > 0) {
         const latestRecord = attendanceResponse.data.records[0]; 
         console.log("🔄 Auto-refresh received data:", latestRecord);
         
-        // Update state only if data has changed significantly
         const hasCheckOutTime = !!latestRecord.check_out_time;
         const isCheckOutRecord = latestRecord.is_check_out_record === true;
         const isCheckOut = latestRecord.is_check_out === true;
@@ -399,16 +388,13 @@ export default function EmployeePortal() {
         
         const currentCheckoutStatus = hasCheckedOut;
         
-        // Always update if checkout status changed
         if (finalCheckoutStatus !== currentCheckoutStatus || 
             !lastAttendance ||
             JSON.stringify(latestRecord) !== JSON.stringify(lastAttendance)) {
           console.log("🔄 Auto-refresh detected data change or checkout status change");
           
-          // Update localStorage FIRST
           localStorage.setItem('last_attendance', JSON.stringify(latestRecord));
-          
-          // Then update state
+
           setLastAttendance(latestRecord);
           setHasCheckedOut(finalCheckoutStatus);
         } else {
@@ -420,55 +406,55 @@ export default function EmployeePortal() {
     } catch (error) {
       console.error("🔄 Auto-refresh error:", error);
     }
-  }, [userData, lastAttendance, hasCheckedOut]); // Add hasCheckedOut to dependencies
+  }, [userData, lastAttendance, hasCheckedOut]); 
 
-  // Set up auto refresh every 30 seconds
   useInterval(() => {
     if (userData) {
       autoRefreshData();
     }
   }, 30000);
 
+  // Hàm này sẽ được gọi khi người dùng nhấn vào tab
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
     setShowAttendance(false);
   };
 
+  // Hàm này sẽ được gọi khi người dùng nhấn nút điểm danh
   const handleAttendanceSuccess = async (attendance, isCheckOut = false) => {
     console.log("🎯 Attendance success handler called with:", { isCheckOut, attendance });
     
-    // Always mark checkout status immediately if this is a checkout
     if (isCheckOut) {
       setHasCheckedOut(true);
     }
     
-    // Set lastAttendance immediately with the data we have
+    // Cập nhật trạng thái điểm danh
     setLastAttendance(attendance);
     
-    // Update localStorage immediately
+    // Cập nhật localStorage
     localStorage.setItem('last_attendance', JSON.stringify(attendance));
     
-    // Set appropriate message
+    // Cập nhật thông báo
     if (isCheckOut) {
       setSnackbarMessage(`Điểm danh ra về thành công lúc ${new Date().toLocaleTimeString('vi-VN')}`);
     } else {
       setSnackbarMessage(`Điểm danh vào làm thành công lúc ${new Date(attendance.datetime).toLocaleTimeString('vi-VN')}`);
     }
     
-    // Show success message
+    // Thông báo thành công
     setSnackbarSeverity('success');
     setOpenSnackbar(true);
     setNotificationCount(prev => prev + 1);
     
-    // Close attendance component after success
+    // Ẩn camera sau khi điểm danh thành công
     setTimeout(() => {
       setShowAttendance(false);
     }, 2000);
     
-    // IMPORTANT: Add a slight delay before fetching to ensure DB is updated
+    // Thêm delay 1 giây để đảm bảo dữ liệu đã được cập nhật trên server
     setTimeout(async () => {
       try {
-        // Fetch the latest data from server to ensure consistency
+        // Lấy lại dữ liệu điểm danh mới nhất từ server
         const employeeId = userData?.id || userData?._id;
         console.log("🔍 Fetching latest attendance data after success for:", employeeId);
         
@@ -478,17 +464,17 @@ export default function EmployeePortal() {
           const serverRecord = response.data.records[0];
           console.log("🔍 Latest server record after attendance success:", serverRecord);
           
-          // Update localStorage FIRST
+          // Cập nhật lại localStorage với bản ghi mới nhất
           localStorage.setItem('last_attendance', JSON.stringify(serverRecord));
           
-          // Use consistent checkout detection
+          // Tính toán lại trạng thái điểm danh
           const hasCheckOutTime = !!serverRecord.check_out_time;
           const isCheckOutRecord = serverRecord.is_check_out_record === true;
           const isCheckOut = serverRecord.is_check_out === true;
           
           const finalCheckoutStatus = hasCheckOutTime || isCheckOutRecord || isCheckOut;
           
-          // Then update state
+          // Cập nhật lại trạng thái điểm danh
           setLastAttendance(serverRecord);
           setHasCheckedOut(finalCheckoutStatus);
         } else {
@@ -497,7 +483,7 @@ export default function EmployeePortal() {
       } catch (error) {
         console.error("❌ Error updating attendance data after success:", error);
       }
-    }, 1000); // 1 second delay to ensure DB consistency
+    }, 1000); 
   };
 
   const handleMenuOpen = (event) => {
@@ -702,7 +688,7 @@ export default function EmployeePortal() {
               </Tooltip>
             )}
             
-            {/* Thêm nút làm mới dữ liệu vào đây */}
+            {/* Nút làm mới dữ liệu */}
             <Tooltip title="Làm mới dữ liệu">
               <Button
                 variant="outlined"
@@ -815,7 +801,7 @@ export default function EmployeePortal() {
       
       {/* Main container */}
       <Container maxWidth="xl" sx={{ mt: 3, mb: 3, flexGrow: 1 }}>
-        {/* Attendance component */}
+        {/* Chức năng điểm danh */}
         {showAttendance && (
           <Paper elevation={3} sx={{ mb: 3, p: 3, borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 'medium' }}>
@@ -866,7 +852,7 @@ export default function EmployeePortal() {
           </Tabs>
         </Paper>
         
-        {/* Tab content - Cải thiện điều kiện hiển thị */}
+        {/* Tab content */}
         <Box sx={{ mt: 3, mb: 3 }}>
           {loading ? (
             <Box sx={{ 
@@ -923,7 +909,7 @@ export default function EmployeePortal() {
         </Container>
       </Box>
 
-      {/* Snackbar for notifications */}
+      {/* Snackbar cho thông báo */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

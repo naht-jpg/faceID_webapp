@@ -20,8 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from faceIDatt.views import mongodb_token_obtain, current_user
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # Add this import
-from faceIDatt import views  # Add this import
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns 
+from faceIDatt import views 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,7 +31,7 @@ urlpatterns = [
     path('api/', include('faceIDatt.urls')),
 ]
 
-# Add static file serving for both debug and non-debug (development only)
+# Serve static files in development
 urlpatterns += staticfiles_urlpatterns()
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

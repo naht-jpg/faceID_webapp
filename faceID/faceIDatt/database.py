@@ -304,7 +304,7 @@ def save_attendance(name, image_path, person_data=None, is_check_out=False):
             employee = employees_collection.find_one({'_id': ObjectId(employee_id)})
         
         # Tính toán các thông số điểm danh
-        now = timezone.now()  # Use Django's timezone-aware datetime
+        now = timezone.now()  
         timestamp = now.strftime("%H:%M ngày %d/%m/%Y")
         
         # Lấy cấu hình thời gian làm việc
@@ -406,10 +406,10 @@ def save_attendance(name, image_path, person_data=None, is_check_out=False):
         
         # Nếu là check-out, ƯU TIÊN CẬP NHẬT bản ghi check-in
         if is_check_out and employee_id:
-            # Apply timezone offset from client if provided
+            # Lấy timezone offset từ client
             client_timezone_offset = attendance_data.get('timezone_offset')
             if client_timezone_offset is not None:
-                # Convert minutes to seconds (multiply by 60)
+                # Chuyển đổi thời gian hiện tại về timezone của client
                 offset_seconds = -int(client_timezone_offset) * 60
                 now = now + datetime.timedelta(seconds=offset_seconds)
             
@@ -443,7 +443,7 @@ def save_attendance(name, image_path, person_data=None, is_check_out=False):
                 # Không tạo bản ghi mới sau khi cập nhật thành công
                 return True
         
-        # Lưu vào collection attendance thay vì testdata
+        # Lưu vào collection attendance
         result = attendance_collection.insert_one(attendance_data)
         return result.inserted_id is not None
     except Exception as e:
@@ -616,43 +616,40 @@ def delete_work_schedule(schedule_id):
 def calculate_work_time(check_in_time, check_out_time):
     """Tính thời gian làm việc từ check-in đến check-out"""
     try:
-        # Get the current timezone
+        # Lấy timezone hiện tại
         current_tz = timezone.get_current_timezone()
         
-        # Convert to datetime if string
+        # chuyển đổi check_in_time và check_out_time thành datetime
         if isinstance(check_in_time, str):
             try:
-                # Try to parse with timezone info
+                # Thử chuyển đổi với timezone info
                 check_in_time = datetime.datetime.fromisoformat(check_in_time.replace('Z', '+00:00'))
             except ValueError:
-                # If parsing fails, create a naive datetime
+                # Nếu không có timezone info, tạo datetime naive
                 check_in_time = datetime.datetime.strptime(check_in_time.split('.')[0], "%Y-%m-%dT%H:%M:%S")
         
         if isinstance(check_out_time, str):
             try:
-                # Try to parse with timezone info
+                # Thử chuyển đổi với timezone info
                 check_out_time = datetime.datetime.fromisoformat(check_out_time.replace('Z', '+00:00'))
             except ValueError:
-                # If parsing fails, create a naive datetime
+                # Nếu không có timezone info, tạo datetime naive
                 check_out_time = datetime.datetime.strptime(check_out_time.split('.')[0], "%Y-%m-%dT%H:%M:%S")
         
-        # Make both datetimes timezone-aware consistently
+        # Làm cho check_in_time và check_out_time trở thành timezone-aware
         if not timezone.is_aware(check_in_time):
             check_in_time = timezone.make_aware(check_in_time, current_tz)
             
         if not timezone.is_aware(check_out_time):
             check_out_time = timezone.make_aware(check_out_time, current_tz)
         
-        # Now both datetimes are timezone-aware, we can safely subtract
+        # Tính toán thời gian làm việc
         work_time = check_out_time - check_in_time
         
         return str(work_time)
     except Exception as e:
         logger.error(f"Error calculating work time: {str(e)}")
         return "0:00:00"
-
-# Cần cập nhật trong views.py hoặc database.py trên server
-
 
 # Khi nhận datetime từ client
 def handle_attendance(request, employee_id):
@@ -682,6 +679,6 @@ def handle_attendance(request, employee_id):
     if 'employee_id' not in data:
         data['employee_id'] = str(employee_id)
     
-    # Insert into MongoDB
+    # Thêm vào MongoDB
     result = attendance_collection.insert_one(data)
     return result.inserted_id is not None

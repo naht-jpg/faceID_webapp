@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -112,7 +113,7 @@ def test_mongo_connection(request):
 def mongodb_token_obtain(request):
     """API đăng nhập với MongoDB signin collection"""
     try:
-        username = request.data.get('username')  # Trên frontend vẫn dùng username
+        username = request.data.get('username') 
         password = request.data.get('password')
         
         if not username or not password:
@@ -157,7 +158,7 @@ def current_user(request):
     try:
         username = request.user.username
         
-        # Find user in MongoDB
+        # Tìm kiếm người dùng trong MongoDB
         user_data = signin_collection.find_one({'name': username})
         
         if not user_data:
@@ -221,21 +222,21 @@ def register_user(request):
         first_name = request.data.get('first_name', '')
         last_name = request.data.get('last_name', '')
         
-        # Validate required fields
+        # Xác thực dữ liệu đầu vào
         if not username or not password:
             return Response({
                 'success': False,
                 'detail': 'Tên đăng nhập và mật khẩu là bắt buộc'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Check if user already exists
+        # Kiểm tra xem tên đăng nhập đã tồn tại chưa
         if User.objects.filter(username=username).exists():
             return Response({
                 'success': False,
                 'detail': 'Tên đăng nhập đã tồn tại'
             }, status=status.HTTP_400_BAD_REQUEST)
             
-        # Create the user
+        # Tạo người dùng mới
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -273,7 +274,7 @@ class EmployeeListAPIView(APIView):
                 employees = []
                 
             response = Response(employees)
-            # Add headers to prevent caching
+            # Thêm các header để ngăn cache
             response["Cache-Control"] = "no-cache, no-store, must-revalidate"
             response["Pragma"] = "no-cache"
             response["Expires"] = "0"
@@ -393,7 +394,7 @@ class FaceRegisterAPIView(APIView):
             name = data.get('name')
             image_data = data.get('image')
             
-            # Log để debug
+            # Log thông tin request nhận được để kiểm tra
             logger.info(f"Received registration request: employee_id={employee_id}, name={name}")
             
             if not employee_id or not image_data:
@@ -468,7 +469,7 @@ class AttendanceAPIView(APIView):
             
             from .database import attendance_collection
             
-            # First try today, then try latest if no results
+            # Thử kiểm tra vào hôm nay, sau đó kiểm tra bản ghi mới nhất
             if latest_or_today:
                 today_response = self._get_today_attendance(employee_id)
                 if today_response.data.get('records') and len(today_response.data['records']) > 0:
@@ -539,14 +540,14 @@ class AttendanceAPIView(APIView):
             )
             
             if not attendance_record:
-                # Change from 404 to 200 with empty data
+                # Nếu không tìm thấy bản ghi nào, trả về thông báo
                 return Response({
                     'success': True,
                     'message': 'Không tìm thấy dữ liệu điểm danh',
                     'data': None
                 })
-                
-            # Rest of the method remains unchanged
+            
+            # Chuyển ObjectId thành string
             attendance_record['_id'] = str(attendance_record['_id'])
             
             # Chuyển datetime sang string
@@ -569,7 +570,7 @@ class AttendanceAPIView(APIView):
     def _get_today_attendance(self, employee_id):
         """Helper method to get today's attendance"""
         try:
-            # Use timezone-aware datetime objects
+            # Lấy thời gian hiện tại
             now = timezone.now()
             start_of_day = timezone.make_aware(
                 datetime(now.year, now.month, now.day, 0, 0, 0),
@@ -643,10 +644,10 @@ class AttendanceAPIView(APIView):
                     if isinstance(data['datetime'], str):
                         datetime_obj = datetime.fromisoformat(data['datetime'].replace('Z', '+00:00'))
                         
-                        # Apply timezone offset from client if provided
+                        # Áp dung timezone_offset từ client nếu có
                         if 'timezone_offset' in data:
                             try:
-                                # Convert minutes to seconds
+                                # Chuyển đổi timezone_offset thành giây
                                 offset_seconds = -int(data['timezone_offset']) * 60
                                 datetime_obj = datetime_obj + timedelta(seconds=offset_seconds)
                             except (ValueError, TypeError):
@@ -699,11 +700,11 @@ class AttendanceAPIView(APIView):
                     early_leave_minutes = timedelta(0)
                     late_leave_minutes = timedelta(0)
                     
-                    # Ensure now is timezone aware
+                    # Đảm bảo now là timezone aware
                     if not timezone.is_aware(now):
                         now = timezone.make_aware(now, current_tz)
                         
-                    # Ensure end_work_time is timezone aware
+                    # Đảm bảo end_work_time là timezone aware
                     if not timezone.is_aware(end_work_time):
                         end_work_time = timezone.make_aware(end_work_time, current_tz)
                         
@@ -712,7 +713,8 @@ class AttendanceAPIView(APIView):
                     else:
                         late_leave_minutes = now - end_work_time
                     
-                    # Ensure check_in_time is timezone aware
+                    # Lấy thời gian check-in
+                    # Đảm bảo check_in_time là timezone aware
                     check_in_time = check_in_record['datetime']
                     if not timezone.is_aware(check_in_time):
                         check_in_time = timezone.make_aware(check_in_time, current_tz)
@@ -750,14 +752,14 @@ class AttendanceAPIView(APIView):
                         'attendance': updated_record
                     }, status=status.HTTP_200_OK)
                 else:
-                    # Fallback: Create a new check-out record if no check-in found
+                    # Nếu không tìm thấy bản ghi check-in, tạo mới
                     logger.warning(f"No check-in record found for employee {employee_id} for checkout. Creating new record.")
                     
-                    # Add checkout flag to data
+                    # Thêm các trường cần thiết cho bản ghi check-out
                     data['is_check_out'] = True
                     data['is_check_out_record'] = True
                     
-                    # Insert new record
+                    # Thêm vào cơ sở dữ liệu
                     result = attendance_collection.insert_one(data)
                     
                     return Response({
@@ -832,7 +834,7 @@ class AttendanceAPIView(APIView):
 def employee_attendance_summary(request, employee_id):
     """API lấy tổng hợp thống kê điểm danh theo tháng"""
     try:
-        # Get parameters
+        # Lấy tham số year và month từ query params
         year = request.query_params.get('year')
         month = request.query_params.get('month')
         
@@ -842,23 +844,23 @@ def employee_attendance_summary(request, employee_id):
                 'message': 'Thiếu tham số year hoặc month'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Convert to int
+        # Chuyển đổi year và month thành số nguyên
         year = int(year)
         month = int(month)
         
-        # Define time range for the month
+        # Kiểm tra giá trị month
         start_date = datetime(year, month, 1, 0, 0, 0)
         
-        # Calculate end date (first day of next month)
+        # Xác định ngày cuối tháng
         if month == 12:
             end_date = datetime(year + 1, 1, 1, 0, 0, 0)
         else:
             end_date = datetime(year, month + 1, 1, 0, 0, 0)
         
-        # Adjust end date to be the last moment of the current month
+        # Giảm 1 giây để bao gồm cả ngày cuối cùng
         end_date = end_date - timedelta(seconds=1)
         
-        # Query attendance records for this employee in the specified month
+        # Thực hiện truy vấn để lấy dữ liệu điểm danh
         from .database import attendance_collection
         
         query = {
@@ -871,7 +873,7 @@ def employee_attendance_summary(request, employee_id):
         
         attendance_records = list(attendance_collection.find(query))
         
-        # Calculate statistics
+        # Chuyển đổi ObjectId và datetime thành chuỗi
         total = len(attendance_records)
         onTime = 0
         late = 0

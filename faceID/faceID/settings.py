@@ -32,14 +32,12 @@ MONGO_COLLECTIONS = {
     'work_schedule': 'work_schedule',
 }
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key-for-dev')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']  # Cần hạn chế trong production
-
+ALLOWED_HOSTS = ['*','backend','localhost'] 
 
 # Application definition
 
@@ -141,9 +139,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # Nên hạn chế trong production
-CORS_ALLOW_CREDENTIALS = True
 
 # REST Framework settings
 REST_FRAMEWORK = {
@@ -169,23 +164,12 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# CORS Settings - Chỉ cho phép frontend origin cụ thể thay vì tất cả
-#CORS_ALLOW_ALL_ORIGINS = False  # Tắt CORS cho tất cả origin
-#CORS_ALLOWED_ORIGINS = [
-#   "http://localhost:5173",
-#    "http://127.0.0.1:5173",
-#    "http://localhost:8000",
-#    # Thêm domain production của bạn
-#]
-
-
-# Thêm custom backend vào AUTHENTICATION_BACKENDS
 AUTHENTICATION_BACKENDS = [
     'faceIDatt.auth.MongoDBAuthBackend',  # Custom MongoDB backend
     'django.contrib.auth.backends.ModelBackend',  # Giữ lại backend mặc định
 ]
 
-# Add this new setting to allow the specific headers
+# CORS settings
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -200,22 +184,30 @@ CORS_ALLOW_HEADERS = [
     'cache-control',
     'pragma',
     'if-modified-since',
-    'if-none-match',  # This is the header causing issues
+    'if-none-match', 
 ]
+CORS_ALLOW_ALL_ORIGINS = True  
+# CORS_ALLOWED_ORIGINS = [
+#   "http://localhost:5173",
+#    "http://127.0.0.1:5173",
+#    "http://localhost:8000",
+# ]
+CORS_ALLOW_CREDENTIALS = True
 
-# Define model directories
+
+# Định nghĩa đường dẫn đến thư mục chứa mô hình nhận diện khuôn mặt
 FACE_MODELS_DIR = os.path.join(BASE_DIR, 'faceIDatt', 'models')
 os.makedirs(FACE_MODELS_DIR, exist_ok=True)
 
-# Define data directory
+# Định nghĩa đường dẫn đến thư mục chứa mô hình nhận diện khuôn mặt
 FACE_DATA_DIR = os.path.join(BASE_DIR, 'faceIDatt', 'data')
 os.makedirs(FACE_DATA_DIR, exist_ok=True)
 
-# Directory for faces from camera
+# Đường dẫn đến thư mục chứa ảnh đã được nhận diện
 DATA_FACES_FROM_CAMERA_DIR = os.path.join(FACE_DATA_DIR, 'faces_from_camera')
 os.makedirs(DATA_FACES_FROM_CAMERA_DIR, exist_ok=True)
 
-# Configure logging
+# Cài đặt logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -244,6 +236,11 @@ LOGGING = {
         },
     },
 }
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://172.18.0.3:5173'
+]
 
-# Create logs directory
+# Tạo thư mục logs nếu chưa tồn tại
 os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)

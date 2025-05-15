@@ -100,7 +100,7 @@ export default function AccountManagement() {
       // Chế độ chỉnh sửa
       setFormData({
         name: account.name || '',
-        password: '', // Không hiển thị password cũ
+        password: '', // Không hiển thị mật khẩu
         email: account.email || '',
         firstName: account.first_name || '',
         lastName: account.last_name || '',
@@ -178,7 +178,7 @@ export default function AccountManagement() {
   };
 
   const handleSubmit = async () => {
-    // Validate
+    // Xác thực dữ liệu đầu vào
     if (!formData.name || !formData.employee_id || (!editAccount && !formData.password)) {
       setError("Vui lòng điền đầy đủ thông tin bắt buộc");
       return;
@@ -203,7 +203,7 @@ export default function AccountManagement() {
       }
 
       if (editAccount) {
-        // Update existing account
+        // Cập nhật tài khoản
         await axios.put(
           `${API_URL.replace('/api', '')}/api/users/${editAccount._id}/`,
           data,
@@ -215,7 +215,7 @@ export default function AccountManagement() {
         );
         setSuccess('Tài khoản đã được cập nhật thành công');
       } else {
-        // Create new account
+        // Tạo tài khoản mới
         await axios.post(
           `${API_URL.replace('/api', '')}/api/users/`,
           data,

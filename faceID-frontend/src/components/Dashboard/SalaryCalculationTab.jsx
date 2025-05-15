@@ -24,7 +24,6 @@ import { attendanceAPI, employeeAPI } from '../../api';
 import * as XLSX from 'xlsx';
 
 export default function SalaryCalculationTab() {
-  // State variables
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(dayjs().subtract(1, 'month'));
@@ -46,12 +45,12 @@ export default function SalaryCalculationTab() {
   const [departments, setDepartments] = useState([]);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  // Fetch employees when component mounts
+  // Lấy danh sách nhân viên khi component được mount
   useEffect(() => {
     fetchEmployees();
   }, []);
 
-  // Fetch employee data
+  // Lấy danh sách nhân viên từ API
   const fetchEmployees = async () => {
     setLoading(true);
     try {
@@ -59,7 +58,7 @@ export default function SalaryCalculationTab() {
       if (Array.isArray(response.data)) {
         setEmployees(response.data);
         
-        // Extract unique departments for filtering
+        // Lấy danh sách phòng ban từ danh sách nhân viên
         const deptSet = new Set(response.data
           .map(emp => emp.department || 'Không xác định')
           .filter(Boolean));
@@ -75,7 +74,7 @@ export default function SalaryCalculationTab() {
     }
   };
 
-  // Fetch attendance data for the selected month
+  // Lấy dữ liệu điểm danh cho tháng đã chọn
   const fetchAttendanceData = async () => {
     setLoading(true);
     setError(null);
@@ -83,17 +82,17 @@ export default function SalaryCalculationTab() {
     
     try {
       const year = selectedMonth.year();
-      const month = selectedMonth.month() + 1; // dayjs months are 0-indexed
+      const month = selectedMonth.month() + 1; 
       
-      // Since we need data for all employees, we'll make multiple API calls
+      // Vì ta cần lấy tất cả dữ liệu, nên sẽ gọi nhiều API
       const allAttendanceData = [];
       
-      // Filter employees by department if needed
+      // Lọc nhân viên theo phòng ban nếu có
       const employeesToProcess = departmentFilter === 'all' 
         ? employees 
         : employees.filter(emp => emp.department === departmentFilter);
       
-      // Show progress message
+      // Thông báo tiến độ
       setSuccessMessage(`Đang tải dữ liệu điểm danh cho ${employeesToProcess.length} nhân viên...`);
       
       for (const employee of employeesToProcess) {
@@ -103,11 +102,11 @@ export default function SalaryCalculationTab() {
           
           if (response.data && (response.data.success || Array.isArray(response.data))) {
             const records = response.data.records || response.data || [];
-            // Add employee info to each record
+          // Thêm thông tin nhân viên vào mỗi bản ghi
             const processedRecords = records.map(record => ({
               ...record,
               employee_name: employee.name,
-              employee_id: employeeId,  // MongoDB ID
+              employee_id: employeeId,  
               custom_employee_id: employee.employee_id || employee.custom_employee_id || 'N/A', // Mã nhân viên theo phòng ban
               department: employee.department || 'Không xác định'
             }));
@@ -132,7 +131,7 @@ export default function SalaryCalculationTab() {
     }
   };
 
-  // Parse time string (HH:MM:SS) to minutes
+  // Chuyển đổi chuỗi thời gian (hh:mm:ss) thành số phút
   const parseTime = (timeStr) => {
     if (!timeStr || timeStr === '0:00:00') {
       return 0;
@@ -151,7 +150,7 @@ export default function SalaryCalculationTab() {
     }
   };
 
-  // Calculate standard work hours based on work hour settings
+  // Tính toán giờ làm việc tiêu chuẩn
   const calculateStandardWorkHours = () => {
     try {
       const startTime = workHourStart.split(':').map(Number);
@@ -160,22 +159,22 @@ export default function SalaryCalculationTab() {
       const startMinutes = startTime[0] * 60 + startTime[1];
       const endMinutes = endTime[0] * 60 + endTime[1];
       
-      // Calculate difference in minutes, then convert to hours
+      // Tính toán khác biệt thời gian theo phút, sau đó chuyển đổi thành giờ
       const workMinutes = endMinutes - startMinutes;
       return workMinutes / 60;
     } catch (error) {
       console.error("Error calculating standard work hours:", error);
-      return 9; // Default to 9 hours if calculation fails
+      return 9; // Giá trị mặc định nếu có lỗi
     }
   };
 
-  // Calculate salary based on attendance data
+  // Tính toán lương cho nhân viên
   const calculateSalary = async () => {
     setCalculating(true);
     setError(null);
     
     try {
-      // Fetch fresh attendance data if not already loaded
+      // Tính toán lương cho nhân viên
       const data = attendanceData.length > 0 ? attendanceData : await fetchAttendanceData();
       
       if (data.length === 0) {
@@ -184,56 +183,57 @@ export default function SalaryCalculationTab() {
         return;
       }
       
-      // Object to store salary data by employee
+      // Lưu trữ lương theo nhân viên
       const salaryByEmployee = {};
       
-      // Object to store daily details by employee
+      // Lưu trữ chi tiết theo nhân viên
       const detailsByEmployee = {};
       
-      // Get standard work hours from settings
+      // Lấy giờ làm việc tiêu chuẩn từ settings
       const standardWorkHours = calculateStandardWorkHours();
       console.log(`Standard work hours: ${standardWorkHours}`);
       
-      // Process each attendance record
+      // Lặp qua từng bản ghi điểm danh
       data.forEach(record => {
         const employeeId = record.employee_id;
         const employeeName = record.employee_name;
         const department = record.department;
         
-        // Skip records without employee info
+        // Bỏ qua bản ghi nếu không có thông tin nhân viên
         if (!employeeId || !employeeName) return;
         
-        // Format date for display
+        // Định dạng thông tin ngày tháng để hiển thị
         const recordDate = new Date(record.datetime);
         const dateStr = recordDate.toLocaleDateString('vi-VN');
         
-        // Calculate work hours
+        // Tính toán thời gian đi muộn, về sớm và làm thêm
         const lateMinutes = parseTime(record.late_minutes);
         const earlyLeaveMinutes = parseTime(record.early_leave_minutes);
         const lateLeaveMinutes = parseTime(record.late_leave_minutes);
         
-        // Calculate work duration if check_out_time exists
+        // Tính toán giờ làm việc
+        // Nếu có thời gian checkout, tính toán dựa trên thời gian đó
         let workHours = 0;
         
         if (record.check_out_time) {
           const checkInTime = new Date(record.datetime);
           const checkOutTime = new Date(record.check_out_time);
           
-          // Calculate work duration in hours
+          // Tính toán thời gian làm việc dựa trên thời gian vào và ra
           const diffMs = checkOutTime - checkInTime;
           workHours = diffMs / (1000 * 60 * 60); // convert ms to hours
         } else {
-          // If no checkout, calculate based on the standard formula from Python code
+          // Nếu không có thời gian checkout, tính toán dựa trên thời gian vào
           workHours = standardWorkHours - (lateMinutes + earlyLeaveMinutes) / 60 + lateLeaveMinutes / 60;
         }
         
-        // Round to 2 decimal places
+        // Làm tròn giờ làm việc đến 2 chữ số thập phân
         workHours = Math.round(workHours * 100) / 100;
         
-        // Calculate daily salary
+        // Tính toán lương hàng ngày
         const dailySalary = workHours * hourlyRate;
         
-        // Initialize employee data if not exists
+        // Tạo đối tượng nhân viên nếu chưa tồn tại
         if (!salaryByEmployee[employeeId]) {
           salaryByEmployee[employeeId] = {
             id: employeeId,  
@@ -247,12 +247,12 @@ export default function SalaryCalculationTab() {
           detailsByEmployee[employeeId] = {};
         }
         
-        // Update totals
+        // Cập nhật thông tin lương cho nhân viên
         salaryByEmployee[employeeId].totalHours += workHours;
         salaryByEmployee[employeeId].totalSalary += dailySalary;
         salaryByEmployee[employeeId].daysWorked.add(dateStr);
         
-        // Store daily details
+        // Lưu trữ chi tiết lương hàng ngày
         detailsByEmployee[employeeId][dateStr] = {
           date: dateStr,
           checkIn: recordDate.toLocaleTimeString('vi-VN'),
@@ -265,7 +265,7 @@ export default function SalaryCalculationTab() {
         };
       });
       
-      // Convert to array for table
+      // Chuyển đổi đối tượng lương thành mảng
       const salaryDataArray = Object.values(salaryByEmployee).map(emp => ({
         ...emp,
         daysWorked: emp.daysWorked.size,
@@ -273,11 +273,11 @@ export default function SalaryCalculationTab() {
         totalSalary: Math.round(emp.totalSalary)
       }));
       
-      // Calculate grand total for all employees
+      // Tính tổng lương
       const grandTotal = salaryDataArray.reduce((sum, emp) => sum + emp.totalSalary, 0);
       setTotalSalary(grandTotal);
       
-      // Update state
+      // Cập nhật trạng thái
       setSalaryData(salaryDataArray);
       setDailyDetails(detailsByEmployee);
       
@@ -292,7 +292,7 @@ export default function SalaryCalculationTab() {
     }
   };
 
-  // Handle month change
+  // Xử lý thay đổi tháng
   const handleMonthChange = (newMonth) => {
     setSelectedMonth(newMonth);
     setAttendanceData([]);
@@ -300,7 +300,7 @@ export default function SalaryCalculationTab() {
     setDailyDetails({});
   };
 
-  // Handle hourly rate change
+  // Xử lý thay đổi đơn giá lương
   const handleHourlyRateChange = (event) => {
     const newRate = parseFloat(event.target.value);
     if (!isNaN(newRate) && newRate > 0) {
@@ -308,7 +308,7 @@ export default function SalaryCalculationTab() {
     }
   };
 
-  // Handle work hour change
+  // Xử lý thay đổi giờ làm việc
   const handleWorkHourChange = (type, value) => {
     if (type === 'start') {
       setWorkHourStart(value);
@@ -317,18 +317,18 @@ export default function SalaryCalculationTab() {
     }
   };
 
-  // Format currency
+  // Định dạng tiền tệ
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
   };
 
-  // Handle view employee details
+  // Xử lý thông tin chi tiết nhân viên
   const handleViewDetails = (employee) => {
     setSelectedEmployee(employee);
     setOpenDetailDialog(true);
   };
 
-  // Handle pagination
+  // Xử lý thay đổi trang
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -338,13 +338,13 @@ export default function SalaryCalculationTab() {
     setPage(0);
   };
 
-  // Export to Excel
+  // Xuất dữ liệu ra file Excel
   const exportToExcel = () => {
     try {
-      // Create workbook
+      // Tạo workbook
       const wb = XLSX.utils.book_new();
       
-      // Add summary worksheet
+      // Thêm thông tin bảng lương tổng hợp
       const summaryData = salaryData.map(employee => ({
         'Mã NV': employee.id,
         'Họ và tên': employee.name,
@@ -358,12 +358,12 @@ export default function SalaryCalculationTab() {
       const summaryWs = XLSX.utils.json_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summaryWs, 'Bảng Lương Tổng Hợp');
       
-      // Add grand total row
+      // Thêm tổng lương vào cuối bảng
       XLSX.utils.sheet_add_aoa(summaryWs, [
         ['Tổng cộng:', '', '', '', '', '', totalSalary]
       ], { origin: -1 });
       
-      // Add details worksheets for each employee
+      // Thêm thông tin chi tiết theo từng nhân viên
       salaryData.forEach(employee => {
         if (dailyDetails[employee.id]) {
           const details = Object.values(dailyDetails[employee.id]);
@@ -386,7 +386,7 @@ export default function SalaryCalculationTab() {
         }
       });
       
-      // Save to file
+      // Lưu vào file
       const monthYear = selectedMonth.format('MM-YYYY');
       const fileName = `Bang_Luong_${monthYear}.xlsx`;
       XLSX.writeFile(wb, fileName);
@@ -600,7 +600,7 @@ export default function SalaryCalculationTab() {
                       </TableRow>
                     ))}
                   
-                  {/* Summary row */}
+                  {/* Tổng kết */}
                   <TableRow sx={{ bgcolor: 'rgba(0, 0, 0, 0.04)' }}>
                     <TableCell colSpan={5} align="right">
                       <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
@@ -759,7 +759,7 @@ export default function SalaryCalculationTab() {
         </Paper>
       )}
       
-      {/* Employee detail dialog */}
+      {/* Thông tin nhân viên */}
       <Dialog
         open={openDetailDialog}
         onClose={() => setOpenDetailDialog(false)}
@@ -885,7 +885,7 @@ export default function SalaryCalculationTab() {
         </DialogActions>
       </Dialog>
       
-      {/* Settings dialog */}
+      {/* Cài đặt */}
       <Dialog
         open={openSettingsDialog}
         onClose={() => setOpenSettingsDialog(false)}
