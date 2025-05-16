@@ -21,6 +21,7 @@ urlpatterns = [
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('auth/me/', views.current_user, name='current-user'),
     path('auth/register/', views.register_user, name='register-user'),
+    path('auth/change-password/', views.change_password, name='change-password'),
     
     # 3. Utility endpoints - Đổi sang tiền tố /utils/ cho rõ ràng
     path('utils/test/', views.test_api, name='test-api'),

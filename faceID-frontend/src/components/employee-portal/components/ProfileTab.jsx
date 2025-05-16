@@ -18,7 +18,7 @@ import {
   VisibilityOff as VisibilityOffIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../../hooks/useAuth';
-import { employeeAPI } from '../../../api';
+import { employeeAPI, authAPI } from '../../../api';
 
 export default function ProfileTab({ userData, onProfileUpdate }) {
   const { currentUser, refreshUserData } = useAuth();
@@ -67,7 +67,7 @@ export default function ProfileTab({ userData, onProfileUpdate }) {
 
   const toggleEditing = () => {
     if (isEditing) {
-      // Reset form data when canceling edit
+      // Đăt lại formData về dữ liệu gốc khi hủy chỉnh sửa
       if (userData) {
         setFormData({
           name: userData.name || '',
@@ -89,7 +89,7 @@ export default function ProfileTab({ userData, onProfileUpdate }) {
     e.preventDefault();
     setError('');
 
-    // Validate passwords if provided
+    // Xác thực dữ liệu
     if (formData.password || formData.confirm_password) {
       if (formData.password !== formData.confirm_password) {
         setError('Mật khẩu không khớp');
@@ -104,30 +104,43 @@ export default function ProfileTab({ userData, onProfileUpdate }) {
     setLoading(true);
 
     try {
-      // Chuẩn bị data
+      // Chuẩn bị dữ liệu cập nhật (không bao gồm mật khẩu)
       const dataToSubmit = { ...formData };
-      if (!dataToSubmit.password) {
-        delete dataToSubmit.password;
-        delete dataToSubmit.confirm_password;
-      } else {
-        delete dataToSubmit.confirm_password;
-      }
-
-      console.log("Submitting data:", dataToSubmit);
+      delete dataToSubmit.password;
+      delete dataToSubmit.confirm_password;
 
       // Đảm bảo luôn dùng _id (MongoDB ID)
       const userId = userData._id;
       if (!userId) {
         setError('Không thể xác định ID nhân viên để cập nhật');
+        setLoading(false);
         return;
       }
 
-      console.log("To user ID:", userId);
-
-      // Gọi API cập nhật thông tin
+      // Gọi API cập nhật thông tin cá nhân
       const response = await employeeAPI.update(userId, dataToSubmit);
-      console.log("Update API response:", response.data);
-      
+
+      // Nếu có nhập mật khẩu, gọi API đổi mật khẩu riêng
+      if (formData.password) {
+        try {
+          await authAPI.changePassword({
+            employee_id: userId,
+            password: formData.password
+          });
+        } catch (passwordErr) {
+          console.error("Password change error:", passwordErr);
+          setError('Cập nhật thông tin thành công, nhưng không thể đổi mật khẩu: ' + 
+            (passwordErr.response?.data?.message || passwordErr.message));
+          setLoading(false);
+          
+          // Hiển thị thông báo lỗi nhưng vẫn tiếp tục xử lý
+          setShowSnackbar(true);
+          setSnackbarMessage('Cập nhật thông tin thành công, nhưng không thể đổi mật khẩu');
+          setSnackbarSeverity('warning');
+          return;
+        }
+      }
+
       // Hiển thị thông báo thành công
       setShowSnackbar(true);
       setSnackbarMessage('Cập nhật thông tin thành công');

@@ -48,11 +48,10 @@ export default function AttendanceHistoryTab({ employeeId }) {
     setError(null);
     
     try {
-      // Get the year and month from selectedMonth
+      // Lấy tháng và năm từ selectedMonth
       const year = selectedMonth.year();
-      const month = selectedMonth.month() + 1; // dayjs months are 0-indexed
-      
-      // Sử dụng API endpoint mới
+      const month = selectedMonth.month() + 1; 
+
       const response = await attendanceAPI.getByEmployeeId(employeeId, { year, month });
       
       if (response.data && (response.data.success || Array.isArray(response.data))) {
@@ -80,7 +79,6 @@ export default function AttendanceHistoryTab({ employeeId }) {
       const year = selectedMonth.year();
       const month = selectedMonth.month() + 1;
       
-      // Sử dụng API endpoint mới
       const response = await attendanceAPI.getMonthlySummary(employeeId, year, month);
       
       if (response.data && response.data.success) {
@@ -232,11 +230,6 @@ export default function AttendanceHistoryTab({ employeeId }) {
             Lọc
           </Button>
         </Box>
-        
-        <ButtonGroup variant="outlined" size="medium">
-          <Button startIcon={<PdfIcon />}>PDF</Button>
-          <Button startIcon={<PrintIcon />}>In</Button>
-        </ButtonGroup>
       </Box>
     );
   };

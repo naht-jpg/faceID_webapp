@@ -257,6 +257,57 @@ def register_user(request):
             'detail': 'Lỗi khi đăng ký người dùng'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    """API endpoint để thay đổi mật khẩu người dùng"""
+    try:
+        employee_id = request.data.get('employee_id') 
+        password = request.data.get('password')
+        
+        if not employee_id or not password:
+            return Response({
+                'success': False, 
+                'message': 'Thiếu employee_id hoặc password'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Kết nối MongoDB để cập nhật mật khẩu
+        client = MongoClient(settings.MONGO_URI)
+        db = client[settings.MONGO_DB_NAME]
+        signin_collection = db['signin']
+        
+        # Tìm tài khoản theo employee_id
+        account = signin_collection.find_one({'employee_id': employee_id})
+        
+        if not account:
+            return Response({
+                'success': False,
+                'message': 'Không tìm thấy tài khoản liên kết với nhân viên này'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Mã hóa mật khẩu mới
+        password = password.encode('utf-8')
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password, salt)
+        
+        # Cập nhật mật khẩu mới
+        signin_collection.update_one(
+            {'_id': account['_id']},
+            {'$set': {'password': hashed_password}}
+        )
+        
+        return Response({
+            'success': True,
+            'message': 'Mật khẩu đã được cập nhật thành công'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error changing password: {str(e)}")
+        return Response({
+            'success': False,
+            'message': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):

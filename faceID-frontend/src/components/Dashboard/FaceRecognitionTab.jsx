@@ -20,18 +20,16 @@ import Autocomplete from '@mui/material/Autocomplete';
 import ReplayIcon from '@mui/icons-material/Replay';
 import InfoIcon from '@mui/icons-material/Info';
 import { faceAPI, employeeAPI } from '../../api';
+import { alpha } from '@mui/material/styles';
 
 export default function FaceRecognitionTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [recognitionResult, setRecognitionResult] = useState(null);
-  const [attendanceRecords, setAttendanceRecords] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [stream, setStream] = useState(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [currentTab, setCurrentTab] = useState(0);
-  
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [testMode, setTestMode] = useState(false);
@@ -41,15 +39,14 @@ export default function FaceRecognitionTab() {
 
   useEffect(() => {
     fetchEmployeesWithFaces();
-    
-    // Chỉ dọn dẹp khi component unmount
+  
     return () => {
       if (stream) {
         const tracks = stream.getTracks();
         tracks.forEach(track => track.stop());
       }
     };
-  }, []); // Thêm mảng rỗng ở đây - rất quan trọng!
+  }, []); 
 
   const fetchEmployeesWithFaces = async () => {
     try {
@@ -206,10 +203,6 @@ export default function FaceRecognitionTab() {
       if (response.data.success) {
         setRecognitionResult(response.data);
         setCurrentTab(1);
-        
-        if (response.data.employee_id) {
-          fetchAttendanceHistory(response.data.employee_id);
-        }
       } else {
         setRecognitionResult({ 
           success: false, 
@@ -283,10 +276,6 @@ export default function FaceRecognitionTab() {
           test_image_url: imageData // Dùng ảnh vừa chụp
         });
         setCurrentTab(1);
-        
-        if (response.data.employee_id) {
-          fetchAttendanceHistory(response.data.employee_id);
-        }
       } else {
         setRecognitionResult({
           success: false,
@@ -302,36 +291,6 @@ export default function FaceRecognitionTab() {
     }
   };
   
-  const fetchAttendanceHistory = async (employeeId) => {
-    try {
-      const response = await faceAPI.getAttendanceHistory(employeeId);
-      if (response.data && response.data.success && Array.isArray(response.data.history)) {
-        setAttendanceRecords(response.data.history);
-      } else if (Array.isArray(response.data)) {
-        setAttendanceRecords(response.data);
-      } else {
-        setAttendanceRecords([]);
-      }
-    } catch (error) {
-      console.error("Error fetching attendance records:", error);
-    }
-  };
-  
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-  
-  // const handleEmployeeChange = (event) => {
-  //   setSelectedEmployee(event.target.value);
-  // };
-  
-  const filteredAttendanceRecords = attendanceRecords.filter(record => {
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      (record.name?.toLowerCase() || "").includes(searchLower) ||
-      (record.timestamp?.toLowerCase() || "").includes(searchLower)
-    );
-  });
   
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -349,98 +308,129 @@ export default function FaceRecognitionTab() {
         aria-label="face recognition tabs"
         sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
       >
-        <Tab label="Camera" />
+        <Tab label="Nhận Diện" />
         <Tab label="Kết Quả" />
-        <Tab label="Lịch Sử" />
       </Tabs>
       
       {currentTab === 0 && (
         <Card sx={{ mb: 2 }}>
           <CardHeader 
-            title="Nhận diện khuôn mặt" 
-            subheader="Chụp ảnh khuôn mặt hoặc chọn nhân viên đã có ảnh để nhận diện và test"
+            title="Test nhận diện khuôn mặt" 
+            subheader="Chụp ảnh khuôn mặt hoặc chọn nhân viên đã có ảnh để test nhận diện"
           />
           <CardContent>
             <Box sx={{ 
               mb: 3, 
               p: 3, 
               borderRadius: 2,
-              background: 'linear-gradient(to right, #e8f5fe, #f0f7ff)',
+              background: theme => theme.palette.mode === 'dark' 
+                ? 'linear-gradient(to right, rgba(55, 65, 81, 0.7), rgba(17, 24, 39, 0.8))'
+                : 'linear-gradient(to right, #e8f5fe, #f0f7ff)',
               boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-              border: '1px solid #e1ebf7'
+              border: '1px solid',
+              borderColor: theme => theme.palette.divider
             }}>
-              <Typography variant="subtitle1" gutterBottom fontWeight="medium" sx={{ color: '#1976d2', mb: 2 }}>
+              <Typography variant="subtitle1" gutterBottom fontWeight="medium" 
+                sx={{ 
+                  color: theme => theme.palette.primary.main, 
+                  mb: 2 
+                }}
+              >
                 Test nhận diện với nhân viên đã có ảnh khuôn mặt
               </Typography>
               
               <Grid container spacing={2}>
                 <Grid item xs={12} md={8}>
-                  <Autocomplete
-                    id="employee-select"
-                    options={employees}
-                    getOptionLabel={(option) => option.name}
-                    value={employees.find(emp => emp._id === selectedEmployee) || null}
-                    onChange={(event, newValue) => {
-                      setSelectedEmployee(newValue ? newValue._id : '');
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Tìm và chọn nhân viên"
-                        variant="outlined"
-                        fullWidth
-                        InputProps={{
-                          ...params.InputProps,
-                          startAdornment: (
-                            <>
-                              <InputAdornment position="start">
-                                <PersonSearchIcon sx={{ color: '#1976d2' }} />
-                              </InputAdornment>
-                              {params.InputProps.startAdornment}
-                            </>
-                          )
-                        }}
-                        sx={{
-                          backgroundColor: 'white',
-                          borderRadius: 1,
-                          '& .MuiOutlinedInput-root': {
-                            '&:hover fieldset': {
-                              borderColor: '#1976d2',
-                            },
-                          },
-                          // Thêm màu chữ cho input
-                          '& .MuiOutlinedInput-input': {
-                            color: '#333333',  
-                          },
-                          // Đảm bảo label có màu phù hợp
-                          '& .MuiInputLabel-root': {
-                            color: '#666666', 
-                            '&.Mui-focused': {
-                              color: '#1976d2'
-                            }
-                          },
-                          // Đảm bảo placeholder có màu dễ nhìn
-                          '& .MuiInputBase-input::placeholder': {
-                            color: '#999999',
-                            opacity: 1
-                          }
-                        }}
-                      />
-                    )}
-                    ListboxProps={{
-                      sx: {
-                        '& .MuiAutocomplete-option': {
-                          color: 'white',  // Màu chữ cho các tùy chọn dropdown
-                          '&:hover': {
-                            backgroundColor: '#f0f7ff',
-                          },
-                          '&.Mui-focused': {
-                            backgroundColor: '#e3f2fd',
-                          }
+                  <Box sx={{
+                    '& .MuiAutocomplete-listbox': {
+                      backgroundColor: theme => theme.palette.background.paper,
+                      color: theme => theme.palette.text.primary,
+                      '& .MuiAutocomplete-option': {
+                        borderBottom: '1px solid',
+                        borderColor: theme => theme.palette.divider,
+                        '&:hover': {
+                          backgroundColor: theme => theme.palette.action.hover,
+                        },
+                        '&[aria-selected="true"]': {
+                          backgroundColor: theme => theme.palette.mode === 'dark'
+                            ? 'rgba(25, 118, 210, 0.2)'
+                            : 'rgba(25, 118, 210, 0.1)',
                         }
                       }
-                    }}
-                  />
+                    }
+                  }}>
+                    <Autocomplete
+                      id="employee-select"
+                      options={employees}
+                      getOptionLabel={(option) => option.name}
+                      value={employees.find(emp => emp._id === selectedEmployee) || null}
+                      onChange={(event, newValue) => {
+                        setSelectedEmployee(newValue ? newValue._id : '');
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Tìm và chọn nhân viên"
+                          variant="outlined"
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <InputAdornment position="start">
+                                  <PersonSearchIcon color="primary" />
+                                </InputAdornment>
+                                {params.InputProps.startAdornment}
+                              </>
+                            )
+                          }}
+                          sx={{
+                            borderRadius: 1,
+                            backgroundColor: theme => theme.palette.background.paper,
+                            '& .MuiOutlinedInput-root': {
+                              '&:hover fieldset': {
+                                borderColor: 'primary.main',
+                              },
+                            },
+                            '& .MuiOutlinedInput-input': {
+                              color: 'text.primary',
+                            },
+                            '& .MuiInputLabel-root': {
+                              color: 'text.secondary',
+                              '&.Mui-focused': {
+                                color: 'primary.main'
+                              }
+                            },
+                            '& .MuiInputBase-input::placeholder': {
+                              color: 'text.secondary',
+                              opacity: 0.7
+                            }
+                          }}
+                        />
+                      )}
+                      ListboxProps={{
+                        sx: {
+                          backgroundColor: 'background.paper',
+                          '& .MuiAutocomplete-option': {
+                            color: 'text.primary',
+                            '&:hover': {
+                              backgroundColor: 'action.hover',
+                            },
+                            '&.Mui-focused': {
+                              backgroundColor: theme => 
+                                theme.palette.mode === 'dark' 
+                                  ? alpha(theme.palette.primary.main, 0.2)
+                                  : theme.palette.primary.light,
+                              color: theme => 
+                                theme.palette.mode === 'dark'
+                                  ? theme.palette.primary.light
+                                  : theme.palette.primary.contrastText,
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  </Box>
                 </Grid>
 
                 <Grid item xs={12} md={4}>
@@ -515,8 +505,12 @@ export default function FaceRecognitionTab() {
                         height: '100%', 
                         display: 'flex', 
                         alignItems: 'center',
-                        backgroundColor: '#e8f4fd',
-                        color: '#0277bd'
+                        backgroundColor: theme => theme.palette.mode === 'dark'
+                          ? 'rgba(7, 89, 133, 0.15)'
+                          : '#e8f4fd',
+                        color: theme => theme.palette.mode === 'dark'
+                          ? '#90caf9'
+                          : '#0277bd'
                       }}
                     >
                       Vui lòng chọn nhân viên để test nhận diện
@@ -529,11 +523,15 @@ export default function FaceRecognitionTab() {
                     <Card 
                       variant="outlined" 
                       sx={{ 
-                        backgroundColor: '#f8fafc',
-                        borderColor: '#e1ebf7',
+                        backgroundColor: theme => theme.palette.mode === 'dark' 
+                          ? 'rgba(30, 41, 59, 0.8)' 
+                          : '#f8fafc',
+                        borderColor: theme => theme.palette.divider,
                         transition: 'all 0.2s',
                         '&:hover': {
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+                          boxShadow: theme => theme.palette.mode === 'dark'
+                            ? '0 4px 12px rgba(0,0,0,0.3)'
+                            : '0 4px 12px rgba(0,0,0,0.08)'
                         }
                       }}
                     >
@@ -551,22 +549,32 @@ export default function FaceRecognitionTab() {
                                   height: 64, 
                                   mr: 2,
                                   boxShadow: '0 3px 6px rgba(0,0,0,0.1)',
-                                  border: '2px solid #fff',
-                                  bgcolor: employee.image_path ? 'transparent' : '#bbdefb'
+                                  border: '2px solid',
+                                  borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : '#fff',
+                                  bgcolor: employee.image_path ? 'transparent' : theme => theme.palette.mode === 'dark' ? '#1e4976' : '#bbdefb'
                                 }}
                               >
-                                {!employee.image_path && <PersonIcon fontSize="large" sx={{ color: '#1976d2' }} />}
+                                {!employee.image_path && <PersonIcon fontSize="large" sx={{ 
+                                  color: theme => theme.palette.mode === 'dark' ? '#90caf9' : '#1976d2' 
+                                }} />}
                               </Avatar>
                               <Box sx={{ flexGrow: 1 }}>
-                                <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 500 }}>{employee.name}</Typography>
+                                <Typography variant="h6" sx={{ 
+                                  color: theme => theme.palette.primary.main, 
+                                  fontWeight: 500 
+                                }}>
+                                  {employee.name}
+                                </Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
                                   <Chip 
                                     label={employee.job_position || 'Nhân viên'} 
                                     size="small" 
                                     sx={{ 
                                       mr: 1, 
-                                      backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                                      color: '#1976d2',
+                                      backgroundColor: theme => theme.palette.mode === 'dark'
+                                        ? 'rgba(25, 118, 210, 0.15)'
+                                        : 'rgba(25, 118, 210, 0.08)',
+                                      color: theme => theme.palette.primary.main,
                                       fontWeight: 500,
                                       height: 24
                                     }} 
@@ -589,7 +597,15 @@ export default function FaceRecognitionTab() {
             </Box>
 
             <Divider sx={{ my: 3 }}>
-              <Chip label="HOẶC" />
+              <Chip 
+                label="HOẶC" 
+                sx={{
+                  backgroundColor: theme => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                  color: 'text.secondary'
+                }}
+              />
             </Divider>
             
             <Typography variant="subtitle1" gutterBottom sx={{ mb: 2 }} fontWeight="medium">
@@ -609,7 +625,11 @@ export default function FaceRecognitionTab() {
                   color: 'white',
                   borderRadius: 2,
                   overflow: 'hidden',
-                  position: 'relative'
+                  position: 'relative',
+                  border: '1px solid',
+                  borderColor: theme => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.1)' 
+                    : 'rgba(0,0,0,0.1)'
                 }}
               >
                 <video 
@@ -754,7 +774,7 @@ export default function FaceRecognitionTab() {
                       <Card variant="outlined">
                         <CardContent>
                           <Typography variant="h6" gutterBottom>
-                            Thông tin {testMode ? "test" : "điểm danh"}
+                            Thông tin {testMode ? "test" : "nhận diện"}
                           </Typography>
                           <Alert 
                             icon={<CheckCircleIcon fontSize="inherit" />}
@@ -763,7 +783,7 @@ export default function FaceRecognitionTab() {
                           >
                             {testMode 
                               ? `Test nhận diện thành công cho nhân viên ${recognitionResult.name}`
-                              : `Điểm danh thành công lúc ${new Date(recognitionResult.timestamp).toLocaleTimeString()}`
+                              : `Nhận diện thành công khuôn mặt của ${recognitionResult.name}`
                             }
                           </Alert>
                           <List>
@@ -820,19 +840,21 @@ export default function FaceRecognitionTab() {
                       <Card variant="outlined">
                         <CardContent>
                           <Typography variant="h6" gutterBottom>
-                            Thông tin điểm danh
+                            Thông tin khuôn mặt
                           </Typography>
                           <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                             <Button 
-                              variant="contained" 
-                              color="primary" 
-                              onClick={() => setCurrentTab(2)}
-                            >
-                              Xem lịch sử điểm danh
-                            </Button>
-                            <Button 
                               variant="outlined" 
                               onClick={() => setCurrentTab(0)}
+                              startIcon={<CameraAltIcon />}
+                              sx={{
+                                color: theme => theme.palette.mode === 'dark' 
+                                  ? theme.palette.primary.light 
+                                  : theme.palette.primary.main,
+                                borderColor: theme => theme.palette.mode === 'dark' 
+                                  ? theme.palette.primary.light 
+                                  : theme.palette.primary.main,
+                              }}
                             >
                               Quay lại camera
                             </Button>
@@ -857,74 +879,6 @@ export default function FaceRecognitionTab() {
                   >
                     {recognitionResult.message || "Không nhận diện được khuôn mặt"}
                   </Alert>
-                )}
-
-                {recognitionResult.success && (
-                  <Box sx={{ mt: 3 }}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Thông tin chấm công
-                    </Typography>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} md={6}>
-                        <Paper variant="outlined" sx={{ p: 2 }}>
-                          <Typography variant="subtitle2" gutterBottom>
-                            Thời gian vào làm
-                          </Typography>
-                          <Grid container spacing={1}>
-                            <Grid item xs={6}>
-                              <Typography variant="body2" color="text.secondary">
-                                Đến sớm:
-                              </Typography>
-                              <Typography variant="body1" color="success.main">
-                                {recognitionResult.early_minutes !== '0:00:00' 
-                                  ? recognitionResult.early_minutes 
-                                  : '—'}
-                              </Typography>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <Typography variant="body2" color="text.secondary">
-                                Đi muộn:
-                              </Typography>
-                              <Typography variant="body1" color="error.main">
-                                {recognitionResult.late_minutes !== '0:00:00' 
-                                  ? recognitionResult.late_minutes 
-                                  : '—'}
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </Paper>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Paper variant="outlined" sx={{ p: 2 }}>
-                          <Typography variant="subtitle2" gutterBottom>
-                            Thời gian ra về
-                          </Typography>
-                          <Grid container spacing={1}>
-                            <Grid item xs={6}>
-                              <Typography variant="body2" color="text.secondary">
-                                Về sớm:
-                              </Typography>
-                              <Typography variant="body1" color="warning.main">
-                                {recognitionResult.early_leave_minutes !== '0:00:00' 
-                                  ? recognitionResult.early_leave_minutes 
-                                  : '—'}
-                              </Typography>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <Typography variant="body2" color="text.secondary">
-                                Về muộn:
-                              </Typography>
-                              <Typography variant="body1" color="info.main">
-                                {recognitionResult.late_leave_minutes !== '0:00:00' 
-                                  ? recognitionResult.late_leave_minutes 
-                                  : '—'}
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </Paper>
-                      </Grid>
-                    </Grid>
-                  </Box>
                 )}
 
                 {testMode && recognitionResult.success && (
@@ -962,97 +916,16 @@ export default function FaceRecognitionTab() {
                     maxWidth: '100%',
                     maxHeight: '300px',
                     borderRadius: 2,
-                    boxShadow: 1
+                    boxShadow: theme => theme.palette.mode === 'dark' 
+                      ? '0 4px 12px rgba(255,255,255,0.1)'
+                      : '0 4px 12px rgba(0,0,0,0.1)',
+                    border: '1px solid',
+                    borderColor: theme => theme.palette.mode === 'dark'
+                      ? 'rgba(255,255,255,0.1)'
+                      : 'rgba(0,0,0,0.1)'
                   }}
                 />
               </Box>
-            )}
-          </CardContent>
-        </Card>
-      )}
-      
-      {currentTab === 2 && (
-        <Card>
-          <CardHeader 
-            title="Lịch Sử Điểm Danh" 
-            subheader={recognitionResult?.name ? `Nhân viên: ${recognitionResult.name}` : "Tất cả nhân viên"}
-            action={
-              <TextField
-                placeholder="Tìm kiếm..."
-                variant="outlined"
-                size="small"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            }
-          />
-          <CardContent>
-            {attendanceRecords.length > 0 ? (
-              <TableContainer component={Paper} variant="outlined">
-                <Table sx={{ minWidth: 650 }} size="medium">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Thời gian</TableCell>
-                      <TableCell>Họ tên</TableCell>
-                      <TableCell>Trạng thái</TableCell>
-                      <TableCell>Chi tiết</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {filteredAttendanceRecords.map((record, index) => (
-                      <TableRow key={record._id || index}>
-                        <TableCell>{record.timestamp}</TableCell>
-                        <TableCell>{record.name}</TableCell>
-                        <TableCell>
-                          {record.late_minutes !== '0:00:00' ? (
-                            <Chip 
-                              icon={<AccessTimeIcon />} 
-                              label="Đi muộn" 
-                              color="error" 
-                              variant="outlined" 
-                              size="small"
-                            />
-                          ) : record.early_minutes !== '0:00:00' ? (
-                            <Chip 
-                              icon={<AccessTimeIcon />} 
-                              label="Đến sớm" 
-                              color="success" 
-                              variant="outlined" 
-                              size="small" 
-                            />
-                          ) : (
-                            <Chip 
-                              icon={<CheckCircleIcon />} 
-                              label="Đúng giờ" 
-                              color="primary" 
-                              variant="outlined" 
-                              size="small" 
-                            />
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="Chi tiết">
-                            <IconButton size="small">
-                              <PersonIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            ) : (
-              <Alert severity="info">
-                Không có dữ liệu điểm danh
-              </Alert>
             )}
           </CardContent>
         </Card>

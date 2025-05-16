@@ -103,6 +103,7 @@ export const authAPI = {
   register: (userData) => apiClient.post('/auth/register/', userData),
   refreshToken: (refreshToken) => apiClient.post('/auth/token/refresh/', { refresh: refreshToken }),
   getCurrentUser: () => apiClient.get('/auth/me/'),
+  changePassword: (data) => apiClient.post('/auth/change-password/', data),
 };
 
 // Employee API
