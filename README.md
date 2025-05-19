@@ -227,10 +227,9 @@ Khi cả hai server đang chạy:
 
 ## Người Đóng Góp
 
-- [Tên của bạn/Tổ chức của bạn]
-Trần Nguyễn Minh Khôi
-Trần Dương Yến Nhi
-Trần Minh Nhật
+- Trần Nguyễn Minh Khôi
+- Trần Dương Yến Nhi
+- Trần Minh Nhật
 ---
 
 Đối với câu hỏi hoặc hỗ trợ, vui lòng tạo issue trong kho lưu trữ dự án hoặc liên hệ với người bảo trì dự án.
