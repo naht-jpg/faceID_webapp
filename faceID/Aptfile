@@ -1,0 +1,10 @@
+build-essential
+cmake
+python3-dev
+libboost-python-dev
+libboost-thread-dev
+libboost-system-dev
+libglib2.0-0
+libsm6
+libxrender1
+libxext6
