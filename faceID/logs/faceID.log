@@ -9479,3 +9479,4 @@ INFO 2025-05-19 22:43:01,485 views Found 1 attendance records for employee 68278
 ERROR 2025-05-19 22:43:02,370 database Error saving attendance: 'KY -25052505002' is not a valid ObjectId, it must be a 12-byte input or a 24-character hex string
 INFO 2025-05-19 22:43:02,883 views Found 1 attendance records for employee 68278024079d35f187cc83a7
 INFO 2025-05-19 22:43:03,992 views Found 1 attendance records for employee 68278024079d35f187cc83a7
+INFO 2025-05-22 17:04:32,334 database MongoDB connection successful
