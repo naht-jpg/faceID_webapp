@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'https://awaited-easy-marten.ngrok-free.app/api';
 console.log('Connecting to API at:', API_URL);
 
 // Tạo axios instance với baseURL
