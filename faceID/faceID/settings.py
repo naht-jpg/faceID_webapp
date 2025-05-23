@@ -200,9 +200,8 @@ CORS_ALLOW_HEADERS = [
 #    "http://localhost:8000",
 # ]
 CORS_ALLOWED_ORIGINS = [
-    "https://faceidwebapp-mu.vercel.app",
     "https://awaited-easy-marten.ngrok-free.app",  # <-- thêm domain ngrok
-    "https://frontendfaceidwebapp.vercel.app",       # <- thêm dòng này
+    "https://nhom10faceidwebapp.vercel.app",       # <- thêm dòng này
 
  ]
 
@@ -254,9 +253,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://172.18.0.3:5173',
-    "https://faceidwebapp-mu.vercel.app",
     "https://awaited-easy-marten.ngrok-free.app",  # <-- thêm domain ngrok
-    "https://frontendfaceidwebapp.vercel.app",       # <- thêm dòng này
+    "https://nhom10faceidwebapp.vercel.app",       # <- thêm dòng này
 
     
 ]
