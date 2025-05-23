@@ -37,7 +37,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key-for-dev')
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*','backend','localhost','awaited-easy-marten.ngrok-free.app'] 
+ALLOWED_HOSTS = ['*','backend','localhost'] 
 
 # Application definition
 
@@ -186,13 +186,12 @@ CORS_ALLOW_HEADERS = [
     'if-modified-since',
     'if-none-match', 
 ]
-CORS_ALLOWED_ORIGINS = [
-    "https://faceidwebappnhom10-mkhoi2004s-projects.vercel.app",
-    "https://faceidwebappnhom10-git-main-mkhoi2004s-projects.vercel.app",
-    "https://faceidwebappnhom10.vercel.app",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173"
-]
+CORS_ALLOW_ALL_ORIGINS = True  
+# CORS_ALLOWED_ORIGINS = [
+#   "http://localhost:5173",
+#    "http://127.0.0.1:5173",
+#    "http://localhost:8000",
+# ]
 CORS_ALLOW_CREDENTIALS = True
 
 
@@ -238,11 +237,9 @@ LOGGING = {
     },
 }
 CSRF_TRUSTED_ORIGINS = [
-    "https://faceidwebappnhom10-mkhoi2004s-projects.vercel.app",
-    "https://faceidwebappnhom10-git-main-mkhoi2004s-projects.vercel.app",
-    "https://faceidwebappnhom10.vercel.app",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://172.18.0.3:5173'
 ]
 
 # Tạo thư mục logs nếu chưa tồn tại
