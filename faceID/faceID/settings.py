@@ -37,12 +37,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key-for-dev')
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-#ALLOWED_HOSTS = ['*','backend','localhost'] 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'awaited-easy-marten.ngrok-free.app',  # <-- domain ngrok cố định
-]
+ALLOWED_HOSTS = ['*','backend','localhost'] 
 
 # Application definition
 
@@ -68,8 +63,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "corsheaders.middleware.CorsMiddleware",  # Thêm dòng này lên đầu middleware
-
 ]
 
 ROOT_URLCONF = 'faceID.urls'
@@ -193,18 +186,12 @@ CORS_ALLOW_HEADERS = [
     'if-modified-since',
     'if-none-match', 
 ]
-#CORS_ALLOW_ALL_ORIGINS = True  
+CORS_ALLOW_ALL_ORIGINS = True  
 # CORS_ALLOWED_ORIGINS = [
 #   "http://localhost:5173",
 #    "http://127.0.0.1:5173",
 #    "http://localhost:8000",
 # ]
-CORS_ALLOWED_ORIGINS = [
-    "https://awaited-easy-marten.ngrok-free.app",  # <-- thêm domain ngrok
-    "https://nhom10faceidwebapp.vercel.app",       # <- thêm dòng này
-
- ]
-
 CORS_ALLOW_CREDENTIALS = True
 
 
@@ -252,11 +239,7 @@ LOGGING = {
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    'http://172.18.0.3:5173',
-    "https://awaited-easy-marten.ngrok-free.app",  # <-- thêm domain ngrok
-    "https://nhom10faceidwebapp.vercel.app",       # <- thêm dòng này
-
-    
+    'http://172.18.0.3:5173'
 ]
 
 # Tạo thư mục logs nếu chưa tồn tại
