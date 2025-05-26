@@ -167,7 +167,7 @@ def current_user(request):
                 'role': 'admin' if request.user.is_staff else 'employee'
             })
         
-        # Thêm code để tìm employee liên quan
+        # Code để tìm employee liên quan
         employee_data = None
         employee_id = user_data.get('employee_id')
         custom_employee_id = None

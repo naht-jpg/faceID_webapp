@@ -27,7 +27,7 @@ try:
     client.admin.command('ismaster')
     logger.info("MongoDB connection successful")
     
-    # Database và Collections - cập nhật theo cấu trúc mới
+    # Database và Collections 
     db = client[settings.MONGO_DB_NAME]
     dataset_collection = db['dataset']  # Collection lưu đường dẫn khuôn mặt
     employees_collection = db['employees']  # Collection lưu thông tin nhân viên

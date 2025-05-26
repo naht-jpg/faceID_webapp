@@ -14,7 +14,6 @@ class MongoDBAuthBackend(BaseBackend):
     Authenticate against the MongoDB 'signin' collection
     """
     def authenticate(self, request, username=None, password=None, **kwargs):
-        # Trong cấu trúc của bạn, username chính là name
         name = username
         
         if not name or not password:

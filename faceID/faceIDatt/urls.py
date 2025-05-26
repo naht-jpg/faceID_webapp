@@ -13,7 +13,7 @@ urlpatterns = [
     path('faces/test-recognize-with-image/', views.test_face_recognition_with_image, name='test-face-recognition-with-image'),
     path('faces/test-recognize/', views.test_face_recognition_api, name='test-face-recognition'),
     path('attendance/<str:employee_id>/', views.AttendanceAPIView.as_view(), name='attendance'),
-    path('users/', views.SigninListAPIView.as_view(), name='user-list'),  # Đổi tên từ signin sang users
+    path('users/', views.SigninListAPIView.as_view(), name='user-list'), 
     path('users/<str:pk>/', views.SigninDetailAPIView.as_view(), name='user-detail'),
     
     # 2. Authentication endpoints

@@ -16,7 +16,6 @@ from dotenv import load_dotenv
 # Tải biến môi trường từ file .env
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # MongoDB Connection Settings
@@ -34,13 +33,11 @@ MONGO_COLLECTIONS = {
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key-for-dev')
 
-
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*','backend','localhost'] 
 
-# Application definition
-
+# Định nghĩa ứng dụng
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -137,8 +134,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
 
 # REST Framework settings
 REST_FRAMEWORK = {
