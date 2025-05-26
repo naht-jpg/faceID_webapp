@@ -78,11 +78,10 @@ const FaceRecognition = ({ onRecognitionResult, autoCapture = false }) => {
     setError(null);
 
     try {
-      // Convert base64 image to blob
+      // Chuyển đổi ảnh base64 sang Blob
       const imageBlob = dataURItoBlob(image);
       
       // Sử dụng API endpoint để nhận diện khuôn mặt
-      // API này sẽ lưu kết quả vào testdata nếu nhận diện thành công
       const response = await faceAPI.recognize(imageBlob);
       
       // Xử lý kết quả
@@ -105,7 +104,7 @@ const FaceRecognition = ({ onRecognitionResult, autoCapture = false }) => {
     }
   };
 
-  // Chuyển đổi Data URI thành Blob
+  //  Hàm chuyển đổi Data URI thành Blob
   const dataURItoBlob = (dataURI) => {
     const byteString = atob(dataURI.split(',')[1]);
     const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
@@ -126,7 +125,7 @@ const FaceRecognition = ({ onRecognitionResult, autoCapture = false }) => {
     setCountdown(null);
   };
 
-  // Sửa phần Webcam component
+  // Webcam component
   const WebcamComponent = () => (
     <Webcam
       audio={false}
@@ -140,14 +139,13 @@ const FaceRecognition = ({ onRecognitionResult, autoCapture = false }) => {
         height: 'auto',
         borderRadius: '8px'
       }}
-      mirrored={true} // Thêm thuộc tính này để làm gương hình ảnh
+      mirrored={true} // Làm gương hình ảnh
     />
   );
 
-  // Thêm useEffect để đảm bảo dọn dẹp camera khi component unmount
+  // useEffect để đảm bảo dọn dẹp camera khi component unmount
   useEffect(() => {
     return () => {
-      // Cleanup webcam stream if exists when component unmounts
       if (webcamRef.current && webcamRef.current.stream) {
         const tracks = webcamRef.current.stream.getTracks();
         tracks.forEach(track => track.stop());

@@ -25,7 +25,7 @@ export default function FaceRegistration({ employee, onSuccess }) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, []); // Bỏ stream dependency để tránh gọi lại startCamera mỗi khi stream thay đổi
+  }, []); 
 
   const startCamera = async () => {
     setError(null);
@@ -163,10 +163,11 @@ export default function FaceRegistration({ employee, onSuccess }) {
       });
       
       alert(`Thông tin debug đã được ghi vào console.
-Employee ID: ${employee._id}
-Name: ${employee.name}
-Image type: base64
-Image size: khoảng ${Math.round(imageBase64.length / 1.37 / 1024)}KB`);
+              Employee ID: ${employee._id}
+              Name: ${employee.name}
+              Image type: base64
+              Image size: khoảng ${Math.round(imageBase64.length / 1.37 / 1024)}KB`
+           );
     } catch (err) {
       console.error("Debug error:", err);
     }
@@ -236,7 +237,7 @@ Image size: khoảng ${Math.round(imageBase64.length / 1.37 / 1024)}KB`);
                   />
                 </Box>
                 
-                {/* Hidden canvas for image capture */}
+                {/* Canvas ẩn để chụp ảnh */}
                 <canvas ref={canvasRef} style={{ display: 'none' }} />
                 
                 {loading && (

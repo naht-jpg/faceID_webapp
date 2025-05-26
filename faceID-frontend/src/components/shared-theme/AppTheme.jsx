@@ -20,13 +20,13 @@ function AppTheme(props) {
             colorSchemeSelector: 'data-mui-color-scheme',
             cssVarPrefix: 'template',
           },
-          breakpoints, // Thêm breakpoints mở rộng
+          breakpoints,
           colorSchemes, // Recently added in v6 for building light & dark mode app, see https://mui.com/material-ui/customization/palette/#color-schemes
           typography,
           shadows,
           shape,
           components: {
-            ...containerOverrides, // Thêm container mở rộng
+            ...containerOverrides, 
             ...inputsCustomizations,
             ...dataDisplayCustomizations,
             ...feedbackCustomizations,

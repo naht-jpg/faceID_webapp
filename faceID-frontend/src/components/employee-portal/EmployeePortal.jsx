@@ -629,7 +629,7 @@ export default function EmployeePortal() {
           
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Tooltip title={lastAttendance ? "Bạn đã điểm danh hôm nay" : "Điểm danh vào"}>
-              <span> {/* Wrapper span để Tooltip hoạt động với disabled Button */}
+              <span> {/* Wrapper span để Tooltip hoạt động với nút bị vô hiệu hóa */}
                 <Button
                   variant={showAttendance && !isCheckOut ? "contained" : "outlined"}
                   color="primary"
@@ -852,7 +852,7 @@ export default function EmployeePortal() {
           </Tabs>
         </Paper>
         
-        {/* Tab content */}
+        {/* Nội dung tab */}
         <Box sx={{ mt: 3, mb: 3 }}>
           {loading ? (
             <Box sx={{ 

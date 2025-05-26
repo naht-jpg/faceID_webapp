@@ -22,9 +22,10 @@ export default function WorkScheduleTab() {
   const [activeId, setActiveId] = useState(null);
   
   const [openDialog, setOpenDialog] = useState(false);
-  const [dialogMode, setDialogMode] = useState('add'); // 'add' or 'edit'
+  const [dialogMode, setDialogMode] = useState('add'); // 'add' hoặc 'edit'
   const [editingSchedule, setEditingSchedule] = useState(null);
   
+  // Các state cho form
   const [scheduleName, setScheduleName] = useState('');
   const [startHour, setStartHour] = useState(7);
   const [startMinute, setStartMinute] = useState(0);
@@ -35,7 +36,6 @@ export default function WorkScheduleTab() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
   
-  // Tải danh sách lịch làm việc khi component được mount
   useEffect(() => {
     fetchSchedules();
   }, []);
@@ -49,7 +49,7 @@ export default function WorkScheduleTab() {
       
       if (response.data && response.data.success) {
         setSchedules(response.data.schedules || []);
-        // Tìm lịch làm việc đang hoạt động
+        // Tìm lịch làm việc đang được kích hoạt
         const activeSchedule = response.data.schedules.find(s => s.is_active);
         if (activeSchedule) {
           setActiveId(activeSchedule._id);
@@ -130,7 +130,7 @@ export default function WorkScheduleTab() {
   };
   
   const handleSubmitForm = async () => {
-    // Xác thực dữ liệu
+    // Kiểm tra dữ liệu đầu vào
     if (!scheduleName.trim()) {
       setError('Tên lịch làm việc không được để trống');
       return;
@@ -208,7 +208,7 @@ export default function WorkScheduleTab() {
     }
   };
   
-  // Định dạng thời gian
+  // Định dạng thời gian hiển thị
   const formatTime = (hour, minute) => {
     return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
   };

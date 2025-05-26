@@ -107,7 +107,7 @@ export default function AttendanceHistoryTab({ employeeId }) {
     setSelectedMonth(newMonth);
   };
 
-  // Format date for display
+  // Định dạng ngày tháng để hiển thị
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     
@@ -125,7 +125,7 @@ export default function AttendanceHistoryTab({ employeeId }) {
     }
   };
 
-  // Get attendance status chip
+  // Lấy chip trạng thái dựa trên dữ liệu điểm danh
   const getStatusChip = (record) => {
     if (!record) return null;
     
@@ -138,7 +138,7 @@ export default function AttendanceHistoryTab({ employeeId }) {
     }
   };
 
-  // Render summary cards
+  // Tạo các thẻ thống kê tổng quan theo tháng
   const renderSummaryCards = () => {
     return (
       <Card sx={{ mb: 3 }} elevation={3}>
@@ -181,7 +181,7 @@ export default function AttendanceHistoryTab({ employeeId }) {
     );
   };
 
-  // Render filter controls
+  // Tạo các bộ lọc và tìm kiếm
   const renderFilters = () => {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>

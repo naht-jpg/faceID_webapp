@@ -218,7 +218,7 @@ export default function ProfileTab({ userData, onProfileUpdate }) {
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            {/* Left column - Personal info */}
+            {/* Cột bên trái - thông tin cá nhân */}
             <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
                 <Avatar
@@ -260,7 +260,7 @@ export default function ProfileTab({ userData, onProfileUpdate }) {
               </Box>
             </Grid>
 
-            {/* Right column - Editable fields */}
+            {/* Cột bên phải - các ô nhập dữ liệu */}
             <Grid item xs={12} md={8}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>

@@ -3,12 +3,12 @@ import { useEffect, useRef } from 'react';
 export function useInterval(callback, delay) {
   const savedCallback = useRef();
 
-  // Remember the latest callback
+  // Nhớ lại callback mới mỗi khi nó thay đổi
   useEffect(() => {
     savedCallback.current = callback;
   }, [callback]);
 
-  // Set up the interval
+  // Thiết lập interval
   useEffect(() => {
     function tick() {
       savedCallback.current();

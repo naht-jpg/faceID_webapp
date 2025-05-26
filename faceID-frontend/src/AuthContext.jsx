@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Function to refresh user data - tối ưu hóa
+  // Hàm để làm mới dữ liệu người dùng
   const refreshUserData = useCallback(async () => {
     const accessToken = localStorage.getItem('access_token');
     
@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
     try {
       setLoading(true);
       
-      // Get basic user data
+      // Lấy thông tin người dùng hiện tại
       const userResponse = await authAPI.getCurrentUser();
       
       if (userResponse.data) {
@@ -26,21 +26,20 @@ export function AuthProvider({ children }) {
         const employeeMongoId = userResponse.data.employee_id;
         const customEmployeeId = userResponse.data.custom_employee_id;
 
-        // If employee_id exists in user data
         if (employeeMongoId) {
           try {
-            // Get full employee data
+            // Lấy thông tin nhân viên từ employee_id
             const employeeResponse = await employeeAPI.getById(employeeMongoId);
             
             if (employeeResponse.data) {
-              // Also fetch attendance data
+              // Lấy thông tin điểm danh mới nhất hoặc hôm nay
               const attendanceResponse = await attendanceAPI.getLatestOrToday(employeeMongoId);
               const attendanceData = attendanceResponse.data && 
                 (attendanceResponse.data.data || 
                 (attendanceResponse.data.records && attendanceResponse.data.records.length > 0 ? 
                   attendanceResponse.data.records[0] : null));
               
-              // Merge all data
+              // Gộp dữ liệu người dùng và nhân viên
               const mergedData = {
                 ...userResponse.data,
                 ...employeeResponse.data,
@@ -48,7 +47,6 @@ export function AuthProvider({ children }) {
                 _id: employeeMongoId,
                 id: employeeMongoId,
                 role: userResponse.data.role || 'employee',
-                // Ensure custom employee ID is preserved
                 custom_employee_id: employeeResponse.data.employee_id || customEmployeeId,
                 lastAttendance: attendanceData || null
               };
@@ -72,7 +70,7 @@ export function AuthProvider({ children }) {
         // Fallback nếu không lấy được dữ liệu employee
         setCurrentUser({
           ...userResponse.data,
-          custom_employee_id: customEmployeeId // Ensure we keep the custom ID in the fallback
+          custom_employee_id: customEmployeeId 
         });
         setIsAdmin(userResponse.data.role === 'admin');
         return true;
@@ -86,7 +84,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Check if user is authenticated on app load
+  // Kiểm tra và xác thực người dùng khi mới vào ứng dụng
   useEffect(() => {
     const checkAuth = async () => {
       const accessToken = localStorage.getItem('access_token');
