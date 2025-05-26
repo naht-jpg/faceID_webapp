@@ -9910,3 +9910,9 @@ INFO 2025-05-27 00:34:05,507 views Found 0 attendance records for employee 67f56
 INFO 2025-05-27 00:34:05,546 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
 INFO 2025-05-27 00:34:05,606 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
 INFO 2025-05-27 00:34:05,646 views Found 0 attendance records for employee 67f565efaa5e06c258464fa8
+INFO 2025-05-27 02:21:40,007 database MongoDB connection successful
+INFO 2025-05-27 02:31:32,461 database MongoDB connection successful
+INFO 2025-05-27 02:35:21,842 database MongoDB connection successful
+INFO 2025-05-27 02:55:54,324 database MongoDB connection successful
+INFO 2025-05-27 02:57:59,783 database MongoDB connection successful
+INFO 2025-05-27 02:58:51,612 database MongoDB connection successful
