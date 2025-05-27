@@ -91,7 +91,7 @@ faceID_webapp/
    ```
 
 5. Cấu hình biến môi trường:
-   - Tạo tệp `.env` trong thư mục `faceID` với các cấu hình cần thiết
+   - Tạo tệp `.env` trong thư mục `faceID` vs faceID-frontend' với nội dung trong file env trên gg drive: https://drive.google.com/drive/u/2/folders/1Ze53jP8Ww0bwXyzPueO6d4AN7nMWkbct
    - Đảm bảo thiết lập kết nối database MongoDB:
      ```
      MONGO_URI=mongodb://username:password@localhost:27017
