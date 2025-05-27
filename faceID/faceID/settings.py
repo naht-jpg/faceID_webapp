@@ -187,8 +187,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://projectfaceidwebappnhom10.vercel.app",
     "https://projectfaceidwebappnhom10-mkhoi2004s-projects.vercel.app",
     "https://projectfaceidwebappnhom10-git-main-mkhoi2004s-projects.vercel.app",
-    
-#   "http://localhost:5173",
+    "http://localhost:5173",
 #    "http://127.0.0.1:5173",
 #    "http://localhost:8000",
 ]

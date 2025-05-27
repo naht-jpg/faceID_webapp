@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base API URL (from .env or fallback)
-const API_URL = import.meta.env.VITE_API_URL || 'https://awaited-easy-marten.ngrok-free.app/api';
+const API_URL = import.meta.env.VITE_API_URL;
 console.log('Connecting to API at:', API_URL);
 
 // Create axios instance with baseURL and default headers
